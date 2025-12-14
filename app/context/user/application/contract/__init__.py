@@ -1,0 +1,1 @@
+from .find_user_query_handler_contract import FindUserHandlerContract
