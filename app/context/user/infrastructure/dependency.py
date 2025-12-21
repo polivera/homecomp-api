@@ -1,15 +1,11 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.context.user.application.contract.find_user_query_handler_contract import (
-    FindUserHandlerContract,
-)
-from app.context.user.application.handler.find_user_handler import FindUserHandler
-from app.context.user.domain.contract.infrastrutcure import (
-    UserRepositoryContract,
-)
-from app.context.user.infrastructure.repository.user_repository import UserRepository
-from app.infrastructure.database import get_db
+from app.context.user.application.contracts import FindUserHandlerContract
+from app.context.user.application.handlers import FindUserHandler
+from app.context.user.domain.contracts.infrastrutcure import UserRepositoryContract
+from app.context.user.infrastructure.repositories import UserRepository
+from app.shared.infrastructure.database import get_db
 
 
 def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepositoryContract:

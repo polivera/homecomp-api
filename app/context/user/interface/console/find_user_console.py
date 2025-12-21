@@ -1,9 +1,9 @@
 import asyncio
 
-from app.context.user.application.query.find_user_query import FindUserQuery
-from app.context.user.infrastructure.repository.user_repository import UserRepository
-from app.context.user.application.handler.find_user_handler import FindUserHandler
-from app.infrastructure.database import AsyncSessionLocal
+from app.context.user.application.handlers import FindUserHandler
+from app.context.user.application.queries import FindUserQuery
+from app.context.user.infrastructure.repositories import UserRepository
+from app.shared.infrastructure.database import AsyncSessionLocal
 
 
 async def main():

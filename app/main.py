@@ -1,7 +1,9 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
-from .infrastructure.database import async_engine
-from .context.auth.interface.rest import auth_routes
+
+from fastapi import FastAPI
+
+from app.context.auth.interface.rest import auth_routes
+from app.shared.infrastructure.database import async_engine
 
 
 @asynccontextmanager

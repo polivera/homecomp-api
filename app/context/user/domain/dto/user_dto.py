@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from app.shared.domain.valueobject import Email
+
+from app.context.user.domain.value_objects import Email
 
 
 @dataclass(frozen=True)
