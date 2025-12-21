@@ -4,6 +4,5 @@ from typing import Optional
 
 @dataclass(frozen=True)
 class FindUserQuery:
-    id: Optional[int]
-    email: Optional[str]
-    password: Optional[str]
+    user_id: Optional[int] = None
+    email: Optional[str] = None

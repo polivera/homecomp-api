@@ -1,7 +1,5 @@
 import asyncio
 
-from pip._vendor.rich import print
-
 from app.context.auth.domain.contracts import (
     LoginAttemptsServiceContract,
     SessionRepositoryContract,
@@ -33,7 +31,9 @@ class LoginAttemptsService(LoginAttemptsServiceContract):
 
             # Calculate throttle time and delay the response
             throttle_time = ThrottleTime.fromAttempts(new_attempts)
-            print(f"Failed attempt {new_attempts.value}. Delaying response by {throttle_time.value}s")
+            print(
+                f"Failed attempt {new_attempts.value}. Delaying response by {throttle_time.value}s"
+            )
 
             # Sleep to delay the response (throttle)
             await asyncio.sleep(throttle_time.value)

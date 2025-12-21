@@ -13,7 +13,7 @@ async def main():
         handler = FindUserHandler(user_repo)
 
         # Example 1: Find by email
-        query = FindUserQuery(id=None, email="test@example.com", password=None)
+        query = FindUserQuery(user_id=None, email="test@example.com")
         result = await handler.handle(query)
         print(f"Result: {result}")
 

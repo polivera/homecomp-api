@@ -14,5 +14,5 @@ async def login(
 ):
     """User login endpoint"""
     return await handler.handle(
-        LoginCommand(email=request.email, password=request.password)
+        LoginCommand(email=str(request.email), password=request.password)
     )

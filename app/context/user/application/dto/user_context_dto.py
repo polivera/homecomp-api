@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 
+
 @dataclass(frozen=True)
 class UserContextDTO:
-    id: int
+    user_id: int
     email: str
+    password: str
