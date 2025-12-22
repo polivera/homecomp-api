@@ -24,16 +24,19 @@ from app.context.user.infrastructure.dependency import (
 from app.shared.infrastructure.database import get_db
 
 
-def get_login_service(
-    userQueryHandler=Depends(get_find_user_query_handler),
-) -> LoginServiceContract:
-    return LoginService(userQueryHandler)
-
-
 def get_session_repository(
     db: AsyncSession = Depends(get_db),
 ) -> SessionRepositoryContract:
     return SessionRepository(db)
+
+
+def get_login_service(
+    session_repo: SessionRepositoryContract = Depends(get_session_repository),
+) -> LoginServiceContract:
+    """
+    LoginService dependency injection
+    """
+    return LoginService(session_repo)
 
 
 def get_session_handler(
@@ -44,9 +47,9 @@ def get_session_handler(
 
 def get_login_handler(
     user_query_handler: FindUserHandlerContract = Depends(get_find_user_query_handler),
-    get_session_query_handler: GetSessionHandlerContract = Depends(get_session_handler),
+    login_service: LoginServiceContract = Depends(get_login_service),
 ) -> LoginHandlerContract:
     """
-    Login handler dependency
+    LoginHandler dependency injection
     """
-    return LoginHandler(user_query_handler, get_session_query_handler)
+    return LoginHandler(user_query_handler, login_service)

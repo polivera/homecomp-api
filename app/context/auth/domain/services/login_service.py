@@ -1,22 +1,36 @@
-from app.context.auth.domain.contracts import LoginServiceContract
-from app.context.auth.domain.value_objects import AuthEmail, AuthPassword
-from app.context.user.application.contracts import FindUserHandlerContract
-from app.context.user.application.queries import FindUserQuery
+from app.context.auth.domain.contracts import (
+    LoginServiceContract,
+    SessionRepositoryContract,
+)
+from app.context.auth.domain.dto import AuthUserDTO
+from app.context.auth.domain.value_objects import AuthPassword
 
 
 class LoginService(LoginServiceContract):
-    def __init__(self, user_service: FindUserHandlerContract):
-        self._user_service = user_service
+    _session_repo: SessionRepositoryContract
 
-    async def handle(self, email: AuthEmail, plain_password: AuthPassword):
-        user = await self._user_service.handle(FindUserQuery(email=email.value))
+    def __init__(self, session_repo: SessionRepositoryContract):
+        self._session_repo = session_repo
 
-        if user is not None and AuthPassword.from_hash(user.password).verify(
-            plain_password.value
-        ):
-            print("login success")
+    async def handle(self, user_password: AuthPassword, db_user: AuthUserDTO):
+        session = await self._session_repo.getSession(user_id=db_user.user_id)
 
-        else:
-            print("User does not exist")
+        if session is None:
+            # create session, remove the return
+            return
+
+        if session.blocked_until is not None and not session.blocked_until.isOver():
+            # return you can't log in
+            # clear session (don't save yet)
+            return
+
+        if not db_user.password.verify(user_password.value):
+            # update session attempt or add blocked_until if the attempts pass thet threshold
+            # Invalid username or password
+            return
+
+        # Create token
+        # reset session failed attempts and store the token
+        # Return Token
 
         pass
