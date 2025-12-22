@@ -1,9 +1,9 @@
-from abc import ABC
+from abc import ABC, abstractmethod
 
-from app.context.user.domain.value_objects import Email, Password
+from app.context.auth.domain.value_objects import AuthEmail, AuthPassword
 
 
 class LoginServiceContract(ABC):
-    # TODO: create return dto
-    async def handle(self, email: Email, plain_password: Password):
+    @abstractmethod
+    async def handle(self, email: AuthEmail, plain_password: AuthPassword):
         pass
