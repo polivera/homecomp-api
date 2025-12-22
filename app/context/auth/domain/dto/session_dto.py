@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from datetime import datetime
 from typing import Optional
 
 from app.context.auth.domain.value_objects import (
@@ -7,6 +6,7 @@ from app.context.auth.domain.value_objects import (
     FailedLoginAttempts,
     SessionToken,
 )
+from app.context.auth.domain.value_objects.blocked_time import BlockedTime
 
 
 @dataclass(frozen=True)
@@ -14,4 +14,4 @@ class SessionDTO:
     user_id: AuthUserID
     token: Optional[SessionToken]
     failed_attempts: FailedLoginAttempts
-    blocked_until: Optional[datetime]
+    blocked_until: Optional[BlockedTime]

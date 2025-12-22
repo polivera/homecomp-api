@@ -7,6 +7,7 @@ from app.context.auth.domain.value_objects import (
     FailedLoginAttempts,
     SessionToken,
 )
+from app.context.auth.domain.value_objects.blocked_time import BlockedTime
 from app.context.auth.infrastructure.models import SessionModel
 
 
@@ -21,7 +22,9 @@ class SessionMapper:
             user_id=AuthUserID(model.user_id),
             token=SessionToken.from_string(model.token) if model.token else None,
             failed_attempts=FailedLoginAttempts(model.failed_attempts),
-            blocked_until=model.blocked_until,
+            blocked_until=BlockedTime(model.blocked_until)
+            if model.blocked_until is not None
+            else None,
         )
 
     @staticmethod

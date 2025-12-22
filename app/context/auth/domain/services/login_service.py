@@ -5,8 +5,6 @@ from app.context.user.application.queries import FindUserQuery
 
 
 class LoginService(LoginServiceContract):
-    _user_service: FindUserHandlerContract
-
     def __init__(self, user_service: FindUserHandlerContract):
         self._user_service = user_service
 
