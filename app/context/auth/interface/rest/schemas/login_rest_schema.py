@@ -11,4 +11,4 @@ class LoginRequest(BaseModel):
 
 @dataclass(frozen=True)
 class LoginResponse:
-    email: str
+    token: str

@@ -17,11 +17,6 @@ async def main():
         result = await handler.handle(query)
         print(f"Result: {result}")
 
-        # Example 2: Find by id
-        # query = FindUserQuery(id=1, email=None, password=None)
-        # result = await handler.handle(query)
-        # print(f"Result: {result}")
-
 
 if __name__ == "__main__":
     asyncio.run(main())

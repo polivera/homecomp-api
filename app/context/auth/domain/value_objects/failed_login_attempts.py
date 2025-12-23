@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+from typing import Self
 
 
 @dataclass(frozen=True)
@@ -16,3 +17,7 @@ class FailedLoginAttempts:
             if self.value < len(self._wait_attempts)
             else 4
         )
+
+    @classmethod
+    def reset(cls) -> Self:
+        return cls(0)

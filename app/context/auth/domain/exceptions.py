@@ -1,5 +1,7 @@
 """Domain exceptions for Auth context."""
 
+from datetime import datetime
+
 
 class AuthDomainException(Exception):
     """Base exception for Auth domain errors."""
@@ -16,6 +18,6 @@ class InvalidCredentialsException(AuthDomainException):
 class AccountBlockedException(AuthDomainException):
     """Raised when account is temporarily blocked due to failed login attempts."""
 
-    def __init__(self, blocked_until: str):
+    def __init__(self, blocked_until: datetime):
         self.blocked_until = blocked_until
-        super().__init__(f"Account is blocked until {blocked_until}")
+        super().__init__(f"Account is blocked until {blocked_until.isoformat()}")

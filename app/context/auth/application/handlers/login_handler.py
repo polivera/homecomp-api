@@ -1,10 +1,11 @@
-from typing import Optional
-
 from app.context.auth.application.commands import LoginCommand
 from app.context.auth.application.contracts import (
     LoginHandlerContract,
 )
-from app.context.auth.application.dto import LoginHandlerResultDTO
+from app.context.auth.application.dto import (
+    LoginHandlerResultDTO,
+    LoginHandlerResultStatus,
+)
 from app.context.auth.domain.contracts import LoginServiceContract
 from app.context.auth.domain.dto import AuthUserDTO
 from app.context.auth.domain.exceptions import (
@@ -27,14 +28,16 @@ class LoginHandler(LoginHandlerContract):
         self._login_service = login_service
         pass
 
-    async def handle(self, command: LoginCommand) -> Optional[LoginHandlerResultDTO]:
+    async def handle(self, command: LoginCommand) -> LoginHandlerResultDTO:
         user = await self._user_handler.handle(FindUserQuery(email=command.email))
         if user is None:
-            # Error invalid login attempt
-            return
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.INVALID_CREDENTIALS,
+                error_msg="Invalid username or password",
+            )
 
         try:
-            res = await self._login_service.handle(
+            user_token = await self._login_service.handle(
                 user_password=AuthPassword(command.password),
                 db_user=AuthUserDTO(
                     user_id=AuthUserID(user.user_id),
@@ -43,18 +46,24 @@ class LoginHandler(LoginHandlerContract):
                 ),
             )
 
-            print(res)
-        except AccountBlockedException:
-            print("------------------------")
-            print("Account is blocked")
-            print("------------------------")
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.SUCCESS,
+                token=user_token.value,
+                user_id=user.user_id,
+            )
+        except AccountBlockedException as abe:
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.ACCOUNT_BLOCKED,
+                retry_after=abe.blocked_until,
+                error_msg="Account is blocked, try again later",
+            )
         except InvalidCredentialsException:
-            print("------------------------")
-            print("Invalid username or password")
-            print("------------------------")
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.INVALID_CREDENTIALS,
+                error_msg="Invalid username or password",
+            )
         except Exception:
-            print("------------------------")
-            print("Unhandled exception")
-            print("------------------------")
-
-        print("---end---")
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.UNEXPECTED_ERROR,
+                error_msg="Unexpected error",
+            )

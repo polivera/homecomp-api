@@ -1,5 +1,4 @@
 import asyncio
-from datetime import datetime, timedelta
 
 from app.context.auth.domain.contracts import (
     LoginServiceContract,
@@ -42,7 +41,7 @@ class LoginService(LoginServiceContract):
 
         if session.blocked_until is not None and not session.blocked_until.isOver():
             # Account is blocked
-            raise AccountBlockedException(session.blocked_until.toString())
+            raise AccountBlockedException(session.blocked_until.value)
 
         if not db_user.password.verify(user_password.value):
             # Increment failed attempts
@@ -51,7 +50,7 @@ class LoginService(LoginServiceContract):
             # Block account if max attempts reached
             blocked_until = None
             if new_attempts.hasReachMaxAttempts():
-                blocked_until = BlockedTime(datetime.now() + timedelta(minutes=15))
+                blocked_until = BlockedTime.setBlocked()
 
             await self._session_repo.updateSession(
                 SessionDTO(
@@ -74,7 +73,7 @@ class LoginService(LoginServiceContract):
             SessionDTO(
                 user_id=db_user.user_id,
                 token=new_token,
-                failed_attempts=FailedLoginAttempts(0),
+                failed_attempts=FailedLoginAttempts.reset(),
                 blocked_until=None,
             )
         )

@@ -1,3 +1,3 @@
-from .login_rest_schema import LoginRequest
+from .login_rest_schema import LoginRequest, LoginResponse
 
-__all__ = ["LoginRequest"]
+__all__ = ["LoginRequest", "LoginResponse"]
