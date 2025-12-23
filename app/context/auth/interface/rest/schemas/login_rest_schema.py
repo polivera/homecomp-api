@@ -1,5 +1,6 @@
 from dataclasses import dataclass
-from pydantic import BaseModel, EmailStr, ConfigDict
+
+from pydantic import BaseModel, ConfigDict, EmailStr
 
 
 class LoginRequest(BaseModel):
@@ -11,4 +12,4 @@ class LoginRequest(BaseModel):
 
 @dataclass(frozen=True)
 class LoginResponse:
-    token: str
+    message: str

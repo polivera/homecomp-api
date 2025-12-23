@@ -14,7 +14,7 @@ DATABASE_URL = getenv(
     f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
 )
 
-echo_queries = getenv("APP_ENV", "prod") == "dev"
+echo_queries = getenv("APP_ENV", "prod") == "debug"
 
 async_engine = create_async_engine(
     DATABASE_URL,

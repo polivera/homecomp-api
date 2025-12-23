@@ -1,3 +1,5 @@
+from os import getenv
+
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app.context.auth.application.commands import LoginCommand
@@ -23,15 +25,29 @@ async def login(
     if login_result.status == LoginHandlerResultStatus.SUCCESS:
         if login_result.token is None:
             raise HTTPException(status_code=500, detail="Token generation failed")
-        return LoginResponse(token=login_result.token)
+
+        # Set JWT token as HTTP-only secure cookie
+        response.set_cookie(
+            key="access_token",
+            value=login_result.token,
+            httponly=True,  # Prevents JavaScript access (XSS protection)
+            secure=(getenv("APP_ENV", "dev") == "prod"),  # Only send over HTTPS
+            samesite="lax",  # CSRF protection
+            max_age=3600,  # 1 hour expiration (adjust as needed)
+        )
+
+        return LoginResponse(message="Login successful")
 
     if login_result.status == LoginHandlerResultStatus.INVALID_CREDENTIALS:
         raise HTTPException(status_code=401, detail=login_result.error_msg)
 
     if login_result.status == LoginHandlerResultStatus.ACCOUNT_BLOCKED:
+        headers = {}
         if login_result.retry_after:
-            response.headers["Retry-After"] = login_result.retry_after.isoformat()
-        raise HTTPException(status_code=429, detail=login_result.error_msg)
+            headers["Retry-After"] = login_result.retry_after.isoformat()
+        raise HTTPException(
+            status_code=429, detail=login_result.error_msg, headers=headers
+        )
 
     # UNEXPECTED_ERROR or any other status
     raise HTTPException(status_code=500, detail=login_result.error_msg)
