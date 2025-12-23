@@ -1,6 +1,6 @@
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.context.auth.domain.contracts import SessionRepositoryContract
@@ -27,3 +27,40 @@ class SessionRepository(SessionRepositoryContract):
 
         res = await self._db.execute(stmt)
         return SessionMapper.toDTO(res.scalar_one_or_none())
+
+    async def createSession(self, session: SessionDTO) -> SessionDTO:
+        session_model = SessionModel(
+            user_id=session.user_id.value,
+            token=session.token.value if session.token is not None else None,
+            failed_attempts=session.failed_attempts.value,
+            blocked_until=session.blocked_until.value
+            if session.blocked_until is not None
+            else None,
+        )
+
+        self._db.add(session_model)
+        await self._db.commit()
+        await self._db.refresh(session_model)
+        dto = SessionMapper.toDTO(session_model)
+        if dto is None:
+            # TODO: Valid exception
+            raise Exception("send a valid exception here")
+
+        return dto
+
+    async def updateSession(self, session: SessionDTO) -> SessionDTO:
+        stmt = (
+            update(SessionModel)
+            .where(SessionModel.user_id == session.user_id.value)
+            .values(
+                token=session.token.value if session.token is not None else None,
+                failed_attempts=session.failed_attempts.value,
+                blocked_until=session.blocked_until.value
+                if session.blocked_until is not None
+                else None,
+            )
+        )
+        await self._db.execute(stmt)
+        await self._db.commit()
+
+        return session

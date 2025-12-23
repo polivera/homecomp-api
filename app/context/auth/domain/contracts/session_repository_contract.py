@@ -14,3 +14,13 @@ class SessionRepositoryContract(ABC):
         self, user_id: Optional[AuthUserID] = None, token: Optional[SessionToken] = None
     ) -> Optional[SessionDTO]:
         pass
+
+    @abstractmethod
+    async def createSession(self, session: SessionDTO) -> SessionDTO:
+        """Create a new session."""
+        pass
+
+    @abstractmethod
+    async def updateSession(self, session: SessionDTO) -> SessionDTO:
+        """Update an existing session."""
+        pass

@@ -7,6 +7,10 @@ from app.context.auth.application.contracts import (
 from app.context.auth.application.dto import LoginHandlerResultDTO
 from app.context.auth.domain.contracts import LoginServiceContract
 from app.context.auth.domain.dto import AuthUserDTO
+from app.context.auth.domain.exceptions import (
+    AccountBlockedException,
+    InvalidCredentialsException,
+)
 from app.context.auth.domain.value_objects import AuthEmail, AuthPassword, AuthUserID
 from app.context.user.application.contracts import FindUserHandlerContract
 from app.context.user.application.queries import FindUserQuery
@@ -29,15 +33,28 @@ class LoginHandler(LoginHandlerContract):
             # Error invalid login attempt
             return
 
-        res = await self._login_service.handle(
-            user_password=AuthPassword(command.password),
-            db_user=AuthUserDTO(
-                user_id=AuthUserID(user.user_id),
-                email=AuthEmail(user.email),
-                password=AuthPassword.from_hash(user.password),
-            ),
-        )
+        try:
+            res = await self._login_service.handle(
+                user_password=AuthPassword(command.password),
+                db_user=AuthUserDTO(
+                    user_id=AuthUserID(user.user_id),
+                    email=AuthEmail(user.email),
+                    password=AuthPassword.from_hash(user.password),
+                ),
+            )
 
-        print(res)
+            print(res)
+        except AccountBlockedException:
+            print("------------------------")
+            print("Account is blocked")
+            print("------------------------")
+        except InvalidCredentialsException:
+            print("------------------------")
+            print("Invalid username or password")
+            print("------------------------")
+        except Exception:
+            print("------------------------")
+            print("Unhandled exception")
+            print("------------------------")
 
         print("---end---")

@@ -10,4 +10,6 @@ class BlockedTime:
         return self.value.isoformat()
 
     def isOver(self) -> bool:
-        return self.value > datetime.now()
+        print(self.value.isoformat())
+        print(datetime.now().isoformat())
+        return self.value < datetime.now()
