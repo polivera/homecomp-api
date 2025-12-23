@@ -4,7 +4,7 @@ import pytest
 
 from app.context.auth.application.dto.get_session_result_dto import GetSessionResultDTO
 from app.context.auth.application.handlers.get_session_handler import GetSessionHandler
-from app.context.auth.application.query.get_session_query import GetSessionQuery
+from app.context.auth.application.queries import GetSessionQuery
 from app.context.auth.domain.dto.session_dto import SessionDTO
 from app.context.auth.domain.value_objects import (
     AuthUserID,

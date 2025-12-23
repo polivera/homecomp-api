@@ -2,7 +2,7 @@ from typing import Optional
 
 from app.context.auth.application.contracts import GetSessionHandlerContract
 from app.context.auth.application.dto.get_session_result_dto import GetSessionResultDTO
-from app.context.auth.application.query import GetSessionQuery
+from app.context.auth.application.queries import GetSessionQuery
 from app.context.auth.domain.contracts import SessionRepositoryContract
 from app.context.auth.domain.value_objects import AuthUserID, SessionToken
 

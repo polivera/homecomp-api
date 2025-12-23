@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 from app.context.auth.application.dto.get_session_result_dto import GetSessionResultDTO
-from app.context.auth.application.query import GetSessionQuery
+from app.context.auth.application.queries import GetSessionQuery
 
 
 class GetSessionHandlerContract(ABC):
