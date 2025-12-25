@@ -14,6 +14,7 @@ from app.context.auth.domain.value_objects import (
 from app.context.auth.domain.value_objects.blocked_time import BlockedTime
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 class TestGetSessionHandler:
     """Unit tests for GetSessionHandler."""

@@ -16,6 +16,7 @@ from app.context.auth.domain.value_objects import SessionToken
 from app.context.user.application.dto import UserContextDTO
 
 
+@pytest.mark.unit
 @pytest.mark.asyncio
 class TestLoginHandler:
     """Unit tests for LoginHandler."""

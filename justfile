@@ -5,7 +5,13 @@ migration-generate comment:
     alembic revision -m "{{comment}}"
 
 migrate:
-    alembic upgrade head
+    uv run alembic upgrade head
+
+migrate-test:
+    DB_PORT=5433 DB_NAME=homecomp_test uv run alembic upgrade head
 
 pgcli:
     pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME
+
+pgcli-test:
+    pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:5433/homecomp_test
