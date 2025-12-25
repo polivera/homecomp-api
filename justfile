@@ -8,7 +8,10 @@ migrate:
     uv run alembic upgrade head
 
 migrate-test:
-    DB_PORT=5433 DB_NAME=homecomp_test uv run alembic upgrade head
+    DB_PORT=5434 DB_NAME=homecomp_test uv run alembic upgrade head
+
+seed:
+    uv run python -m scripts.seed
 
 pgcli:
     pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME

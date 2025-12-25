@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from app.context.auth.interface.rest import auth_routes
+from app.context.user_account.interface.rest import user_account_routes
 
 app = FastAPI(
     title="Homecomp API",
@@ -12,6 +13,7 @@ app = FastAPI(
 )
 
 app.include_router(auth_routes)
+app.include_router(user_account_routes)
 
 
 @app.get("/")
