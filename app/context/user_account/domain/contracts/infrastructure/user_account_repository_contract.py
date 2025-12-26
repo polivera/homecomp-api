@@ -45,3 +45,46 @@ class UserAccountRepositoryContract(ABC):
             UserAccountDTO if found, None otherwise
         """
         pass
+
+    @abstractmethod
+    async def find_accounts_by_user(self, user_id: UserID) -> list[UserAccountDTO]:
+        """
+        Find all non-deleted accounts for a user
+
+        Args:
+            user_id: User ID to search for
+
+        Returns:
+            List of UserAccountDTO objects
+        """
+        pass
+
+    @abstractmethod
+    async def update_account(self, account: UserAccountDTO) -> UserAccountDTO:
+        """
+        Update an existing account
+
+        Args:
+            account: The account DTO with updated values
+
+        Returns:
+            Updated UserAccountDTO
+
+        Raises:
+            ValueError: If account not found or already deleted
+        """
+        pass
+
+    @abstractmethod
+    async def delete_account(self, account_id: AccountID, user_id: UserID) -> bool:
+        """
+        Soft delete an account. Returns True if deleted, False if not found/unauthorized
+
+        Args:
+            account_id: Account ID to delete
+            user_id: User ID (for authorization check)
+
+        Returns:
+            True if successfully deleted, False if not found or unauthorized
+        """
+        pass

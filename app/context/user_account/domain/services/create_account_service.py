@@ -6,7 +6,6 @@ from app.context.user_account.domain.contracts.services.create_account_service_c
     CreateAccountServiceContract,
 )
 from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
-from app.context.user_account.domain.value_objects.account_id import AccountID
 from app.context.user_account.domain.value_objects.account_name import AccountName
 from app.context.user_account.domain.value_objects.balance import Balance
 from app.context.user_account.domain.value_objects.currency import Currency
@@ -20,10 +19,11 @@ class CreateAccountService(CreateAccountServiceContract):
 
     async def create_account(
         self, user_id: UserID, name: AccountName, currency: Currency, balance: Balance
-    ) -> AccountID:
+    ) -> UserAccountDTO:
         """Create a new user account with validation"""
 
         # Check if account with same name already exists for this user
+        # TODO: Why should I select first to create the account or not
         existing_account = await self._account_repository.find_account(
             user_id=user_id, name=name
         )

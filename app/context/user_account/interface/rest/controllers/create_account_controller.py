@@ -42,12 +42,14 @@ async def create_account(
 
         # Handle the command
         result = await handler.handle(command)
+        if result.error is not None:
+            raise HTTPException(status_code=400, detail=result.error)
 
         # Return response
         return CreateAccountResponse(
-            account_id=result.account_id.value,
-            account_name=request.name,
-            message=result.message,
+            account_id=result.account_id,
+            account_name=result.account_name,
+            account_balance=result.account_balance,
         )
 
     except ValueError as e:

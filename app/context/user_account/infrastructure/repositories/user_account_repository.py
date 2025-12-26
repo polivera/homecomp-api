@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select
+from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -55,7 +56,7 @@ class UserAccountRepository(UserAccountRepositoryContract):
         name: Optional[AccountName] = None,
     ) -> Optional[UserAccountDTO]:
         """Find an account by ID or by user_id and name"""
-        stmt = select(UserAccountModel)
+        stmt = select(UserAccountModel).where(UserAccountModel.deleted_at.is_(None))
 
         if account_id is not None:
             stmt = stmt.where(UserAccountModel.id == account_id.value)
@@ -71,3 +72,61 @@ class UserAccountRepository(UserAccountRepositoryContract):
         model = result.scalar_one_or_none()
 
         return UserAccountMapper.toDTO(model) if model else None
+
+    async def find_accounts_by_user(self, user_id: UserID) -> list[UserAccountDTO]:
+        """Find all non-deleted accounts for a user"""
+        stmt = select(UserAccountModel).where(
+            UserAccountModel.user_id == user_id.value,
+            UserAccountModel.deleted_at.is_(None)
+        )
+        result = await self._db.execute(stmt)
+        models = result.scalars().all()
+        return [UserAccountMapper.toDTO(model) for model in models]
+
+    async def update_account(self, account: UserAccountDTO) -> UserAccountDTO:
+        """Update an existing account"""
+        stmt = (
+            update(UserAccountModel)
+            .where(
+                UserAccountModel.id == account.account_id.value,
+                UserAccountModel.deleted_at.is_(None)
+            )
+            .values(
+                name=account.name.value,
+                currency=account.currency.value,
+                balance=account.balance.value
+            )
+        )
+
+        result = await self._db.execute(stmt)
+        if result.rowcount == 0:
+            raise ValueError("Account not found or already deleted")
+
+        await self._db.commit()
+
+        # Fetch updated record
+        updated = await self.find_account(account_id=account.account_id)
+        return updated
+
+    async def delete_account(self, account_id: AccountID, user_id: UserID) -> bool:
+        """Soft delete an account"""
+        # Verify account exists and user owns it
+        account = await self.find_account(account_id=account_id)
+        if not account or account.user_id.value != user_id.value:
+            return False
+
+        # Soft delete: set deleted_at timestamp
+        stmt = (
+            update(UserAccountModel)
+            .where(
+                UserAccountModel.id == account_id.value,
+                UserAccountModel.user_id == user_id.value,
+                UserAccountModel.deleted_at.is_(None)
+            )
+            .values(deleted_at=datetime.utcnow())
+        )
+
+        result = await self._db.execute(stmt)
+        await self._db.commit()
+
+        return result.rowcount > 0

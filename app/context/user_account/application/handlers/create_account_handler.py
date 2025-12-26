@@ -1,8 +1,12 @@
-from app.context.user_account.application.commands.create_account_command import CreateAccountCommand
+from app.context.user_account.application.commands.create_account_command import (
+    CreateAccountCommand,
+)
 from app.context.user_account.application.contracts.create_account_handler_contract import (
     CreateAccountHandlerContract,
 )
-from app.context.user_account.application.dto.create_account_result import CreateAccountResult
+from app.context.user_account.application.dto.create_account_result import (
+    CreateAccountResult,
+)
 from app.context.user_account.domain.contracts.services.create_account_service_contract import (
     CreateAccountServiceContract,
 )
@@ -17,11 +21,14 @@ class CreateAccountHandler(CreateAccountHandlerContract):
     async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
         """Execute the create account command"""
 
-        account_id = await self._service.create_account(
+        account_dto = await self._service.create_account(
             user_id=command.user_id,
             name=command.name,
             currency=command.currency,
             balance=command.balance,
         )
 
-        return CreateAccountResult(account_id=account_id)
+        if account_dto.account_id is None:
+            return CreateAccountResult(error="Error creating account")
+
+        return CreateAccountResult(account_id=account_dto.account_id.value)

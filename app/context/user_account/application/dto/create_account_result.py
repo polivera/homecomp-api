@@ -1,11 +1,12 @@
 from dataclasses import dataclass
-
-from app.context.user_account.domain.value_objects.account_id import AccountID
+from typing import Optional
 
 
 @dataclass(frozen=True)
 class CreateAccountResult:
     """Result of account creation operation"""
 
-    account_id: AccountID
-    message: str = "Account created successfully"
+    account_id: Optional[int] = None
+    account_name: Optional[str] = None
+    account_balance: Optional[float] = None
+    error: Optional[str] = None

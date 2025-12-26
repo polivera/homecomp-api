@@ -26,11 +26,14 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("currency", sa.String(3), nullable=False),
         sa.Column("balance", sa.DECIMAL(15, 2), nullable=False),
+        sa.Column("deleted_at", sa.DateTime(), nullable=True),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.UniqueConstraint("user_id", "name", name="uq_user_accounts_user_id_name"),
     )
+    op.create_index("ix_user_accounts_deleted_at", "user_accounts", ["deleted_at"])
 
 
 def downgrade() -> None:
     """Downgrade schema."""
+    op.drop_index("ix_user_accounts_deleted_at", table_name="user_accounts")
     op.drop_table("user_accounts")
