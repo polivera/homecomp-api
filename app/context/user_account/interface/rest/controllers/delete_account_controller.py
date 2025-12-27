@@ -1,16 +1,18 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.user.domain.value_objects.user_id import UserID
-from app.context.user_account.application.commands.delete_account_command import (
+from app.context.user_account.application.commands import (
     DeleteAccountCommand,
 )
-from app.context.user_account.application.contracts.delete_account_handler_contract import (
+from app.context.user_account.application.contracts import (
     DeleteAccountHandlerContract,
 )
-from app.context.user_account.domain.value_objects.account_id import UserAccountID
+from app.context.user_account.application.dto import (
+    DeleteAccountErrorCode,
+)
 from app.context.user_account.infrastructure.dependencies import (
     get_delete_account_handler,
 )
+from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
@@ -19,15 +21,25 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 async def delete_account(
     account_id: int,
     handler: DeleteAccountHandlerContract = Depends(get_delete_account_handler),
+    user_id: int = Depends(get_current_user_id),
 ):
     """Delete a user account (soft delete)"""
     command = DeleteAccountCommand(
-        account_id=UserAccountID(account_id),
-        user_id=UserID(1),  # TODO: from cookie header
+        account_id=account_id,
+        user_id=user_id,
     )
 
-    success = await handler.handle(command)
-    if not success:
-        raise HTTPException(status_code=404, detail="Account not found")
+    result = await handler.handle(command)
 
-    return  # 204 No Content
+    # Check for errors and map error codes to HTTP status codes
+    if result.error_code:
+        status_code_map = {
+            DeleteAccountErrorCode.NOT_FOUND: 404,  # Not Found
+            DeleteAccountErrorCode.UNEXPECTED_ERROR: 500,  # Internal Server Error
+        }
+
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    # Return 204 No Content on success
+    return

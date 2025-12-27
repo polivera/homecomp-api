@@ -3,5 +3,8 @@ from dataclasses import dataclass
 
 @dataclass(frozen=True)
 class UpdateAccountResponse:
+    """Response schema for account update"""
+
     account_id: int
-    message: str
+    account_name: str
+    account_balance: float

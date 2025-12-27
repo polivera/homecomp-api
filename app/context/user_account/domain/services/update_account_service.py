@@ -5,6 +5,10 @@ from app.context.user_account.domain.contracts.services import (
     UpdateAccountServiceContract,
 )
 from app.context.user_account.domain.dto import UserAccountDTO
+from app.context.user_account.domain.exceptions import (
+    UserAccountNameAlreadyExistError,
+    UserAccountNotFoundError,
+)
 from app.context.user_account.domain.value_objects import (
     AccountName,
     UserAccountBalance,
@@ -26,12 +30,14 @@ class UpdateAccountService(UpdateAccountServiceContract):
         currency: UserAccountCurrency,
         balance: UserAccountBalance,
     ) -> UserAccountDTO:
-        existing = await self._repository.find_user_accounts(
+        existing = await self._repository.find_user_account_by_id(
             user_id=user_id, account_id=account_id
         )
 
         if not existing:
-            raise ValueError("Account not found")
+            raise UserAccountNotFoundError(
+                f"Account with ID {account_id.value} not found for user {user_id.value}"
+            )
 
         # FIX: find_user_accounts use like instead of equal, error prone on this check
         if existing.name.value != name.value:
@@ -39,12 +45,14 @@ class UpdateAccountService(UpdateAccountServiceContract):
             duplicate = await self._repository.find_user_accounts(
                 user_id=user_id, name=name, only_active=False
             )
-            if (
-                duplicate
-                and duplicate.account_id
-                and duplicate.account_id.value != account_id.value
+
+            if duplicate and any(
+                acc.account_id and acc.account_id.value != account_id.value
+                for acc in duplicate
             ):
-                raise ValueError(f"Account with name '{name.value}' already exists")
+                raise UserAccountNameAlreadyExistError(
+                    f"Account with name '{name.value}' already exists"
+                )
 
         # 3. Update account
         updated_dto = UserAccountDTO(

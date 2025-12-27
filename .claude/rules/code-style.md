@@ -125,6 +125,72 @@ class UserMapper:
         )
 ```
 
+### Context-Specific Value Objects
+
+**Rule:** To maintain bounded context isolation, **always create context-specific value objects** by extending shared value objects. Never use shared value objects directly in domain models or DTOs.
+
+**Pattern:**
+
+```python
+# Shared Kernel - validation logic
+# app/shared/domain/value_objects/shared_currency.py
+@dataclass(frozen=True)
+class SharedCurrency:
+    value: str
+    _validated: bool = field(default=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if not self._validated:
+            # Validation logic
+            if len(self.value) != 3:
+                raise ValueError("Currency must be 3 characters")
+
+    @classmethod
+    def from_trusted_source(cls, value: str) -> Self:
+        return cls(value, _validated=True)
+
+# Context-specific wrapper
+# app/context/user_account/domain/value_objects/account_currency.py
+@dataclass(frozen=True)
+class UserAccountCurrency(SharedCurrency):
+    pass  # Inherits all validation from SharedCurrency
+
+# Another context-specific wrapper
+# app/context/credit_card/domain/value_objects/credit_card_currency.py
+@dataclass(frozen=True)
+class CreditCardCurrency(SharedCurrency):
+    pass  # Can add context-specific behavior later if needed
+```
+
+**Usage in Domain Models:**
+
+```python
+# Good - uses context-specific type
+@dataclass(frozen=True)
+class UserAccountDTO:
+    account_id: AccountID
+    currency: UserAccountCurrency  # ✅ Context-specific
+
+# Bad - uses shared type directly
+@dataclass(frozen=True)
+class UserAccountDTO:
+    account_id: AccountID
+    currency: SharedCurrency  # ❌ Breaks context isolation
+
+# Bad - uses wrong context's type
+@dataclass(frozen=True)
+class UserAccountDTO:
+    account_id: AccountID
+    currency: CreditCardCurrency  # ❌ Cross-context dependency
+```
+
+**Rationale:**
+- Maintains strict bounded context boundaries
+- Prevents accidental cross-context dependencies
+- Allows future context-specific behavior without breaking changes
+- Makes code explicitly show which context owns the value
+- Type system enforces architectural boundaries
+
 ### DTOs
 
 Always frozen, minimal logic:
@@ -416,6 +482,196 @@ Handler (converts to value objects)
 Domain Service (uses value objects)
 ```
 
+## Application Layer Handlers
+
+### Exception Handling and Result Pattern
+
+**Rule:** Handlers MUST catch all domain exceptions and convert them to Result objects. Handlers should NEVER let exceptions propagate to the controller layer.
+
+**Rationale:**
+- Keeps handlers HTTP-agnostic and framework-independent
+- Makes handlers easier to test (no exception handling needed in tests)
+- Centralizes error-to-message mapping in the handler
+- Controllers can map error codes to HTTP status codes programmatically (no string parsing!)
+
+### Result DTO Pattern with Error Codes
+
+All handler result DTOs should follow this pattern:
+
+```python
+# app/context/user_account/application/dto/create_account_result.py
+from dataclasses import dataclass
+from enum import Enum
+from typing import Optional
+
+class CreateAccountErrorCode(str, Enum):
+    """Error codes for account creation"""
+    NAME_ALREADY_EXISTS = "NAME_ALREADY_EXISTS"
+    MAPPER_ERROR = "MAPPER_ERROR"
+    UNEXPECTED_ERROR = "UNEXPECTED_ERROR"
+
+@dataclass(frozen=True)
+class CreateAccountResult:
+    """Result of account creation operation"""
+
+    # Success fields - populated when operation succeeds
+    account_id: Optional[int] = None
+    account_name: Optional[str] = None
+    account_balance: Optional[float] = None
+
+    # Error fields - populated when operation fails
+    error_code: Optional[CreateAccountErrorCode] = None
+    error_message: Optional[str] = None
+```
+
+**Pattern rules:**
+- Define a context-specific error code enum (inheriting from `str, Enum`)
+- Use `Optional` for all fields
+- Success data fields default to `None`
+- Include both `error_code` and `error_message` fields
+- On success: populate data fields, leave error fields as None
+- On failure: populate both error_code (for logic) and error_message (for users)
+
+### Handler Implementation Pattern
+
+**All handlers MUST follow this exception handling pattern:**
+
+```python
+class CreateAccountHandler(CreateAccountHandlerContract):
+    """Handler for create account command"""
+
+    def __init__(self, service: CreateAccountServiceContract):
+        self._service = service
+
+    async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
+        """Execute the create account command"""
+
+        try:
+            # 1. Convert command primitives to value objects
+            account_dto = await self._service.create_account(
+                user_id=UserAccountUserID(command.user_id),
+                name=AccountName(command.name),
+                currency=UserAccountCurrency(command.currency),
+                balance=UserAccountBalance.from_float(command.balance),
+            )
+
+            # 2. Validate operation succeeded
+            if account_dto.account_id is None:
+                return CreateAccountResult(
+                    error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
+                    error_message="Error creating account",
+                )
+
+            # 3. Convert domain DTO to result with primitives
+            return CreateAccountResult(
+                account_id=account_dto.account_id.value,
+                account_name=account_dto.name.value,
+                account_balance=float(account_dto.balance.value),
+            )
+
+        # 4. Catch specific domain exceptions and return error code + message
+        except UserAccountNameAlreadyExistError:
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.NAME_ALREADY_EXISTS,
+                error_message="Account name already exist",
+            )
+        except UserAccountMapperError:
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.MAPPER_ERROR,
+                error_message="Error mapping model to dto",
+            )
+
+        # 5. Always catch generic Exception as final fallback
+        except Exception:
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
+                error_message="Unexpected error",
+            )
+```
+
+**Handler Exception Handling Rules:**
+
+1. **Wrap entire handler logic in try/except**
+2. **Catch specific domain exceptions first** - Map each to error code + user-friendly message
+3. **Always catch `Exception` as final fallback** - Prevents any exception from escaping the handler
+4. **Return Result object with error_code and error_message** - Never re-raise exceptions
+5. **Use user-friendly error messages** - These go directly to the API response
+
+**Exception Ordering:**
+
+```python
+try:
+    # Handler logic
+    pass
+except SpecificDomainException1:  # Most specific first
+    return Result(
+        error_code=ErrorCode.SPECIFIC_ERROR_1,
+        error_message="Specific error message 1",
+    )
+except SpecificDomainException2:
+    return Result(
+        error_code=ErrorCode.SPECIFIC_ERROR_2,
+        error_message="Specific error message 2",
+    )
+except Exception:  # Generic catch-all last
+    return Result(
+        error_code=ErrorCode.UNEXPECTED_ERROR,
+        error_message="Unexpected error",
+    )
+```
+
+### Controller Integration with Error Codes
+
+Controllers check the result.error_code field and map to HTTP status codes:
+
+```python
+from fastapi import APIRouter, HTTPException, Depends
+
+@router.post("/accounts", status_code=201)
+async def create_account(
+    request: CreateAccountRequest,
+    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
+    user_id: int = Depends(get_current_user_id),
+):
+    """Create a new user account"""
+    command = CreateAccountCommand(
+        user_id=user_id,
+        name=request.name,
+        currency=request.currency,
+        balance=request.balance,
+    )
+
+    result = await handler.handle(command)
+
+    # Check for errors and map error codes to HTTP status codes
+    if result.error_code:
+        # Map error codes to status codes (no string parsing!)
+        status_code_map = {
+            CreateAccountErrorCode.NAME_ALREADY_EXISTS: 409,  # Conflict
+            CreateAccountErrorCode.MAPPER_ERROR: 500,  # Internal Server Error
+            CreateAccountErrorCode.UNEXPECTED_ERROR: 500,  # Internal Server Error
+        }
+
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    # Return success response
+    return CreateAccountResponse(
+        id=result.account_id,
+        name=result.account_name,
+        balance=result.account_balance,
+    )
+```
+
+**Benefits of Error Code Pattern:**
+
+- **Type Safety**: Error codes are enums, preventing typos
+- **No String Parsing**: Controllers use error codes for logic, not string matching
+- **Refactor-Friendly**: Can change error messages without breaking controller logic
+- **Explicit Mapping**: Clear mapping between domain errors and HTTP status codes
+- **IDE Support**: Autocomplete and type checking for error codes
+- **Documentation**: Error codes serve as documentation of possible failures
+
 ## Dependency Injection
 
 ### Define Contract-Based Factories
@@ -444,6 +700,87 @@ async def login(
     command = LoginCommand(...)
     return await handler.handle(command)
 ```
+
+### Authenticating Requests
+
+**Rule:** Always inject the authenticated user ID using the shared middleware dependency. Pass user_id as a **primitive** (int) to commands/queries.
+
+**Pattern:**
+
+```python
+from fastapi import APIRouter, Depends
+from app.shared.infrastructure.middleware import get_current_user_id
+
+@router.post("/accounts", status_code=201)
+async def create_account(
+    request: CreateAccountRequest,
+    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
+    user_id: int = Depends(get_current_user_id),  # ✅ Inject authenticated user
+):
+    """Create a new user account"""
+    command = CreateAccountCommand(
+        user_id=user_id,  # ✅ Pass primitive to command
+        name=request.name,
+        currency=request.currency,
+        balance=request.balance,
+    )
+    result = await handler.handle(command)
+    return result
+```
+
+**Available Middleware Functions:**
+
+```python
+# Required authentication - raises 401 if missing/invalid
+from app.shared.infrastructure.middleware import get_current_user_id
+
+async def protected_route(user_id: int = Depends(get_current_user_id)):
+    # user_id is always present, or 401 was raised
+    pass
+
+# Optional authentication - returns None if not authenticated
+from app.shared.infrastructure.middleware import get_current_user_id_optional
+
+async def public_route(user_id: Optional[int] = Depends(get_current_user_id_optional)):
+    # user_id might be None (for personalized public content)
+    if user_id:
+        # Show personalized content
+        pass
+    else:
+        # Show default content
+        pass
+```
+
+**Command includes user_id as primitive:**
+
+```python
+@dataclass(frozen=True)
+class CreateAccountCommand:
+    user_id: int  # ✅ Primitive (consistent with CQRS pattern)
+    name: str
+    currency: str
+    balance: float
+```
+
+**Handler converts to value object:**
+
+```python
+class CreateAccountHandler:
+    async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
+        # Convert primitive to value object
+        user_id = UserID(command.user_id)  # ✅ Handler responsibility
+
+        # Use value object in domain layer
+        result = await self._service.create_account(user_id=user_id, ...)
+        return result
+```
+
+**Important:**
+- Never manually extract tokens or validate sessions in controllers
+- Never pass `UserID` value objects in commands/queries
+- Middleware handles all authentication logic (extraction, validation, session lookup)
+- Controllers receive clean primitive `int` user_id
+- Handlers convert primitives to value objects for domain layer
 
 ## Naming Conventions
 

@@ -187,6 +187,214 @@ class Email:
             raise ValueError(f"Invalid email: {self.value}")
 ```
 
+#### Context-Specific Value Objects
+
+**Rule**: To maintain bounded context isolation, **always create context-specific value objects** even when they share identical validation logic.
+
+**Pattern**:
+1. Define validation logic once in the **Shared Kernel** (`app/shared/domain/value_objects/`)
+2. Create **context-specific wrappers** that extend the shared value object
+3. Each context uses **only its own value object types**, never shared or cross-context types
+
+**Example**:
+
+```python
+# Shared Kernel - contains validation logic
+# app/shared/domain/value_objects/shared_currency.py
+@dataclass(frozen=True)
+class SharedCurrency:
+    value: str
+    _validated: bool = field(default=False, repr=False, compare=False)
+
+    def __post_init__(self):
+        if not self._validated:
+            if len(self.value) != 3:
+                raise ValueError("Currency code must be 3 characters")
+            if not self.value.isupper():
+                raise ValueError("Currency code must be uppercase")
+
+    @classmethod
+    def from_trusted_source(cls, value: str) -> Self:
+        return cls(value, _validated=True)
+
+# User Account Context - extends shared validation
+# app/context/user_account/domain/value_objects/account_currency.py
+@dataclass(frozen=True)
+class UserAccountCurrency(SharedCurrency):
+    pass
+
+# Credit Card Context - extends shared validation
+# app/context/credit_card/domain/value_objects/credit_card_currency.py
+@dataclass(frozen=True)
+class CreditCardCurrency(SharedCurrency):
+    pass
+```
+
+**Usage**:
+
+```python
+# Good - each context uses its own type
+class UserAccountDTO:
+    currency: UserAccountCurrency  # ✅ Context-specific type
+
+class CreditCardDTO:
+    currency: CreditCardCurrency   # ✅ Context-specific type
+
+# Bad - using shared type directly
+class UserAccountDTO:
+    currency: SharedCurrency       # ❌ Breaks context isolation
+
+# Bad - cross-context usage
+class UserAccountDTO:
+    currency: CreditCardCurrency   # ❌ Wrong context!
+```
+
+**Benefits**:
+- **Context Isolation**: Maintains clear bounded context boundaries
+- **No Code Duplication**: Validation logic lives in one place (shared kernel)
+- **Type Safety**: Prevents accidental mixing of types from different contexts
+- **Future Flexibility**: Contexts can add specific behavior later without affecting others
+- **Explicit Domain Modeling**: Code clearly shows which context a value belongs to
+
+**When to Use**:
+- Apply this pattern to **all value objects that appear in multiple contexts**
+- Common examples: Currency, Money, Quantity, Percentage, Date/Time ranges
+- Even if contexts share identical validation today, use context-specific types for future flexibility
+
+### 6. Authentication in Controllers
+
+**Rule**: Controllers obtain the authenticated user ID via dependency injection from shared middleware. The user ID is passed as a **primitive** (int) to commands/queries, following CQRS principles.
+
+**Pattern**:
+
+```python
+# Controller - app/context/user_account/interface/rest/controllers/create_account_controller.py
+from fastapi import APIRouter, Depends
+from app.shared.infrastructure.middleware import get_current_user_id
+
+@router.post("/accounts", status_code=201)
+async def create_account(
+    request: CreateAccountRequest,
+    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
+    user_id: int = Depends(get_current_user_id),  # ✅ Inject authenticated user ID
+):
+    # Pass primitive user_id to command
+    command = CreateAccountCommand(
+        user_id=user_id,        # ✅ Primitive in command
+        name=request.name,
+        currency=request.currency,
+        balance=request.balance,
+    )
+    result = await handler.handle(command)
+    return result
+```
+
+**Middleware Implementation**:
+
+The shared middleware (`app/shared/infrastructure/middleware/session_auth_dependency.py`) provides two authentication dependencies:
+
+```python
+async def get_current_user_id(
+    access_token: Optional[str] = Cookie(default=None),
+    session_repo: SessionRepositoryContract = Depends(get_session_repository_for_auth),
+) -> int:
+    """
+    Required authentication - raises 401 if not authenticated.
+    Returns: user_id as int
+    """
+    if not access_token:
+        raise HTTPException(status_code=401, detail="Not authenticated")
+
+    token = SessionToken(access_token)
+    session = await session_repo.getSession(token=token)
+
+    if not session:
+        raise HTTPException(status_code=401, detail="Invalid or expired session")
+
+    return session.user_id.value  # Extract primitive from value object
+
+
+async def get_current_user_id_optional(
+    access_token: Optional[str] = Cookie(default=None),
+    session_repo: SessionRepositoryContract = Depends(get_session_repository_for_auth),
+) -> Optional[int]:
+    """
+    Optional authentication - returns None if not authenticated.
+    Returns: Optional[int]
+    """
+    if not access_token:
+        return None
+
+    # ... validation logic ...
+    return session.user_id.value if session else None
+```
+
+**Command Structure**:
+
+Commands receive user_id as a primitive:
+
+```python
+# app/context/user_account/application/commands/create_account_command.py
+@dataclass(frozen=True)
+class CreateAccountCommand:
+    user_id: int      # ✅ Primitive type (not UserID value object)
+    name: str
+    currency: str
+    balance: float
+```
+
+**Handler Converts to Value Objects**:
+
+```python
+# app/context/user_account/application/handlers/create_account_handler.py
+class CreateAccountHandler:
+    async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
+        # Convert primitives to value objects
+        user_id = UserID(command.user_id)  # ✅ Handler creates value objects
+        name = AccountName(command.name)
+        currency = UserAccountCurrency(command.currency)
+
+        # Use value objects in domain service
+        account_dto = await self._service.create_account(
+            user_id=user_id,
+            name=name,
+            currency=currency,
+        )
+        return result
+```
+
+**Authentication Flow**:
+
+```
+1. HTTP Request with Cookie
+   ↓
+2. get_current_user_id dependency
+   → Extracts access_token from cookie
+   → Validates SessionToken value object
+   → Queries SessionRepository
+   → Returns int (user_id.value)
+   ↓
+3. Controller receives user_id: int
+   → Creates Command with primitive user_id
+   ↓
+4. Handler receives Command
+   → Converts user_id to UserID value object
+   → Passes to domain service
+```
+
+**When to Use**:
+
+- **Required Authentication**: Use `get_current_user_id` - raises 401 if not authenticated
+- **Optional Authentication**: Use `get_current_user_id_optional` - returns None if not authenticated (e.g., personalized public content)
+
+**Benefits**:
+
+- **Centralized Authentication**: All auth logic in one place (middleware)
+- **Separation of Concerns**: Controllers don't handle token validation
+- **CQRS Compliance**: Commands use primitives, handlers use value objects
+- **Type Safety**: FastAPI validates dependency types automatically
+- **Testability**: Easy to mock user_id in tests
+
 ## Database Configuration
 
 ### Connection Details

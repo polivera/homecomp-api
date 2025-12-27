@@ -5,6 +5,7 @@ from app.context.user_account.application.contracts import (
     CreateAccountHandlerContract,
 )
 from app.context.user_account.application.dto import (
+    CreateAccountErrorCode,
     CreateAccountResult,
 )
 from app.context.user_account.domain.contracts.services import (
@@ -40,7 +41,10 @@ class CreateAccountHandler(CreateAccountHandlerContract):
             )
 
             if account_dto.account_id is None:
-                return CreateAccountResult(error="Error creating account")
+                return CreateAccountResult(
+                    error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
+                    error_message="Error creating account",
+                )
 
             return CreateAccountResult(
                 account_id=account_dto.account_id.value,
@@ -48,8 +52,17 @@ class CreateAccountHandler(CreateAccountHandlerContract):
                 account_balance=float(account_dto.balance.value),
             )
         except UserAccountNameAlreadyExistError:
-            return CreateAccountResult(error="Account name already exist")
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.NAME_ALREADY_EXISTS,
+                error_message="Account name already exist",
+            )
         except UserAccountMapperError:
-            return CreateAccountResult(error="Error mapping model to dto")
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.MAPPER_ERROR,
+                error_message="Error mapping model to dto",
+            )
         except Exception:
-            return CreateAccountResult(error="Unexpected error")
+            return CreateAccountResult(
+                error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
+                error_message="Unexpected error",
+            )

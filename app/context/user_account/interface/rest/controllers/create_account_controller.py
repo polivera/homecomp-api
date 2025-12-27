@@ -1,23 +1,20 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.user_account.application.commands.create_account_command import (
+from app.context.user_account.application.commands import (
     CreateAccountCommand,
 )
-from app.context.user_account.application.contracts.create_account_handler_contract import (
+from app.context.user_account.application.contracts import (
     CreateAccountHandlerContract,
 )
-from app.context.user_account.domain.exceptions import (
-    UserAccountMapperError,
-    UserAccountNameAlreadyExistError,
+from app.context.user_account.application.dto import (
+    CreateAccountErrorCode,
 )
 from app.context.user_account.infrastructure.dependencies import (
     get_create_account_handler,
 )
-from app.context.user_account.interface.schemas.create_account_response import (
-    CreateAccountResponse,
-)
-from app.context.user_account.interface.schemas.create_account_schema import (
+from app.context.user_account.interface.schemas import (
     CreateAccountRequest,
+    CreateAccountResponse,
 )
 from app.shared.infrastructure.middleware import get_current_user_id
 
@@ -31,27 +28,29 @@ async def create_account(
     user_id: int = Depends(get_current_user_id),
 ):
     """Create a new user account"""
+    command = CreateAccountCommand(
+        user_id=user_id,
+        name=request.name,
+        currency=request.currency,
+        balance=request.balance,
+    )
 
-    try:
-        command = CreateAccountCommand(
-            user_id=user_id,
-            name=request.name,
-            currency=request.currency,
-            balance=request.balance,
-        )
+    result = await handler.handle(command)
 
-        result = await handler.handle(command)
-        if result.error is not None:
-            raise HTTPException(status_code=400, detail=result.error)
+    # Check for errors and map error codes to HTTP status codes
+    if result.error_code:
+        status_code_map = {
+            CreateAccountErrorCode.NAME_ALREADY_EXISTS: 409,  # Conflict
+            CreateAccountErrorCode.MAPPER_ERROR: 500,  # Internal Server Error
+            CreateAccountErrorCode.UNEXPECTED_ERROR: 500,  # Internal Server Error
+        }
 
-        return CreateAccountResponse(
-            account_id=result.account_id,
-            account_name=result.account_name,
-            account_balance=result.account_balance,
-        )
-    except UserAccountNameAlreadyExistError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except UserAccountMapperError or Exception as e:
-        raise HTTPException(
-            status_code=500, detail=f"An unexpected error occurred: {str(e)}"
-        )
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    # Return success response
+    return CreateAccountResponse(
+        account_id=result.account_id,
+        account_name=result.account_name,
+        account_balance=result.account_balance,
+    )

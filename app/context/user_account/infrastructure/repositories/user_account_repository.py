@@ -9,7 +9,10 @@ from app.context.user_account.domain.contracts.infrastructure import (
     UserAccountRepositoryContract,
 )
 from app.context.user_account.domain.dto import UserAccountDTO
-from app.context.user_account.domain.exceptions import UserAccountNameAlreadyExistError
+from app.context.user_account.domain.exceptions import (
+    UserAccountNameAlreadyExistError,
+    UserAccountNotFoundError,
+)
 from app.context.user_account.domain.value_objects import (
     AccountName,
     UserAccountDeletedAt,
@@ -55,7 +58,7 @@ class UserAccountRepository(UserAccountRepositoryContract):
         """Find an account by ID or by user_id and name (admin/unrestricted usage)"""
         stmt = select(UserAccountModel)
         if only_active:
-            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
+            stmt = stmt.where(UserAccountModel.deleted_at.is_(None))
 
         if account_id is not None:
             stmt = stmt.where(UserAccountModel.id == account_id.value)
@@ -82,7 +85,7 @@ class UserAccountRepository(UserAccountRepositoryContract):
         """Find user account always filtering by user_id (for user-scoped queries)"""
         stmt = select(UserAccountModel).where(UserAccountModel.user_id == user_id.value)
         if only_active:
-            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
+            stmt = stmt.where(UserAccountModel.deleted_at.is_(None))
 
         if account_id is not None:
             stmt = stmt.where(UserAccountModel.id == account_id.value)
@@ -108,7 +111,7 @@ class UserAccountRepository(UserAccountRepositoryContract):
             UserAccountModel.user_id == user_id.value,
         )
         if only_active:
-            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
+            stmt = stmt.where(UserAccountModel.deleted_at.is_(None))
 
         model = (await self._db.execute(stmt)).scalar_one_or_none()
         return UserAccountMapper.to_dto(model)
@@ -133,7 +136,9 @@ class UserAccountRepository(UserAccountRepositoryContract):
 
         result = cast(CursorResult[Any], await self._db.execute(stmt))
         if result.rowcount == 0:
-            raise ValueError("Account not found or already deleted")
+            raise UserAccountNotFoundError(
+                f"Account with ID {account.account_id.value} not found or already deleted"
+            )
 
         await self._db.commit()
 

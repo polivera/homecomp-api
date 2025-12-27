@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.user.domain.value_objects.user_id import UserID
 from app.context.user_account.application.contracts.find_account_by_id_handler_contract import (
     FindAccountByIdHandlerContract,
 )
@@ -13,12 +12,12 @@ from app.context.user_account.application.queries.find_account_by_id_query impor
 from app.context.user_account.application.queries.find_accounts_by_user_query import (
     FindAccountsByUserQuery,
 )
-from app.context.user_account.domain.value_objects.account_id import UserAccountID
 from app.context.user_account.infrastructure.dependencies import (
     get_find_account_by_id_handler,
     get_find_accounts_by_user_handler,
 )
 from app.context.user_account.interface.schemas.account_response import AccountResponse
+from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
 
@@ -27,11 +26,12 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 async def get_account(
     account_id: int,
     handler: FindAccountByIdHandlerContract = Depends(get_find_account_by_id_handler),
+    user_id: int = Depends(get_current_user_id),
 ):
     """Get a specific user account by ID"""
     query = FindAccountByIdQuery(
-        account_id=UserAccountID(account_id),
-        user_id=UserID(1),  # TODO: from cookie header
+        account_id=account_id,
+        user_id=user_id,
     )
 
     result = await handler.handle(query)
@@ -51,9 +51,10 @@ async def get_all_accounts(
     handler: FindAccountsByUserHandlerContract = Depends(
         get_find_accounts_by_user_handler
     ),
+    user_id: int = Depends(get_current_user_id),
 ):
     """Get all accounts for the authenticated user"""
-    query = FindAccountsByUserQuery(user_id=UserID(1))  # TODO: from cookie
+    query = FindAccountsByUserQuery(user_id=user_id)
     results = await handler.handle(query)
 
     return [
