@@ -23,5 +23,5 @@ class CreditCardDTO:
     name: CreditCardName
     currency: CreditCardCurrency
     limit: CardLimit
-    used: CardUsed
+    used: Optional[CardUsed] = None
     credit_card_id: Optional[CreditCardID] = None

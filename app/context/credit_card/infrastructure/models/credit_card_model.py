@@ -23,5 +23,5 @@ class CreditCardModel(BaseDBModel):
     limit: Mapped[Decimal] = mapped_column(DECIMAL(15, 2), nullable=False)
     used: Mapped[Decimal] = mapped_column(DECIMAL(15, 2), nullable=False)
     deleted_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime, nullable=True, default=None
+        DateTime(timezone=True), nullable=True, default=None
     )

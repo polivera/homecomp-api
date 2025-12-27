@@ -11,3 +11,4 @@ class UpdateCreditCardCommand:
     name: Optional[str] = None
     limit: Optional[float] = None
     used: Optional[float] = None
+    currency: Optional[str] = None

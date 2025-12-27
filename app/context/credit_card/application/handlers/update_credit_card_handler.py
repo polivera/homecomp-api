@@ -17,6 +17,7 @@ from app.context.credit_card.domain.exceptions import (
 from app.context.credit_card.domain.value_objects import (
     CardLimit,
     CardUsed,
+    CreditCardCurrency,
     CreditCardID,
     CreditCardName,
     CreditCardUserID,
@@ -29,9 +30,7 @@ class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
     def __init__(self, service: UpdateCreditCardServiceContract):
         self._service = service
 
-    async def handle(
-        self, command: UpdateCreditCardCommand
-    ) -> UpdateCreditCardResult:
+    async def handle(self, command: UpdateCreditCardCommand) -> UpdateCreditCardResult:
         """Execute the update credit card command"""
 
         try:
@@ -39,13 +38,23 @@ class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
             credit_card_id = CreditCardID(command.credit_card_id)
             user_id = CreditCardUserID(command.user_id)
             name = CreditCardName(command.name) if command.name else None
-            limit = CardLimit.from_float(command.limit) if command.limit is not None else None
-            used = CardUsed.from_float(command.used) if command.used is not None else None
+            currency = (
+                CreditCardCurrency(command.currency) if command.currency else None
+            )
+            limit = (
+                CardLimit.from_float(command.limit)
+                if command.limit is not None
+                else None
+            )
+            used = (
+                CardUsed.from_float(command.used) if command.used is not None else None
+            )
 
             # Call service with value objects
             updated_dto = await self._service.update_credit_card(
                 credit_card_id=credit_card_id,
                 user_id=user_id,
+                currency=currency,
                 name=name,
                 limit=limit,
                 used=used,

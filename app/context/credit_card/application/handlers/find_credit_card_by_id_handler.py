@@ -8,7 +8,7 @@ from app.context.credit_card.application.queries import FindCreditCardByIdQuery
 from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
     CreditCardRepositoryContract,
 )
-from app.context.credit_card.domain.value_objects import CreditCardID, CreditCardUserID
+from app.context.credit_card.domain.value_objects import CreditCardID
 
 
 class FindCreditCardByIdHandler(FindCreditCardByIdHandlerContract):
@@ -22,16 +22,15 @@ class FindCreditCardByIdHandler(FindCreditCardByIdHandlerContract):
     ) -> Optional[CreditCardResponseDTO]:
         """Execute the find credit card by ID query"""
 
-        # Convert query primitives to value objects
-        card_dto = await self._repository.find_credit_card(
-            card_id=CreditCardID(query.credit_card_id)
+        # Convert query primitives to value objects and find card for user
+        from app.context.credit_card.domain.value_objects import CreditCardUserID
+
+        card_dto = await self._repository.find_user_credit_card_by_id(
+            user_id=CreditCardUserID(query.user_id),
+            card_id=CreditCardID(query.credit_card_id),
         )
 
         if not card_dto:
-            return None
-
-        # Verify ownership (query uses primitive, card_dto has value object)
-        if card_dto.user_id.value != query.user_id:
             return None
 
         return CreditCardResponseDTO.from_domain_dto(card_dto)

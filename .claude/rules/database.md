@@ -22,6 +22,58 @@ async def my_handler(db: AsyncSession = Depends(get_db)):
 
 Never create sessions manually in application code.
 
+### Model Registration
+
+**CRITICAL**: All SQLAlchemy models must be imported to register them with the metadata **before** any database operations occur. This is especially important for models with foreign key relationships.
+
+**Pattern**: Import all models at the **end** of `app/shared/infrastructure/database.py`:
+
+```python
+# app/shared/infrastructure/database.py
+
+# ... database setup code ...
+
+async def get_db():
+    async with AsyncSessionLocal() as session:
+        yield session
+
+
+# ──────────────────────────────────────────────────────────────────────────────
+# Import all models to register them with SQLAlchemy metadata
+# IMPORTANT: Order matters! Parent tables must be imported before child tables
+# ──────────────────────────────────────────────────────────────────────────────
+
+from app.context.user.infrastructure.models.user_model import UserModel  # noqa: F401, E402
+from app.context.user_account.infrastructure.models.user_account_model import (  # noqa: F401, E402
+    UserAccountModel,
+)
+from app.context.auth.infrastructure.models.session_model import SessionModel  # noqa: F401, E402
+from app.context.credit_card.infrastructure.models.credit_card_model import (  # noqa: F401, E402
+    CreditCardModel,
+)
+```
+
+**Why this works**:
+1. Models import `BaseDBModel` from `app.shared.infrastructure.models` (just the base class)
+2. `database.py` imports model classes directly at the end (after all setup is complete)
+3. No circular imports because dependency flows one way
+4. Models are automatically registered when `database.py` is imported (which happens via `get_db()`)
+
+**Import Order Rules**:
+- Parent tables (referenced by foreign keys) must come **before** child tables
+- Example: `users` → `user_accounts` → `credit_cards` (since credit_cards references user_accounts)
+
+**Why NOT in other places**:
+- ❌ **NOT in `models/__init__.py`** - causes circular imports (models import BaseDBModel from there)
+- ❌ **NOT in `main.py`** - pollutes application entry point, not the right responsibility
+- ❌ **NOT in individual model files** - would require every model to know about all other models
+- ✅ **YES in `database.py`** - centralized, runs automatically, no circular dependency
+
+**When adding new models**:
+1. Add import to `database.py` at the end
+2. Place it in correct order based on foreign key dependencies
+3. Use `# noqa: F401, E402` to suppress linter warnings (F401=unused import, E402=import not at top)
+
 ### Query Execution
 
 Use async patterns with proper await:
@@ -73,13 +125,14 @@ All models must inherit from `BaseModel`:
 ```python
 from app.shared.infrastructure.models.base_model import BaseModel
 from sqlalchemy.orm import Mapped, mapped_column
+from datetime import datetime, UTC
 
 class UserModel(BaseModel):
     __tablename__ = "users"
 
     id: Mapped[int] = mapped_column(primary_key=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
-    created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+    created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
 ```
 
 ### Type Annotations
@@ -95,12 +148,112 @@ is_active: Mapped[bool]
 # Optional/nullable
 phone: Mapped[Optional[str]] = mapped_column(nullable=True)
 
-# With defaults
-created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+# With defaults (see Timezone-Aware Dates section below for datetime)
+created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
 
 # Relationships
 addresses: Mapped[list["AddressModel"]] = relationship(back_populates="user")
 ```
+
+### Timezone-Aware Dates
+
+**CRITICAL**: Always use timezone-aware datetime objects in database models to prevent timezone-related bugs.
+
+**Pattern**:
+
+```python
+from datetime import datetime, UTC
+from sqlalchemy.orm import Mapped, mapped_column
+
+class UserModel(BaseModel):
+    __tablename__ = "users"
+
+    # ✅ CORRECT: Timezone-aware with UTC
+    created_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(UTC),
+        nullable=False
+    )
+
+    updated_at: Mapped[datetime] = mapped_column(
+        default=lambda: datetime.now(UTC),
+        onupdate=lambda: datetime.now(UTC),
+        nullable=False
+    )
+
+    # For nullable timestamps
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        default=None,
+        nullable=True
+    )
+```
+
+**Why use `datetime.now(UTC)` wrapped in lambda**:
+- `UTC` is a constant from `datetime` module (Python 3.11+)
+- Lambda ensures the function is called at insertion time (not model definition time)
+- Without lambda, the default would be evaluated once when the class is defined
+
+**Common Mistakes to Avoid**:
+
+```python
+# ❌ WRONG: Not timezone-aware
+created_at: Mapped[datetime] = mapped_column(default=datetime.utcnow)
+
+# ❌ WRONG: datetime.utcnow is deprecated and naive
+created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.utcnow())
+
+# ❌ WRONG: Missing lambda (evaluates at class definition)
+created_at: Mapped[datetime] = mapped_column(default=datetime.now(UTC))
+
+# ✅ CORRECT: Timezone-aware UTC with lambda
+created_at: Mapped[datetime] = mapped_column(default=lambda: datetime.now(UTC))
+```
+
+**Database Column Type**:
+
+PostgreSQL stores timezone-aware timestamps in `TIMESTAMP WITH TIME ZONE`:
+
+```python
+# In migrations, Alembic will use TIMESTAMP WITH TIME ZONE automatically
+op.add_column('users',
+    sa.Column('created_at', sa.DateTime(timezone=True), nullable=False)
+)
+```
+
+**For Python < 3.11**:
+
+If using Python versions before 3.11, use `timezone.utc`:
+
+```python
+from datetime import datetime, timezone
+
+created_at: Mapped[datetime] = mapped_column(
+    default=lambda: datetime.now(timezone.utc)
+)
+```
+
+**Soft Delete Pattern**:
+
+For soft deletes, use nullable `deleted_at`:
+
+```python
+class UserModel(BaseModel):
+    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+        default=None,
+        nullable=True
+    )
+
+    # Query helper properties
+    @property
+    def is_deleted(self) -> bool:
+        return self.deleted_at is not None
+```
+
+**Benefits of Timezone-Aware Dates**:
+- Prevents ambiguity when displaying dates to users in different timezones
+- Ensures correct date arithmetic (no DST issues)
+- Makes it explicit that all times are stored in UTC
+- Required for proper international application support
+- Avoids Python warnings about naive datetime comparisons
 
 ### Naming Conventions
 
@@ -327,6 +480,7 @@ engine = create_async_engine(
 4. **Missing transactions** - Use `await db.commit()` for writes
 5. **Hardcoded values** - Use value objects, not raw strings/ints
 6. **Circular imports** - Forward reference relationships with string `"ModelName"`
+7. **Naive datetime objects** - Always use timezone-aware dates with `datetime.now(UTC)`
 
 ## Performance Tips
 

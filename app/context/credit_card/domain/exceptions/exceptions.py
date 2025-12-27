@@ -86,3 +86,7 @@ class CreditCardUpdateError(Exception):
 
 class CreditCardMapperError(Exception):
     pass
+
+
+class CreditCardDatabaseError(Exception):
+    pass

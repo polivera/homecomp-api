@@ -1,5 +1,6 @@
 from .exceptions import (
     CreditCardCreationError,
+    CreditCardDatabaseError,
     CreditCardMapperError,
     CreditCardNameAlreadyExistError,
     CreditCardNotFoundError,
@@ -24,6 +25,7 @@ from .exceptions import (
 
 __all__ = [
     "CreditCardCreationError",
+    "CreditCardDatabaseError",
     "CreditCardMapperError",
     "CreditCardNameAlreadyExistError",
     "CreditCardNotFoundError",

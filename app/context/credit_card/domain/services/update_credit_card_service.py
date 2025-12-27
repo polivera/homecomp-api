@@ -13,13 +13,16 @@ from app.context.credit_card.domain.exceptions import (
     CreditCardUnauthorizedAccessError,
     CreditCardUsedExceedsLimitError,
 )
+from app.context.credit_card.domain.value_objects import (
+    CreditCardCurrency,
+    CreditCardUserID,
+)
 from app.context.credit_card.domain.value_objects.card_limit import CardLimit
 from app.context.credit_card.domain.value_objects.card_used import CardUsed
 from app.context.credit_card.domain.value_objects.credit_card_id import CreditCardID
 from app.context.credit_card.domain.value_objects.credit_card_name import (
     CreditCardName,
 )
-from app.context.user.domain.value_objects.user_id import UserID
 
 
 class UpdateCreditCardService(UpdateCreditCardServiceContract):
@@ -31,15 +34,18 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
     async def update_credit_card(
         self,
         credit_card_id: CreditCardID,
-        user_id: UserID,
+        user_id: CreditCardUserID,
         name: Optional[CreditCardName] = None,
         limit: Optional[CardLimit] = None,
         used: Optional[CardUsed] = None,
+        currency: Optional[CreditCardCurrency] = None,
     ) -> CreditCardDTO:
         """Update an existing credit card with validation"""
 
         # Find the existing card
-        existing_card = await self._repository.find_credit_card(card_id=credit_card_id)
+        existing_card = await self._repository.find_credit_card(
+            card_id=credit_card_id
+        )
 
         if not existing_card:
             raise CreditCardNotFoundError(

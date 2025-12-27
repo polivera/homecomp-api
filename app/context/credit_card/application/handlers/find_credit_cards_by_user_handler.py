@@ -21,8 +21,8 @@ class FindCreditCardsByUserHandler(FindCreditCardsByUserHandlerContract):
         """Execute the find credit cards by user query"""
 
         # Convert query primitive to value object
-        card_dtos = await self._repository.find_credit_cards_by_user(
+        card_dtos = await self._repository.find_user_credit_cards(
             user_id=CreditCardUserID(query.user_id)
         )
 
-        return [CreditCardResponseDTO.from_domain_dto(dto) for dto in card_dtos]
+        return [CreditCardResponseDTO.from_domain_dto(dto) for dto in card_dtos or []]
