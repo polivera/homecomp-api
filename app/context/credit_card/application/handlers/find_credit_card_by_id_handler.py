@@ -5,7 +5,7 @@ from app.context.credit_card.application.contracts import (
 )
 from app.context.credit_card.application.dto import CreditCardResponseDTO
 from app.context.credit_card.application.queries import FindCreditCardByIdQuery
-from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
+from app.context.credit_card.domain.contracts.infrastructure import (
     CreditCardRepositoryContract,
 )
 from app.context.credit_card.domain.value_objects import CreditCardID

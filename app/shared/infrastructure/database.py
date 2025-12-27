@@ -50,3 +50,7 @@ from app.context.auth.infrastructure.models.session_model import SessionModel  #
 from app.context.credit_card.infrastructure.models.credit_card_model import (  # noqa: F401, E402
     CreditCardModel,
 )
+from app.context.household.infrastructure.models.household_model import (  # noqa: F401, E402
+    HouseholdModel,
+    HouseholdMemberModel,
+)
