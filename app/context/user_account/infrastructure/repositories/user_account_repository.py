@@ -1,21 +1,25 @@
-from datetime import datetime
-from typing import Optional
+from typing import Any, Optional, cast
 
 from sqlalchemy import select, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.context.user.domain.value_objects.user_id import UserID
-from app.context.user_account.domain.contracts.infrastructure.user_account_repository_contract import (
+from app.context.user_account.domain.contracts.infrastructure import (
     UserAccountRepositoryContract,
 )
-from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
-from app.context.user_account.domain.value_objects.account_id import AccountID
-from app.context.user_account.domain.value_objects.account_name import AccountName
-from app.context.user_account.infrastructure.mappers.user_account_mapper import (
+from app.context.user_account.domain.dto import UserAccountDTO
+from app.context.user_account.domain.exceptions import UserAccountNameAlreadyExistError
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountDeletedAt,
+    UserAccountID,
+    UserAccountUserID,
+)
+from app.context.user_account.infrastructure.mappers import (
     UserAccountMapper,
 )
-from app.context.user_account.infrastructure.models.user_account_model import (
+from app.context.user_account.infrastructure.models import (
     UserAccountModel,
 )
 
@@ -28,35 +32,30 @@ class UserAccountRepository(UserAccountRepositoryContract):
 
     async def save_account(self, account: UserAccountDTO) -> UserAccountDTO:
         """Create a new user account"""
-        # Convert DTO to model (without ID for new records)
-        model = UserAccountModel(
-            user_id=account.user_id.value,
-            name=account.name.value,
-            currency=account.currency.value,
-            balance=account.balance.value,
-        )
-
+        model = UserAccountMapper.to_model(account)
         self._db.add(model)
-
         try:
             await self._db.commit()
             await self._db.refresh(model)
         except IntegrityError as e:
             await self._db.rollback()
-            raise ValueError(
+            raise UserAccountNameAlreadyExistError(
                 f"Account with name '{account.name.value}' already exists for this user"
             ) from e
 
-        return UserAccountMapper.toDTO(model)
+        return UserAccountMapper.to_dto_or_fail(model)
 
     async def find_account(
         self,
-        account_id: Optional[AccountID] = None,
-        user_id: Optional[UserID] = None,
+        account_id: Optional[UserAccountID] = None,
+        user_id: Optional[UserAccountUserID] = None,
         name: Optional[AccountName] = None,
+        only_active: Optional[bool] = True,
     ) -> Optional[UserAccountDTO]:
-        """Find an account by ID or by user_id and name"""
-        stmt = select(UserAccountModel).where(UserAccountModel.deleted_at.is_(None))
+        """Find an account by ID or by user_id and name (admin/unrestricted usage)"""
+        stmt = select(UserAccountModel)
+        if only_active:
+            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
 
         if account_id is not None:
             stmt = stmt.where(UserAccountModel.id == account_id.value)
@@ -71,44 +70,78 @@ class UserAccountRepository(UserAccountRepositoryContract):
         result = await self._db.execute(stmt)
         model = result.scalar_one_or_none()
 
-        return UserAccountMapper.toDTO(model) if model else None
+        return UserAccountMapper.to_dto(model) if model else None
 
-    async def find_accounts_by_user(self, user_id: UserID) -> list[UserAccountDTO]:
-        """Find all non-deleted accounts for a user"""
-        stmt = select(UserAccountModel).where(
-            UserAccountModel.user_id == user_id.value,
-            UserAccountModel.deleted_at.is_(None)
+    async def find_user_accounts(
+        self,
+        user_id: UserAccountUserID,
+        account_id: Optional[UserAccountID] = None,
+        name: Optional[AccountName] = None,
+        only_active: Optional[bool] = True,
+    ) -> Optional[list[UserAccountDTO]]:
+        """Find user account always filtering by user_id (for user-scoped queries)"""
+        stmt = select(UserAccountModel).where(UserAccountModel.user_id == user_id.value)
+        if only_active:
+            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
+
+        if account_id is not None:
+            stmt = stmt.where(UserAccountModel.id == account_id.value)
+        else:
+            if name is not None:
+                stmt = stmt.where(UserAccountModel.name.like(f"%{name.value}%"))
+
+        models = (await self._db.execute(stmt)).scalars()
+        return (
+            [UserAccountMapper.to_dto_or_fail(model) for model in models]
+            if models
+            else []
         )
-        result = await self._db.execute(stmt)
-        models = result.scalars().all()
-        return [UserAccountMapper.toDTO(model) for model in models]
+
+    async def find_user_account_by_id(
+        self,
+        user_id: UserAccountUserID,
+        account_id: UserAccountID,
+        only_active: Optional[bool] = True,
+    ) -> Optional[UserAccountDTO]:
+        stmt = select(UserAccountModel).where(
+            UserAccountModel.id == account_id.value,
+            UserAccountModel.user_id == user_id.value,
+        )
+        if only_active:
+            stmt = stmt.where(UserAccountModel.deleted_at._is(None))
+
+        model = (await self._db.execute(stmt)).scalar_one_or_none()
+        return UserAccountMapper.to_dto(model)
 
     async def update_account(self, account: UserAccountDTO) -> UserAccountDTO:
         """Update an existing account"""
+        if account.account_id is None:
+            raise ValueError("Account ID not given")
+
         stmt = (
             update(UserAccountModel)
             .where(
                 UserAccountModel.id == account.account_id.value,
-                UserAccountModel.deleted_at.is_(None)
+                UserAccountModel.deleted_at.is_(None),
             )
             .values(
                 name=account.name.value,
                 currency=account.currency.value,
-                balance=account.balance.value
+                balance=account.balance.value,
             )
         )
 
-        result = await self._db.execute(stmt)
+        result = cast(CursorResult[Any], await self._db.execute(stmt))
         if result.rowcount == 0:
             raise ValueError("Account not found or already deleted")
 
         await self._db.commit()
 
-        # Fetch updated record
-        updated = await self.find_account(account_id=account.account_id)
-        return updated
+        return account
 
-    async def delete_account(self, account_id: AccountID, user_id: UserID) -> bool:
+    async def delete_account(
+        self, account_id: UserAccountID, user_id: UserAccountUserID
+    ) -> bool:
         """Soft delete an account"""
         # Verify account exists and user owns it
         account = await self.find_account(account_id=account_id)
@@ -121,12 +154,12 @@ class UserAccountRepository(UserAccountRepositoryContract):
             .where(
                 UserAccountModel.id == account_id.value,
                 UserAccountModel.user_id == user_id.value,
-                UserAccountModel.deleted_at.is_(None)
+                UserAccountModel.deleted_at.is_(None),
             )
-            .values(deleted_at=datetime.utcnow())
+            .values(deleted_at=UserAccountDeletedAt.now().value)
         )
 
-        result = await self._db.execute(stmt)
+        result = cast(CursorResult[Any], await self._db.execute(stmt))
         await self._db.commit()
 
         return result.rowcount > 0

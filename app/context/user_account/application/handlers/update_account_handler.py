@@ -10,6 +10,13 @@ from app.context.user_account.application.dto.update_account_result import (
 from app.context.user_account.domain.contracts.services.update_account_service_contract import (
     UpdateAccountServiceContract,
 )
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
+    UserAccountUserID,
+)
 
 
 class UpdateAccountHandler(UpdateAccountHandlerContract):
@@ -18,11 +25,11 @@ class UpdateAccountHandler(UpdateAccountHandlerContract):
 
     async def handle(self, command: UpdateAccountCommand) -> UpdateAccountResult:
         updated = await self._service.update_account(
-            account_id=command.account_id,
-            user_id=command.user_id,
-            name=command.name,
-            currency=command.currency,
-            balance=command.balance,
+            account_id=UserAccountID(command.account_id),
+            user_id=UserAccountUserID(command.user_id),
+            name=AccountName(command.name),
+            currency=UserAccountCurrency(command.currency),
+            balance=UserAccountBalance.from_float(command.balance),
         )
 
         return UpdateAccountResult(

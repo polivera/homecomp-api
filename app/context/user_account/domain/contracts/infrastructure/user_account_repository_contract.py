@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from app.context.user.domain.value_objects.user_id import UserID
 from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
-from app.context.user_account.domain.value_objects.account_id import AccountID
+from app.context.user_account.domain.value_objects import UserAccountUserID
+from app.context.user_account.domain.value_objects.account_id import UserAccountID
 from app.context.user_account.domain.value_objects.account_name import AccountName
 
 
@@ -22,15 +22,16 @@ class UserAccountRepositoryContract(ABC):
             UserAccountDTO of the created account
 
         Raises:
-            Exception if account with same user_id and name already exists
+            UserAccountMapperError if cannot map model to dto
+            UserAccountNameAlreadyExistError if account name already exist
         """
         pass
 
     @abstractmethod
     async def find_account(
         self,
-        account_id: Optional[AccountID] = None,
-        user_id: Optional[UserID] = None,
+        account_id: Optional[UserAccountID] = None,
+        user_id: Optional[UserAccountUserID] = None,
         name: Optional[AccountName] = None,
     ) -> Optional[UserAccountDTO]:
         """
@@ -47,16 +48,34 @@ class UserAccountRepositoryContract(ABC):
         pass
 
     @abstractmethod
-    async def find_accounts_by_user(self, user_id: UserID) -> list[UserAccountDTO]:
+    async def find_user_accounts(
+        self,
+        user_id: UserAccountUserID,
+        account_id: Optional[UserAccountID] = None,
+        name: Optional[AccountName] = None,
+        only_active: Optional[bool] = True,
+    ) -> Optional[list[UserAccountDTO]]:
         """
-        Find all non-deleted accounts for a user
+        Find user account always filtering by user_id (for user-scoped queries)
 
         Args:
-            user_id: User ID to search for
+            user_id: User ID to filter accounts for
+            account_id: Optional account ID to find specific account
+            name: Optional account name for partial match search
+            only_active: Whether to exclude soft-deleted accounts (default: True)
 
         Returns:
-            List of UserAccountDTO objects
+            UserAccountDTO if found, None otherwise
         """
+        pass
+
+    @abstractmethod
+    async def find_user_account_by_id(
+        self,
+        user_id: UserAccountUserID,
+        account_id: UserAccountID,
+        only_active: Optional[bool] = True,
+    ) -> Optional[UserAccountDTO]:
         pass
 
     @abstractmethod
@@ -76,7 +95,9 @@ class UserAccountRepositoryContract(ABC):
         pass
 
     @abstractmethod
-    async def delete_account(self, account_id: AccountID, user_id: UserID) -> bool:
+    async def delete_account(
+        self, account_id: UserAccountID, user_id: UserAccountUserID
+    ) -> bool:
         """
         Soft delete an account. Returns True if deleted, False if not found/unauthorized
 

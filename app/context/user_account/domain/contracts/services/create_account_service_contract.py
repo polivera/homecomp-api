@@ -1,10 +1,12 @@
 from abc import ABC, abstractmethod
 
-from app.context.user.domain.value_objects.user_id import UserID
 from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
-from app.context.user_account.domain.value_objects.account_name import AccountName
-from app.context.user_account.domain.value_objects.balance import Balance
-from app.context.user_account.domain.value_objects.currency import Currency
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountUserID,
+)
 
 
 class CreateAccountServiceContract(ABC):
@@ -12,7 +14,11 @@ class CreateAccountServiceContract(ABC):
 
     @abstractmethod
     async def create_account(
-        self, user_id: UserID, name: AccountName, currency: Currency, balance: Balance
+        self,
+        user_id: UserAccountUserID,
+        name: AccountName,
+        currency: UserAccountCurrency,
+        balance: UserAccountBalance,
     ) -> UserAccountDTO:
         """
         Create a new user account
@@ -27,6 +33,7 @@ class CreateAccountServiceContract(ABC):
             AccountID of the created account
 
         Raises:
-            ValueError if account with same name already exists for user
+            UserAccountMapperError if cannot map model to dto
+            UserAccountNameAlreadyExistError if account name already exist
         """
         pass

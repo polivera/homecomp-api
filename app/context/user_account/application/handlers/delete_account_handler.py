@@ -7,6 +7,10 @@ from app.context.user_account.application.contracts.delete_account_handler_contr
 from app.context.user_account.domain.contracts.infrastructure.user_account_repository_contract import (
     UserAccountRepositoryContract,
 )
+from app.context.user_account.domain.value_objects import (
+    UserAccountID,
+    UserAccountUserID,
+)
 
 
 class DeleteAccountHandler(DeleteAccountHandlerContract):
@@ -16,5 +20,6 @@ class DeleteAccountHandler(DeleteAccountHandlerContract):
     async def handle(self, command: DeleteAccountCommand) -> bool:
         # Call repository directly - no complex business logic needed
         return await self._repository.delete_account(
-            account_id=command.account_id, user_id=command.user_id
+            account_id=UserAccountID(command.account_id),
+            user_id=UserAccountUserID(command.user_id),
         )

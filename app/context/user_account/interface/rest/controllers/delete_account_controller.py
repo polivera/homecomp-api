@@ -7,7 +7,7 @@ from app.context.user_account.application.commands.delete_account_command import
 from app.context.user_account.application.contracts.delete_account_handler_contract import (
     DeleteAccountHandlerContract,
 )
-from app.context.user_account.domain.value_objects.account_id import AccountID
+from app.context.user_account.domain.value_objects.account_id import UserAccountID
 from app.context.user_account.infrastructure.dependencies import (
     get_delete_account_handler,
 )
@@ -22,7 +22,8 @@ async def delete_account(
 ):
     """Delete a user account (soft delete)"""
     command = DeleteAccountCommand(
-        account_id=AccountID(account_id), user_id=UserID(1)  # TODO: from cookie header
+        account_id=UserAccountID(account_id),
+        user_id=UserID(1),  # TODO: from cookie header
     )
 
     success = await handler.handle(command)

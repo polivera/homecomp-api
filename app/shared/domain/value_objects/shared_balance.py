@@ -1,9 +1,10 @@
 from dataclasses import dataclass, field
 from decimal import Decimal
+from typing import Self
 
 
 @dataclass(frozen=True)
-class Balance:
+class SharedBalance:
     """Value object for account balance (can be negative for overdrafts)"""
 
     value: Decimal
@@ -20,11 +21,11 @@ class Balance:
                 )
 
     @classmethod
-    def from_float(cls, value: float) -> "Balance":
+    def from_float(cls, value: float) -> Self:
         """Create Balance from float value"""
         return cls(Decimal(str(value)))
 
     @classmethod
-    def from_trusted_source(cls, value: Decimal) -> "Balance":
+    def from_trusted_source(cls, value: Decimal) -> Self:
         """Create Balance from trusted source (e.g., database) - skips validation"""
         return cls(value, _validated=True)

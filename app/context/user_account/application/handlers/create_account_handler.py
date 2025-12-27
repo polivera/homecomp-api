@@ -1,14 +1,24 @@
-from app.context.user_account.application.commands.create_account_command import (
+from app.context.user_account.application.commands import (
     CreateAccountCommand,
 )
-from app.context.user_account.application.contracts.create_account_handler_contract import (
+from app.context.user_account.application.contracts import (
     CreateAccountHandlerContract,
 )
-from app.context.user_account.application.dto.create_account_result import (
+from app.context.user_account.application.dto import (
     CreateAccountResult,
 )
-from app.context.user_account.domain.contracts.services.create_account_service_contract import (
+from app.context.user_account.domain.contracts.services import (
     CreateAccountServiceContract,
+)
+from app.context.user_account.domain.exceptions import (
+    UserAccountMapperError,
+    UserAccountNameAlreadyExistError,
+)
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountUserID,
 )
 
 
@@ -21,14 +31,25 @@ class CreateAccountHandler(CreateAccountHandlerContract):
     async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
         """Execute the create account command"""
 
-        account_dto = await self._service.create_account(
-            user_id=command.user_id,
-            name=command.name,
-            currency=command.currency,
-            balance=command.balance,
-        )
+        try:
+            account_dto = await self._service.create_account(
+                user_id=UserAccountUserID(command.user_id),
+                name=AccountName(command.name),
+                currency=UserAccountCurrency(command.currency),
+                balance=UserAccountBalance.from_float(command.balance),
+            )
 
-        if account_dto.account_id is None:
-            return CreateAccountResult(error="Error creating account")
+            if account_dto.account_id is None:
+                return CreateAccountResult(error="Error creating account")
 
-        return CreateAccountResult(account_id=account_dto.account_id.value)
+            return CreateAccountResult(
+                account_id=account_dto.account_id.value,
+                account_name=account_dto.name.value,
+                account_balance=float(account_dto.balance.value),
+            )
+        except UserAccountNameAlreadyExistError:
+            return CreateAccountResult(error="Account name already exist")
+        except UserAccountMapperError:
+            return CreateAccountResult(error="Error mapping model to dto")
+        except Exception:
+            return CreateAccountResult(error="Unexpected error")

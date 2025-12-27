@@ -1,15 +1,17 @@
-from app.context.user.domain.value_objects.user_id import UserID
-from app.context.user_account.domain.contracts.infrastructure.user_account_repository_contract import (
+from app.context.user_account.domain.contracts.infrastructure import (
     UserAccountRepositoryContract,
 )
-from app.context.user_account.domain.contracts.services.update_account_service_contract import (
+from app.context.user_account.domain.contracts.services import (
     UpdateAccountServiceContract,
 )
-from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
-from app.context.user_account.domain.value_objects.account_id import AccountID
-from app.context.user_account.domain.value_objects.account_name import AccountName
-from app.context.user_account.domain.value_objects.balance import Balance
-from app.context.user_account.domain.value_objects.currency import Currency
+from app.context.user_account.domain.dto import UserAccountDTO
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
+    UserAccountUserID,
+)
 
 
 class UpdateAccountService(UpdateAccountServiceContract):
@@ -18,23 +20,30 @@ class UpdateAccountService(UpdateAccountServiceContract):
 
     async def update_account(
         self,
-        account_id: AccountID,
-        user_id: UserID,
+        account_id: UserAccountID,
+        user_id: UserAccountUserID,
         name: AccountName,
-        currency: Currency,
-        balance: Balance,
+        currency: UserAccountCurrency,
+        balance: UserAccountBalance,
     ) -> UserAccountDTO:
-        # 1. Check account exists and user owns it
-        existing = await self._repository.find_account(account_id=account_id)
+        existing = await self._repository.find_user_accounts(
+            user_id=user_id, account_id=account_id
+        )
+
         if not existing:
             raise ValueError("Account not found")
-        if existing.user_id.value != user_id.value:
-            raise ValueError("Account not found")  # Don't reveal it exists
 
-        # 2. If name changed, check for duplicates
+        # FIX: find_user_accounts use like instead of equal, error prone on this check
         if existing.name.value != name.value:
-            duplicate = await self._repository.find_account(user_id=user_id, name=name)
-            if duplicate and duplicate.account_id.value != account_id.value:
+            # In this case, we should also search inactive for name repetition
+            duplicate = await self._repository.find_user_accounts(
+                user_id=user_id, name=name, only_active=False
+            )
+            if (
+                duplicate
+                and duplicate.account_id
+                and duplicate.account_id.value != account_id.value
+            ):
                 raise ValueError(f"Account with name '{name.value}' already exists")
 
         # 3. Update account

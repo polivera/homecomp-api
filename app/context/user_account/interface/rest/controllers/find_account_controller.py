@@ -13,7 +13,7 @@ from app.context.user_account.application.queries.find_account_by_id_query impor
 from app.context.user_account.application.queries.find_accounts_by_user_query import (
     FindAccountsByUserQuery,
 )
-from app.context.user_account.domain.value_objects.account_id import AccountID
+from app.context.user_account.domain.value_objects.account_id import UserAccountID
 from app.context.user_account.infrastructure.dependencies import (
     get_find_account_by_id_handler,
     get_find_accounts_by_user_handler,
@@ -30,7 +30,8 @@ async def get_account(
 ):
     """Get a specific user account by ID"""
     query = FindAccountByIdQuery(
-        account_id=AccountID(account_id), user_id=UserID(1)  # TODO: from cookie header
+        account_id=UserAccountID(account_id),
+        user_id=UserID(1),  # TODO: from cookie header
     )
 
     result = await handler.handle(query)

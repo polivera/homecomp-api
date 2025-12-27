@@ -12,6 +12,10 @@ from app.context.user_account.application.queries.find_account_by_id_query impor
 from app.context.user_account.domain.contracts.infrastructure.user_account_repository_contract import (
     UserAccountRepositoryContract,
 )
+from app.context.user_account.domain.value_objects import (
+    UserAccountID,
+    UserAccountUserID,
+)
 
 
 class FindAccountByIdHandler(FindAccountByIdHandlerContract):
@@ -19,11 +23,9 @@ class FindAccountByIdHandler(FindAccountByIdHandlerContract):
         self._repository = repository
 
     async def handle(self, query: FindAccountByIdQuery) -> Optional[AccountResponseDTO]:
-        # Call repository directly (CQRS - queries bypass domain)
-        account = await self._repository.find_account(account_id=query.account_id)
-
-        # Authorization: verify user owns the account
-        if account and account.user_id.value != query.user_id.value:
-            return None  # Return 404, not 403
+        account = await self._repository.find_user_accounts(
+            account_id=UserAccountID(query.account_id),
+            user_id=UserAccountUserID(query.user_id),
+        )
 
         return AccountResponseDTO.from_domain_dto(account) if account else None

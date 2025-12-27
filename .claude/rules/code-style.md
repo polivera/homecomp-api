@@ -150,43 +150,140 @@ class LoginRequest(BaseModel):
 
 ## Error Handling
 
-### Value Objects
+### Custom Exceptions for Each Case
 
-Raise `ValueError` for validation failures:
+**ALWAYS create specific custom exceptions** instead of raising standard exceptions (ValueError, RuntimeError, etc.). Each exceptional case should have its own exception class.
+
+**Rationale:**
+- Makes error handling more explicit and type-safe
+- Allows different handling for different error cases
+- Self-documenting code (exception name describes what went wrong)
+- Easier to catch and handle specific errors in controllers
+
+### Exception Organization
+
+Create exceptions in `domain/exceptions/`:
 
 ```python
-def __post_init__(self):
-    if len(self.value) < 8:
-        raise ValueError("Password must be at least 8 characters")
+# app/context/user_account/domain/exceptions/exceptions.py
+class UserAccountMapperError(Exception):
+    pass
+
+class UserAccountNameAlreadyExistError(Exception):
+    pass
+
+class UserAccountNotFoundError(Exception):
+    pass
+```
+
+```python
+# app/context/user_account/domain/exceptions/__init__.py
+from .exceptions import (
+    UserAccountMapperError,
+    UserAccountNameAlreadyExistError,
+    UserAccountNotFoundError,
+)
+
+__all__ = [
+    "UserAccountMapperError",
+    "UserAccountNameAlreadyExistError",
+    "UserAccountNotFoundError",
+]
+```
+
+### Naming Convention
+
+Exception names should clearly describe the error condition:
+
+- `{Entity}NotFoundError` - Entity doesn't exist
+- `{Entity}{Field}AlreadyExistError` - Duplicate/unique constraint violation
+- `{Entity}{Operation}Error` - Operation-specific failures
+- `Invalid{Entity}{Field}Error` - Validation failures for specific fields
+
+```python
+# Good - specific exceptions
+class UserNotFoundError(Exception):
+    pass
+
+class UserEmailAlreadyExistError(Exception):
+    pass
+
+class InvalidUserPasswordError(Exception):
+    pass
+
+# Bad - generic exceptions
+raise ValueError("User not found")  # Don't do this!
+raise RuntimeError("Email already exists")  # Don't do this!
+```
+
+### Value Objects
+
+Create specific validation exceptions:
+
+```python
+# app/context/user/domain/exceptions/exceptions.py
+class InvalidEmailFormatError(Exception):
+    pass
+
+class InvalidPasswordLengthError(Exception):
+    pass
+
+# app/context/user/domain/value_objects/email.py
+@dataclass(frozen=True)
+class Email:
+    value: str
+
+    def __post_init__(self):
+        if not self._is_valid():
+            raise InvalidEmailFormatError(
+                f"Invalid email format: '{self.value}'. "
+                f"Expected format: user@domain.com"
+            )
 ```
 
 ### Domain Services
 
-Create domain-specific exceptions:
+Raise specific domain exceptions:
 
 ```python
-class AuthenticationError(Exception):
+# app/context/auth/domain/exceptions/exceptions.py
+class InvalidCredentialsError(Exception):
     pass
 
+class AccountLockedError(Exception):
+    pass
+
+# app/context/auth/domain/services/login_service.py
 class LoginService:
     async def login(...) -> LoginResult:
+        user = await self._user_repo.find_user(email=email)
         if not user:
-            raise AuthenticationError("Invalid credentials")
+            raise InvalidCredentialsError("Invalid email or password")
+
+        if user.is_locked:
+            raise AccountLockedError(f"Account locked until {user.locked_until}")
 ```
 
 ### Controllers
 
-Convert to HTTP exceptions:
+Map domain exceptions to HTTP status codes:
 
 ```python
 from fastapi import HTTPException
+from app.context.auth.domain.exceptions import (
+    InvalidCredentialsError,
+    AccountLockedError,
+)
 
 @router.post("/login")
 async def login(request: LoginRequest):
     try:
         result = await handler.handle(...)
-    except AuthenticationError:
-        raise HTTPException(status_code=401, detail="Invalid credentials")
+        return result
+    except InvalidCredentialsError as e:
+        raise HTTPException(status_code=401, detail=str(e))
+    except AccountLockedError as e:
+        raise HTTPException(status_code=403, detail=str(e))
 ```
 
 ## Import Organization
@@ -210,6 +307,113 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.context.auth.domain.contracts.login_service_contract import LoginServiceContract
 from app.context.auth.application.commands.login_command import LoginCommand
 from app.shared.domain.value_objects.shared_email import Email as SharedEmail
+```
+
+## Module Initialization Pattern
+
+**All `__init__.py` files** must follow this pattern to provide a clean, refactorable public API.
+
+### Pattern
+
+```python
+# app/context/user_account/domain/value_objects/__init__.py
+from .account_id import AccountID
+from .account_name import AccountName
+from .balance import Balance
+from .currency import Currency
+
+__all__ = ["AccountName", "AccountID", "Balance", "Currency"]
+```
+
+### Rules
+
+1. Use **relative imports** (`.module_name`) to import from individual files within the package
+2. Define an explicit **`__all__` list** to declare the public API
+3. **Always import from the module directory**, never from individual files
+
+### Usage
+
+```python
+# Good - import from module
+from app.context.user_account.domain.value_objects import AccountID, Balance
+
+# Bad - import directly from file
+from app.context.user_account.domain.value_objects.account_id import AccountID
+```
+
+### Benefits
+
+- **Cleaner imports** - Shorter, more readable import statements
+- **Easier refactoring** - Internal file structure can change without breaking imports
+- **Explicit public API** - `__all__` makes it clear what's meant to be used externally
+- **Consistency** - Same pattern across the entire codebase
+
+### Where to Apply
+
+Apply this pattern to **all directories** containing multiple Python modules:
+
+- `value_objects/`
+- `dto/`
+- `contracts/`
+- `services/`
+- `handlers/`
+- `commands/`
+- `queries/`
+- `repositories/`
+- `mappers/`
+- `schemas/`
+- Any other package with multiple modules
+
+## Commands and Queries (CQRS)
+
+### Use Primitives Only
+
+Commands and queries should **only use primitive types** (str, int, float, bool, etc.). They should NOT use value objects or domain types.
+
+**Rationale:**
+- Commands/queries are application-layer DTOs for transferring data from controllers to handlers
+- Value object validation and construction happens in the handler, not at the boundary
+- Keeps commands/queries simple and framework-agnostic
+- Allows handlers to control when and how validation occurs
+
+```python
+# Good - uses primitives
+@dataclass(frozen=True)
+class LoginCommand:
+    email: str
+    password: str
+
+# Bad - uses value objects
+@dataclass(frozen=True)
+class LoginCommand:
+    email: Email  # Don't do this!
+    password: Password  # Don't do this!
+```
+
+**Handler converts primitives to value objects:**
+
+```python
+class LoginHandler:
+    async def handle(self, command: LoginCommand) -> LoginResult:
+        # Handler constructs value objects from primitives
+        email = SharedEmail(command.email)  # Validation happens here
+        password = SharedPassword.from_plain_text(command.password)
+
+        # Now use value objects with domain service
+        result = await self._login_service.login(email, password)
+        return result
+```
+
+**Complete data flow:**
+
+```
+Controller (Pydantic model with primitives)
+    ↓
+Command/Query (primitives)
+    ↓
+Handler (converts to value objects)
+    ↓
+Domain Service (uses value objects)
 ```
 
 ## Dependency Injection

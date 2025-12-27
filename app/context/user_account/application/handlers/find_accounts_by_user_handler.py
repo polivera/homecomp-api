@@ -10,6 +10,7 @@ from app.context.user_account.application.queries.find_accounts_by_user_query im
 from app.context.user_account.domain.contracts.infrastructure.user_account_repository_contract import (
     UserAccountRepositoryContract,
 )
+from app.context.user_account.domain.value_objects import UserAccountUserID
 
 
 class FindAccountsByUserHandler(FindAccountsByUserHandlerContract):
@@ -17,5 +18,11 @@ class FindAccountsByUserHandler(FindAccountsByUserHandlerContract):
         self._repository = repository
 
     async def handle(self, query: FindAccountsByUserQuery) -> list[AccountResponseDTO]:
-        accounts = await self._repository.find_accounts_by_user(user_id=query.user_id)
-        return [AccountResponseDTO.from_domain_dto(acc) for acc in accounts]
+        accounts = await self._repository.find_user_accounts(
+            user_id=UserAccountUserID(query.user_id)
+        )
+        return (
+            [AccountResponseDTO.from_domain_dto(acc) for acc in accounts]
+            if accounts is not None
+            else []
+        )

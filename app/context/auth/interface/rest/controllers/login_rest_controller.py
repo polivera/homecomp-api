@@ -26,7 +26,7 @@ async def login(
         if login_result.token is None:
             raise HTTPException(status_code=500, detail="Token generation failed")
 
-        # Set JWT token as HTTP-only secure cookie
+        # Set session token as HTTP-only secure cookie
         response.set_cookie(
             key="access_token",
             value=login_result.token,

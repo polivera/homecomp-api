@@ -1,0 +1,90 @@
+from typing import Optional
+
+from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
+    CreditCardRepositoryContract,
+)
+from app.context.credit_card.domain.contracts.services.update_credit_card_service_contract import (
+    UpdateCreditCardServiceContract,
+)
+from app.context.credit_card.domain.dto.credit_card_dto import CreditCardDTO
+from app.context.credit_card.domain.exceptions import (
+    CreditCardNameAlreadyExistError,
+    CreditCardNotFoundError,
+    CreditCardUnauthorizedAccessError,
+    CreditCardUsedExceedsLimitError,
+)
+from app.context.credit_card.domain.value_objects.card_limit import CardLimit
+from app.context.credit_card.domain.value_objects.card_used import CardUsed
+from app.context.credit_card.domain.value_objects.credit_card_id import CreditCardID
+from app.context.credit_card.domain.value_objects.credit_card_name import (
+    CreditCardName,
+)
+from app.context.user.domain.value_objects.user_id import UserID
+
+
+class UpdateCreditCardService(UpdateCreditCardServiceContract):
+    """Service for updating credit cards"""
+
+    def __init__(self, repository: CreditCardRepositoryContract):
+        self._repository = repository
+
+    async def update_credit_card(
+        self,
+        credit_card_id: CreditCardID,
+        user_id: UserID,
+        name: Optional[CreditCardName] = None,
+        limit: Optional[CardLimit] = None,
+        used: Optional[CardUsed] = None,
+    ) -> CreditCardDTO:
+        """Update an existing credit card with validation"""
+
+        # Find the existing card
+        existing_card = await self._repository.find_credit_card(card_id=credit_card_id)
+
+        if not existing_card:
+            raise CreditCardNotFoundError(
+                f"Credit card with ID {credit_card_id.value} not found"
+            )
+
+        # Verify ownership
+        if existing_card.user_id.value != user_id.value:
+            raise CreditCardUnauthorizedAccessError(
+                f"User {user_id.value} is not authorized to update credit card "
+                f"{credit_card_id.value}"
+            )
+
+        # If name is being changed, check for duplicates
+        if name and name.value != existing_card.name.value:
+            duplicate_card = await self._repository.find_credit_card(
+                user_id=user_id, name=name
+            )
+            if duplicate_card:
+                raise CreditCardNameAlreadyExistError(
+                    f"Credit card with name '{name.value}' already exists for this user"
+                )
+
+        # Build updated card DTO with new values or existing ones
+        updated_name = name if name else existing_card.name
+        updated_limit = limit if limit else existing_card.limit
+        updated_used = used if used is not None else existing_card.used
+
+        # Business rule: ensure used <= limit
+        if updated_used.value > updated_limit.value:
+            raise CreditCardUsedExceedsLimitError(
+                f"Used amount ({updated_used.value}) cannot exceed limit "
+                f"({updated_limit.value})"
+            )
+
+        # Create updated DTO
+        updated_card = CreditCardDTO(
+            credit_card_id=existing_card.credit_card_id,
+            user_id=existing_card.user_id,
+            account_id=existing_card.account_id,
+            name=updated_name,
+            currency=existing_card.currency,
+            limit=updated_limit,
+            used=updated_used,
+        )
+
+        # Save and return
+        return await self._repository.update_credit_card(updated_card)
