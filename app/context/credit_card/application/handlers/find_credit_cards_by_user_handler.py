@@ -1,15 +1,12 @@
-from app.context.credit_card.application.contracts.find_credit_cards_by_user_handler_contract import (
+from app.context.credit_card.application.contracts import (
     FindCreditCardsByUserHandlerContract,
 )
-from app.context.credit_card.application.queries.find_credit_cards_by_user_query import (
-    FindCreditCardsByUserQuery,
-)
-from app.context.credit_card.application.dto.credit_card_response_dto import (
-    CreditCardResponseDTO,
-)
+from app.context.credit_card.application.dto import CreditCardResponseDTO
+from app.context.credit_card.application.queries import FindCreditCardsByUserQuery
 from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
     CreditCardRepositoryContract,
 )
+from app.context.credit_card.domain.value_objects import CreditCardUserID
 
 
 class FindCreditCardsByUserHandler(FindCreditCardsByUserHandlerContract):
@@ -23,8 +20,9 @@ class FindCreditCardsByUserHandler(FindCreditCardsByUserHandlerContract):
     ) -> list[CreditCardResponseDTO]:
         """Execute the find credit cards by user query"""
 
+        # Convert query primitive to value object
         card_dtos = await self._repository.find_credit_cards_by_user(
-            user_id=query.user_id
+            user_id=CreditCardUserID(query.user_id)
         )
 
         return [CreditCardResponseDTO.from_domain_dto(dto) for dto in card_dtos]
