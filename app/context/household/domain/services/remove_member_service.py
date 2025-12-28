@@ -39,9 +39,6 @@ class RemoveMemberService(RemoveMemberServiceContract):
         member = await self._household_repo.find_member(household_id, member_user_id)
 
         if not member or not member.is_active:
-            raise InviteNotFoundError(
-                "No active member found with this user ID"
-            )
+            raise InviteNotFoundError("No active member found with this user ID")
 
-        # Remove the member (sets left_at)
         await self._household_repo.revoke_or_remove(household_id, member_user_id)

@@ -24,17 +24,12 @@ class RevokeInviteService(RevokeInviteServiceContract):
         # Check if revoker is the owner
         household = await self._household_repo.find_household_by_id(household_id)
         if not household or household.owner_user_id.value != revoker_user_id.value:
-            raise OnlyOwnerCanRevokeError(
-                "Only the household owner can revoke invites"
-            )
+            raise OnlyOwnerCanRevokeError("Only the household owner can revoke invites")
 
         # Check if there's a pending invite
         member = await self._household_repo.find_member(household_id, invitee_user_id)
 
         if not member or not member.is_invited:
-            raise InviteNotFoundError(
-                "No pending invite found for this user"
-            )
+            raise InviteNotFoundError("No pending invite found for this user")
 
-        # Revoke the invite (sets left_at)
         await self._household_repo.revoke_or_remove(household_id, invitee_user_id)

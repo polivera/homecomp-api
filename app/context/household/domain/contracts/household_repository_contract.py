@@ -74,9 +74,16 @@ class HouseholdRepositoryContract(ABC):
 
     @abstractmethod
     async def list_household_pending_invites(
-        self, household_id: HouseholdID
+        self, household_id: HouseholdID, owner_id: HouseholdUserID
     ) -> List[HouseholdMemberDTO]:
         """List all pending invites for a household"""
+        pass
+
+    @abstractmethod
+    async def list_user_pending_household_invites(
+        self, user_id: HouseholdUserID
+    ) -> List[HouseholdMemberDTO]:
+        """List user pending invitation to households"""
         pass
 
     @abstractmethod

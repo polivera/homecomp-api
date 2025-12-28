@@ -38,7 +38,10 @@ class HouseholdMemberModel(BaseDBModel):
         DateTime(timezone=True), nullable=True, default=None
     )
     invited_by_user_id: Mapped[Optional[int]] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=True, default=None
+        Integer,
+        ForeignKey("users.id", ondelete="RESTRICT"),
+        nullable=True,
+        default=None,
     )
     invited_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True, default=lambda: datetime.now(UTC)

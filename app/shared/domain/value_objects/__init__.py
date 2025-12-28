@@ -6,6 +6,7 @@ from .shared_deleted_at import SharedDeletedAt
 from .shared_email import SharedEmail
 from .shared_password import SharedPassword
 from .shared_user_id import SharedUserID
+from .shared_username import SharedUsername
 
 __all__ = [
     "SharedDeletedAt",
@@ -16,4 +17,5 @@ __all__ = [
     "SharedAccountID",
     "SharedUserID",
     "SharedDateTime",
+    "SharedUsername",
 ]

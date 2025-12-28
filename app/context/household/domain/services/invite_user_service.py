@@ -60,7 +60,6 @@ class InviteUserService(InviteUserServiceContract):
             user_id=invitee_user_id,
             role=role,
             joined_at=None,  # NULL = invited
-            left_at=None,
             invited_by_user_id=inviter_user_id,
             invited_at=datetime.now(UTC),
         )

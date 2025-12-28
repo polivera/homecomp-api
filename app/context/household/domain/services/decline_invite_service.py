@@ -21,9 +21,6 @@ class DeclineInviteService(DeclineInviteServiceContract):
         member = await self._household_repo.find_member(household_id, user_id)
 
         if not member or not member.is_invited:
-            raise NotInvitedError(
-                "No pending invite found for this household"
-            )
+            raise NotInvitedError("No pending invite found for this household")
 
-        # Decline the invite (sets left_at)
         await self._household_repo.revoke_or_remove(household_id, user_id)

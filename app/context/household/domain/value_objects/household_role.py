@@ -1,4 +1,5 @@
 from dataclasses import dataclass, field
+
 from typing_extensions import Self
 
 
@@ -7,7 +8,8 @@ class HouseholdRole:
     value: str
     _validated: bool = field(default=False, repr=False, compare=False)
 
-    VALID_ROLES = {"owner", "participant"}
+    # Only role available for now is participant
+    VALID_ROLES = {"participant"}
 
     def __post_init__(self):
         if not self._validated:

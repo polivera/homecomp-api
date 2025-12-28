@@ -4,6 +4,7 @@ from typing import List, Optional
 from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import aliased
 
 from app.context.household.domain.contracts import HouseholdRepositoryContract
 from app.context.household.domain.dto import HouseholdDTO, HouseholdMemberDTO
@@ -24,6 +25,7 @@ from app.context.household.infrastructure.models import (
     HouseholdMemberModel,
     HouseholdModel,
 )
+from app.context.user.infrastructure.models.user_model import UserModel
 
 
 class HouseholdRepository(HouseholdRepositoryContract):
@@ -125,7 +127,6 @@ class HouseholdRepository(HouseholdRepositoryContract):
                     HouseholdMemberModel.household_id == household_id.value,
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.is_(None),
-                    HouseholdMemberModel.left_at.is_(None),
                 )
             )
             .order_by(HouseholdMemberModel.invited_at.desc())
@@ -157,7 +158,6 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.household_id == household_id.value,
                     HouseholdMemberModel.user_id == user_id.value,
-                    HouseholdMemberModel.left_at.is_(None),
                 )
             )
             .order_by(HouseholdMemberModel.invited_at.desc())
@@ -169,9 +169,6 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         if not member_model:
             raise InviteNotFoundError("No active invite or membership found")
-
-        # Set left_at
-        member_model.left_at = datetime.now(UTC)
 
         await self._db.commit()
 
@@ -195,7 +192,6 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.isnot(None),
-                    HouseholdMemberModel.left_at.is_(None),
                 )
             )
         )
@@ -227,7 +223,6 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.is_(None),
-                    HouseholdMemberModel.left_at.is_(None),
                 )
             )
         )
@@ -235,24 +230,79 @@ class HouseholdRepository(HouseholdRepositoryContract):
         result = await self._db.execute(stmt)
         households = result.scalars().all()
 
-        return [HouseholdMapper.to_dto(h) for h in households]
+        return [HouseholdMapper.to_dto_or_fail(h) for h in households]
 
-    async def list_household_pending_invites(
-        self, household_id: HouseholdID
+    async def list_user_pending_household_invites(
+        self, user_id: HouseholdUserID
     ) -> List[HouseholdMemberDTO]:
-        """List all pending invites for a household"""
-        stmt = select(HouseholdMemberModel).where(
-            and_(
-                HouseholdMemberModel.household_id == household_id.value,
-                HouseholdMemberModel.joined_at.is_(None),
-                HouseholdMemberModel.left_at.is_(None),
+        """List user pending invitation to households"""
+        InviterUser = aliased(UserModel)
+        stmt = (
+            select(HouseholdMemberModel, HouseholdModel, InviterUser)
+            .join(
+                HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id
+            )
+            .join(
+                InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id
+            )
+            .where(
+                and_(
+                    HouseholdMemberModel.user_id == user_id.value,
+                    HouseholdMemberModel.joined_at.is_(None),
+                )
             )
         )
 
         result = await self._db.execute(stmt)
-        members = result.scalars().all()
+        rows = result.all()
 
-        return [HouseholdMemberMapper.to_dto(m) for m in members]
+        # Each row is a tuple: (HouseholdMemberModel, HouseholdModel, InviterUser)
+        member_list = []
+        for member_model, household_model, inviter_model in rows:
+            member_dto = HouseholdMemberMapper.to_dto(
+                member_model, household_model, inviter_model
+            )
+            member_list.append(member_dto)
+
+        return member_list
+
+    async def list_household_pending_invites(
+        self, household_id: HouseholdID, owner_id: HouseholdUserID
+    ) -> List[HouseholdMemberDTO]:
+        """List all pending invites for a household with household name and inviter username"""
+        # Create alias for the inviter user
+        InviterUser = aliased(UserModel)
+
+        # Join with HouseholdModel and UserModel to get household name and inviter username
+        stmt = (
+            select(HouseholdMemberModel, HouseholdModel, InviterUser)
+            .join(
+                HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id
+            )
+            .join(
+                InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id
+            )
+            .where(
+                and_(
+                    HouseholdMemberModel.household_id == household_id.value,
+                    HouseholdModel.owner_user_id == owner_id.value,
+                    HouseholdMemberModel.joined_at.is_(None),
+                )
+            )
+        )
+
+        result = await self._db.execute(stmt)
+        rows = result.all()
+
+        # Each row is a tuple: (HouseholdMemberModel, HouseholdModel, InviterUser)
+        member_list = []
+        for member_model, household_model, inviter_model in rows:
+            member_dto = HouseholdMemberMapper.to_dto(
+                member_model, household_model, inviter_model
+            )
+            member_list.append(member_dto)
+
+        return member_list
 
     async def user_has_access(
         self, user_id: HouseholdUserID, household_id: HouseholdID
