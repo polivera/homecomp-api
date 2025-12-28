@@ -1,7 +1,7 @@
 from datetime import UTC, datetime
 from typing import Optional
 
-from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.shared.infrastructure.models import BaseDBModel
@@ -33,10 +33,8 @@ class HouseholdMemberModel(BaseDBModel):
         Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="participant")
+    # NULL = invited (pending), NOT NULL = active member
     joined_at: Mapped[Optional[datetime]] = mapped_column(
-        DateTime(timezone=True), nullable=True, default=None
-    )
-    left_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None
     )
     invited_by_user_id: Mapped[Optional[int]] = mapped_column(
@@ -44,4 +42,9 @@ class HouseholdMemberModel(BaseDBModel):
     )
     invited_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True, default=lambda: datetime.now(UTC)
+    )
+
+    # Composite unique constraint - user can only have one record per household
+    __table_args__ = (
+        UniqueConstraint("household_id", "user_id", name="uq_household_user"),
     )

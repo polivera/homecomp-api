@@ -35,12 +35,10 @@ class InviteUserService(InviteUserServiceContract):
         Invite a user to a household.
         """
 
-        # 1. Check if inviter is the owner
         household = await self._household_repo.find_household_by_id(household_id)
         if not household or household.owner_user_id.value != inviter_user_id.value:
             raise OnlyOwnerCanInviteError("Only the household owner can invite users")
 
-        # 2. Check for existing relationship
         existing_member = await self._household_repo.find_member(
             household_id, invitee_user_id
         )

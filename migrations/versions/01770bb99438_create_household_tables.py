@@ -64,7 +64,6 @@ def upgrade() -> None:
             sa.DateTime(timezone=True),
             nullable=True,  # NULL for invited members, set when they accept
         ),
-        sa.Column("left_at", sa.DateTime(timezone=True), nullable=True),
         sa.Column("invited_by_user_id", sa.Integer, nullable=True),
         sa.Column(
             "invited_at",
@@ -90,6 +89,8 @@ def upgrade() -> None:
             name="fk_household_members_inviter",
             ondelete="RESTRICT",
         ),
+        # Composite unique constraint - user can only have one record per household
+        sa.UniqueConstraint("household_id", "user_id", name="uq_household_user"),
     )
 
     # Partial index: Get user's active households
@@ -98,7 +99,7 @@ def upgrade() -> None:
         "ix_household_members_user_active",
         "household_members",
         ["user_id"],
-        postgresql_where=sa.text("joined_at IS NOT NULL AND left_at IS NULL"),
+        postgresql_where=sa.text("joined_at IS NOT NULL"),
     )
 
     # Partial index: Check if user has access to specific household
@@ -107,7 +108,7 @@ def upgrade() -> None:
         "ix_household_members_access_check",
         "household_members",
         ["household_id", "user_id"],
-        postgresql_where=sa.text("joined_at IS NOT NULL AND left_at IS NULL"),
+        postgresql_where=sa.text("joined_at IS NOT NULL"),
     )
 
     # Partial index: Get user's pending invites
@@ -116,7 +117,7 @@ def upgrade() -> None:
         "ix_household_members_pending_invites",
         "household_members",
         ["user_id"],
-        postgresql_where=sa.text("joined_at IS NULL AND left_at IS NULL"),
+        postgresql_where=sa.text("joined_at IS NULL"),
     )
 
     # Partial index: Get household's pending invites (for owner to see)
@@ -125,7 +126,7 @@ def upgrade() -> None:
         "ix_household_members_household_pending",
         "household_members",
         ["household_id"],
-        postgresql_where=sa.text("joined_at IS NULL AND left_at IS NULL"),
+        postgresql_where=sa.text("joined_at IS NULL"),
     )
 
 

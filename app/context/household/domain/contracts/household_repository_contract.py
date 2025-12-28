@@ -2,7 +2,11 @@ from abc import ABC, abstractmethod
 from typing import List, Optional
 
 from app.context.household.domain.dto import HouseholdDTO, HouseholdMemberDTO
-from app.context.household.domain.value_objects import HouseholdID, HouseholdName, HouseholdUserID
+from app.context.household.domain.value_objects import (
+    HouseholdID,
+    HouseholdName,
+    HouseholdUserID,
+)
 
 
 class HouseholdRepositoryContract(ABC):
@@ -21,7 +25,9 @@ class HouseholdRepositoryContract(ABC):
         pass
 
     @abstractmethod
-    async def find_household_by_id(self, household_id: HouseholdID) -> Optional[HouseholdDTO]:
+    async def find_household_by_id(
+        self, household_id: HouseholdID
+    ) -> Optional[HouseholdDTO]:
         """Find a household by ID"""
         pass
 
