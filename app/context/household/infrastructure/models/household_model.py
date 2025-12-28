@@ -33,11 +33,15 @@ class HouseholdMemberModel(BaseDBModel):
         Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="participant")
-    joined_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-        default=lambda: datetime.now(UTC),
+    joined_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=None
     )
     left_at: Mapped[Optional[datetime]] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None
+    )
+    invited_by_user_id: Mapped[Optional[int]] = mapped_column(
+        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=True, default=None
+    )
+    invited_at: Mapped[Optional[datetime]] = mapped_column(
+        DateTime(timezone=True), nullable=True, default=lambda: datetime.now(UTC)
     )

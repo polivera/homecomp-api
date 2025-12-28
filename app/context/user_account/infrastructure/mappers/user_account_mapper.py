@@ -5,6 +5,7 @@ from app.context.user_account.domain.exceptions import UserAccountMapperError
 from app.context.user_account.domain.value_objects import (
     UserAccountBalance,
     UserAccountCurrency,
+    UserAccountDeletedAt,
     UserAccountUserID,
 )
 from app.context.user_account.domain.value_objects.account_id import UserAccountID
@@ -27,6 +28,7 @@ class UserAccountMapper:
                 name=AccountName.from_trusted_source(model.name),
                 currency=UserAccountCurrency.from_trusted_source(model.currency),
                 balance=UserAccountBalance.from_trusted_source(model.balance),
+                deleted_at=UserAccountDeletedAt.from_optional(model.deleted_at),
             )
             if model
             else None
@@ -48,4 +50,5 @@ class UserAccountMapper:
             name=dto.name.value,
             currency=dto.currency.value,
             balance=dto.balance.value,
+            deleted_at=dto.deleted_at.value if dto.deleted_at is not None else None,
         )

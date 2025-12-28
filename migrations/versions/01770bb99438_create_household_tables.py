@@ -62,10 +62,16 @@ def upgrade() -> None:
         sa.Column(
             "joined_at",
             sa.DateTime(timezone=True),
-            nullable=False,
-            server_default=sa.text("CURRENT_TIMESTAMP"),
+            nullable=True,  # NULL for invited members, set when they accept
         ),
         sa.Column("left_at", sa.DateTime(timezone=True), nullable=True),
+        sa.Column("invited_by_user_id", sa.Integer, nullable=True),
+        sa.Column(
+            "invited_at",
+            sa.DateTime(timezone=True),
+            nullable=True,
+            server_default=sa.text("CURRENT_TIMESTAMP"),
+        ),
         sa.ForeignKeyConstraint(
             ["household_id"],
             ["households.id"],
@@ -78,26 +84,56 @@ def upgrade() -> None:
             name="fk_household_members_user",
             ondelete="RESTRICT",
         ),
+        sa.ForeignKeyConstraint(
+            ["invited_by_user_id"],
+            ["users.id"],
+            name="fk_household_members_inviter",
+            ondelete="RESTRICT",
+        ),
     )
 
-    # Create index for querying active members by household
+    # Partial index: Get user's active households
+    # Used for: "What households do I have access to?"
     op.create_index(
-        "ix_household_members_household_id",
-        "household_members",
-        ["household_id"],
-    )
-
-    # Create index for querying active households by user
-    op.create_index(
-        "ix_household_members_user_id",
+        "ix_household_members_user_active",
         "household_members",
         ["user_id"],
+        postgresql_where=sa.text("joined_at IS NOT NULL AND left_at IS NULL"),
+    )
+
+    # Partial index: Check if user has access to specific household
+    # Used for: "Does user X have access to household Y?"
+    op.create_index(
+        "ix_household_members_access_check",
+        "household_members",
+        ["household_id", "user_id"],
+        postgresql_where=sa.text("joined_at IS NOT NULL AND left_at IS NULL"),
+    )
+
+    # Partial index: Get user's pending invites
+    # Used for: "What households has user been invited to?"
+    op.create_index(
+        "ix_household_members_pending_invites",
+        "household_members",
+        ["user_id"],
+        postgresql_where=sa.text("joined_at IS NULL AND left_at IS NULL"),
+    )
+
+    # Partial index: Get household's pending invites (for owner to see)
+    # Used for: "Who has owner invited to this household?"
+    op.create_index(
+        "ix_household_members_household_pending",
+        "household_members",
+        ["household_id"],
+        postgresql_where=sa.text("joined_at IS NULL AND left_at IS NULL"),
     )
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index("ix_household_members_user_id", table_name="household_members")
-    op.drop_index("ix_household_members_household_id", table_name="household_members")
+    op.drop_index("ix_household_members_household_pending", table_name="household_members")
+    op.drop_index("ix_household_members_pending_invites", table_name="household_members")
+    op.drop_index("ix_household_members_access_check", table_name="household_members")
+    op.drop_index("ix_household_members_user_active", table_name="household_members")
     op.drop_table("household_members")
     op.drop_table("households")

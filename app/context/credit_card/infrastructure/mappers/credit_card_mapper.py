@@ -7,6 +7,7 @@ from app.context.credit_card.domain.value_objects import (
     CardUsed,
     CreditCardAccountID,
     CreditCardCurrency,
+    CreditCardDeletedAt,
     CreditCardID,
     CreditCardName,
     CreditCardUserID,
@@ -29,6 +30,7 @@ class CreditCardMapper:
                 currency=CreditCardCurrency.from_trusted_source(model.currency),
                 limit=CardLimit.from_trusted_source(model.limit),
                 used=CardUsed.from_trusted_source(model.used),
+                deleted_at=CreditCardDeletedAt.from_optional(model.deleted_at),
             )
             if model
             else None
@@ -53,4 +55,5 @@ class CreditCardMapper:
             currency=dto.currency.value,
             limit=dto.limit.value,
             used=dto.used.value if dto.used is not None else 0,
+            deleted_at=dto.deleted_at.value if dto.deleted_at is not None else None,
         )

@@ -15,11 +15,7 @@ from app.context.auth.domain.contracts import (
 )
 from app.context.auth.domain.services import LoginService
 from app.context.auth.infrastructure.repositories import SessionRepository
-from app.shared.infrastructure.middleware.session_auth_dependency import (
-    get_current_user_id,
-    get_current_user_id_optional,
-)
-from app.context.user.application.contracts.find_user_query_handler_contract import (
+from app.context.user.application.contracts import (
     FindUserHandlerContract,
 )
 from app.context.user.infrastructure.dependency import (

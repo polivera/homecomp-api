@@ -4,6 +4,7 @@ from typing import Optional
 from app.context.credit_card.domain.value_objects import (
     CreditCardAccountID,
     CreditCardCurrency,
+    CreditCardDeletedAt,
     CreditCardUserID,
 )
 from app.context.credit_card.domain.value_objects.card_limit import CardLimit
@@ -25,3 +26,9 @@ class CreditCardDTO:
     limit: CardLimit
     used: Optional[CardUsed] = None
     credit_card_id: Optional[CreditCardID] = None
+    deleted_at: Optional[CreditCardDeletedAt] = None
+
+    @property
+    def is_deleted(self) -> bool:
+        """Check if the credit card is soft deleted"""
+        return self.deleted_at is not None
