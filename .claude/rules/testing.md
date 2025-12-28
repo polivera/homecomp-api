@@ -22,14 +22,110 @@ tests/
     └── test_*.py                # API endpoint tests
 ```
 
+### One File Per Test Class
+
+**IMPORTANT**: Each test class must be in its own file. Never combine multiple test classes in a single file.
+
+**File Naming Convention**:
+- **REQUIRED**: Test files MUST end with `_test.py` (never `test_*.py`)
+- Pattern: `{name_of_thing_being_tested}_test.py`
+- Examples:
+  - `user_account_id_test.py` (tests `UserAccountID`)
+  - `create_account_service_test.py` (tests `CreateAccountService`)
+  - `create_account_handler_test.py` (tests `CreateAccountHandler`)
+  - `user_account_mapper_test.py` (tests `UserAccountMapper`)
+  - `login_service_test.py` (tests `LoginService`)
+
+**Why `*_test.py` instead of `test_*.py`**:
+- Consistency with snake_case naming throughout the codebase
+- Test files sort alphabetically next to the files they test
+- Easier to identify what's being tested at a glance
+- Modern Python testing convention (used by many projects)
+
+**Rationale**:
+- Easier to locate tests for specific components
+- Clearer git history (changes to one component don't affect other test files)
+- Prevents merge conflicts when multiple developers work on different components
+- Matches the one-class-per-file pattern used in the main codebase
+- Makes test discovery more intuitive
+
+**Example Structure**:
+
+```
+tests/unit/context/user_account/
+├── domain/
+│   ├── user_account_id_test.py          # TestUserAccountID
+│   ├── account_name_test.py             # TestAccountName
+│   ├── create_account_service_test.py   # TestCreateAccountService
+│   └── update_account_service_test.py   # TestUpdateAccountService
+├── application/
+│   ├── create_account_handler_test.py   # TestCreateAccountHandler
+│   └── update_account_handler_test.py   # TestUpdateAccountHandler
+└── infrastructure/
+    └── user_account_mapper_test.py      # TestUserAccountMapper
+```
+
+**Good**:
+```python
+# create_account_service_test.py
+@pytest.mark.unit
+@pytest.mark.asyncio
+class TestCreateAccountService:
+    """Tests for CreateAccountService"""
+    # ... test methods
+```
+
+**Bad**:
+```python
+# test_services.py  ❌ Wrong naming convention (should end with _test.py)
+# AND multiple classes in one file ❌
+@pytest.mark.unit
+class TestCreateAccountService:
+    # ... test methods
+
+@pytest.mark.unit
+class TestUpdateAccountService:  # ❌ Second class in same file
+    # ... test methods
+```
+
 ## Framework and Tools
 
 - Use `pytest` with `pytest-asyncio` for async test support
 - Use `pytest-cov` for coverage reporting
 - Use `httpx.AsyncClient` for integration testing FastAPI endpoints
 - Use `pytest.mark.asyncio` decorator for all async tests
+- **REQUIRED**: Test files MUST end with `_test.py` for consistency
 
 ## Unit Test Patterns
+
+### Test Class Markers
+
+**REQUIRED**: All unit test classes must be marked with `@pytest.mark.unit`. For async test classes, also add `@pytest.mark.asyncio` at the class level.
+
+```python
+# Sync tests (value objects, DTOs)
+@pytest.mark.unit
+class TestUserAccountID:
+    """Tests for UserAccountID value object"""
+
+    def test_valid_id_creation(self):
+        # ... test code
+
+# Async tests (services, handlers)
+@pytest.mark.unit
+@pytest.mark.asyncio
+class TestCreateAccountService:
+    """Tests for CreateAccountService"""
+
+    @pytest.mark.asyncio  # Also mark individual async methods
+    async def test_create_account_success(self):
+        # ... test code
+```
+
+**Benefits**:
+- Run only unit tests: `pytest -m unit`
+- Run only integration tests: `pytest -m integration`
+- Separate fast tests from slow tests
 
 ### Testing Value Objects
 
@@ -170,12 +266,24 @@ Use descriptive names following the pattern:
 # Run all tests
 pytest
 
+# Run only unit tests (fast)
+pytest -m unit
+
+# Run only integration tests (slower)
+pytest -m integration
+
 # Run with coverage
 pytest --cov=app --cov-report=html
 
 # Run specific test file
-pytest tests/unit/context/auth/domain/test_login_service.py
+pytest tests/unit/context/auth/domain/login_service_test.py
 
 # Run tests matching pattern
 pytest -k "login"
+
+# Run unit tests for specific context
+pytest tests/unit/context/user_account/ -m unit
+
+# List all tests without running
+pytest --collect-only
 ```

@@ -18,3 +18,9 @@ pgcli:
 
 pgcli-test:
     pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:5433/homecomp_test
+
+test-unit:
+    uv run pytest -m unit
+
+test-integration:
+    uv run pytest -m integration

@@ -15,6 +15,20 @@ from tests.fixtures.auth import (
 # Import user context fixtures
 from tests.fixtures.user import MockFindUserHandler, mock_find_user_handler
 
+# Import user_account context fixtures
+from tests.fixtures.user_account import (
+    sample_user_id,
+    sample_account_id,
+    sample_account_name,
+    sample_currency,
+    sample_balance,
+    sample_account_dto,
+    sample_new_account_dto,
+    sample_deleted_account_dto,
+    sample_account_model,
+    sample_deleted_account_model,
+)
+
 # Make fixtures available to pytest
 __all__ = [
     # Auth fixtures
@@ -25,4 +39,15 @@ __all__ = [
     # User fixtures
     "MockFindUserHandler",
     "mock_find_user_handler",
+    # User account fixtures
+    "sample_user_id",
+    "sample_account_id",
+    "sample_account_name",
+    "sample_currency",
+    "sample_balance",
+    "sample_account_dto",
+    "sample_new_account_dto",
+    "sample_deleted_account_dto",
+    "sample_account_model",
+    "sample_deleted_account_model",
 ]

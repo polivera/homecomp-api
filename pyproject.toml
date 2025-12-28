@@ -29,6 +29,6 @@ markers = [
     "integration: marks tests as integration tests (slower, uses database)",
 ]
 testpaths = ["tests"]
-python_files = ["test_*.py"]
+python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*"]
 python_functions = ["test_*"]
