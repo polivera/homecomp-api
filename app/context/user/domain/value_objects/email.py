@@ -1,15 +1,13 @@
-import re
 from dataclasses import dataclass
+
+from app.shared.domain.value_objects.shared_email import SharedEmail
 
 
 @dataclass(frozen=True)
-class Email:
-    value: str
+class UserEmail(SharedEmail):
+    """
+    Context-specific Email value object for User context.
+    Extends SharedEmail to maintain bounded context isolation.
+    """
 
-    def __post_init__(self):
-        if not self.value or not isinstance(self.value, str):
-            raise ValueError("Email cannot be empty")
-
-        email_pattern = r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
-        if not re.match(email_pattern, self.value):
-            raise ValueError(f"Invalid email format: {self.value}")
+    pass

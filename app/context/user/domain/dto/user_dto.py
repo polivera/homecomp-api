@@ -2,18 +2,22 @@ from dataclasses import dataclass
 from typing import Optional
 
 from app.context.user.domain.value_objects import (
-    Email,
-    Password,
     UserDeletedAt,
+    UserEmail,
     UserID,
+    UserName,
+    UserPassword,
 )
 
 
 @dataclass(frozen=True)
 class UserDTO:
+    """Domain data transfer object for User aggregate"""
+
     user_id: UserID
-    email: Email
-    password: Password
+    email: UserEmail
+    password: UserPassword
+    username: Optional[UserName] = None
     deleted_at: Optional[UserDeletedAt] = None
 
     @property

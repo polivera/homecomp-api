@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.context.user.application.contracts import FindUserHandlerContract
 from app.context.user.application.handlers import FindUserHandler
-from app.context.user.domain.contracts.infrastrutcure import UserRepositoryContract
+from app.context.user.domain.contracts.infrastructure import UserRepositoryContract
 from app.context.user.infrastructure.repositories import UserRepository
 from app.shared.infrastructure.database import get_db
 

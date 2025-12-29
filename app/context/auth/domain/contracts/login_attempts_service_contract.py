@@ -1,9 +1,9 @@
 from abc import ABC, abstractmethod
 
-from app.context.user.domain.value_objects import Email
+from app.context.user.domain.value_objects import UserEmail
 
 
 class LoginAttemptsServiceContract(ABC):
     @abstractmethod
-    async def handle(self, email: Email):
+    async def handle(self, email: UserEmail):
         pass

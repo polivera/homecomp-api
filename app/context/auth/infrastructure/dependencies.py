@@ -18,7 +18,7 @@ from app.context.auth.infrastructure.repositories import SessionRepository
 from app.context.user.application.contracts import (
     FindUserHandlerContract,
 )
-from app.context.user.infrastructure.dependency import (
+from app.context.user.infrastructure.dependencies import (
     get_find_user_query_handler,
 )
 from app.shared.infrastructure.database import get_db

@@ -1,6 +1,7 @@
 from .deleted_at import UserDeletedAt
-from .email import Email
-from .password import Password
+from .email import UserEmail
+from .password import UserPassword
 from .user_id import UserID
+from .username import UserName
 
-__all__ = ["Email", "Password", "UserID", "UserDeletedAt"]
+__all__ = ["UserEmail", "UserPassword", "UserID", "UserDeletedAt", "UserName"]
