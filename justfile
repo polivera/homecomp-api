@@ -10,8 +10,15 @@ migrate:
 migrate-test:
     DB_PORT=5434 DB_NAME=homecomp_test uv run alembic upgrade head
 
+db-clear:
+    uv run python scripts/db_clear.py
+
 seed:
-    uv run python -m scripts.seed
+    uv run python scripts/seed.py
+
+db-reset:
+    just db-clear
+    just seed
 
 pgcli:
     pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:$DB_PORT/$DB_NAME
