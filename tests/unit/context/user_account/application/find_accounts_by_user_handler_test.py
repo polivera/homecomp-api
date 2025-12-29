@@ -1,8 +1,9 @@
 """Unit tests for FindAccountsByUserHandler"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.context.user_account.application.handlers.find_accounts_by_user_handler import (
     FindAccountsByUserHandler,
@@ -10,10 +11,10 @@ from app.context.user_account.application.handlers.find_accounts_by_user_handler
 from app.context.user_account.application.queries import FindAccountsByUserQuery
 from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.value_objects import (
-    UserAccountID,
     AccountName,
-    UserAccountCurrency,
     UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
     UserAccountUserID,
 )
 

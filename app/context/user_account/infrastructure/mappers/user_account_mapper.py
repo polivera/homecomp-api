@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.user_account.domain.dto.user_account_dto import UserAccountDTO
 from app.context.user_account.domain.exceptions import UserAccountMapperError
@@ -19,7 +18,7 @@ class UserAccountMapper:
     """Mapper for converting between UserAccountModel and UserAccountDTO"""
 
     @staticmethod
-    def to_dto(model: Optional[UserAccountModel]) -> Optional[UserAccountDTO]:
+    def to_dto(model: UserAccountModel | None) -> UserAccountDTO | None:
         """Convert database model to domain DTO"""
         return (
             UserAccountDTO(

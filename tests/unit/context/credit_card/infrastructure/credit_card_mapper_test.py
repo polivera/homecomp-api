@@ -1,14 +1,12 @@
 """Unit tests for CreditCardMapper"""
 
-import pytest
-from decimal import Decimal
 from datetime import UTC, datetime
+from decimal import Decimal
 
-from app.context.credit_card.infrastructure.mappers.credit_card_mapper import (
-    CreditCardMapper,
-)
-from app.context.credit_card.infrastructure.models import CreditCardModel
+import pytest
+
 from app.context.credit_card.domain.dto import CreditCardDTO
+from app.context.credit_card.domain.exceptions import CreditCardMapperError
 from app.context.credit_card.domain.value_objects import (
     CardLimit,
     CardUsed,
@@ -19,7 +17,10 @@ from app.context.credit_card.domain.value_objects import (
     CreditCardName,
     CreditCardUserID,
 )
-from app.context.credit_card.domain.exceptions import CreditCardMapperError
+from app.context.credit_card.infrastructure.mappers.credit_card_mapper import (
+    CreditCardMapper,
+)
+from app.context.credit_card.infrastructure.models import CreditCardModel
 
 
 @pytest.mark.unit

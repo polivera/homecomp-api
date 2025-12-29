@@ -1,22 +1,23 @@
 """Unit tests for CreateHouseholdHandler"""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.household.application.commands import CreateHouseholdCommand
+from app.context.household.application.dto import CreateHouseholdErrorCode
 from app.context.household.application.handlers.create_household_handler import (
     CreateHouseholdHandler,
 )
-from app.context.household.application.commands import CreateHouseholdCommand
-from app.context.household.application.dto import CreateHouseholdErrorCode
 from app.context.household.domain.dto import HouseholdDTO
+from app.context.household.domain.exceptions import (
+    HouseholdMapperError,
+    HouseholdNameAlreadyExistError,
+)
 from app.context.household.domain.value_objects import (
     HouseholdID,
     HouseholdName,
     HouseholdUserID,
-)
-from app.context.household.domain.exceptions import (
-    HouseholdMapperError,
-    HouseholdNameAlreadyExistError,
 )
 
 

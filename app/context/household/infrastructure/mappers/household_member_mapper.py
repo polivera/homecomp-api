@@ -1,5 +1,3 @@
-from typing import Optional
-
 from app.context.household.domain.dto import HouseholdMemberDTO
 from app.context.household.domain.exceptions import HouseholdMapperError
 from app.context.household.domain.value_objects import (
@@ -25,8 +23,8 @@ class HouseholdMemberMapper:
     @staticmethod
     def to_dto(
         model: HouseholdMemberModel,
-        household_model: Optional[HouseholdModel] = None,
-        user_model: Optional[UserModel] = None,
+        household_model: HouseholdModel | None = None,
+        user_model: UserModel | None = None,
     ) -> HouseholdMemberDTO:
         """Convert database model to domain DTO"""
         return HouseholdMemberDTO(
@@ -36,19 +34,11 @@ class HouseholdMemberMapper:
             role=HouseholdRole.from_trusted_source(model.role),
             joined_at=model.joined_at,
             invited_by_user_id=(
-                HouseholdUserID(model.invited_by_user_id)
-                if model.invited_by_user_id is not None
-                else None
+                HouseholdUserID(model.invited_by_user_id) if model.invited_by_user_id is not None else None
             ),
             invited_at=model.invited_at,
-            household_name=(
-                HouseholdName(household_model.name) if household_model else None
-            ),
-            inviter_username=(
-                HouseholdUserName(user_model.username or user_model.email)
-                if user_model
-                else None
-            ),
+            household_name=(HouseholdName(household_model.name) if household_model else None),
+            inviter_username=(HouseholdUserName(user_model.username or user_model.email) if user_model else None),
         )
 
     @staticmethod
@@ -60,9 +50,7 @@ class HouseholdMemberMapper:
             user_id=dto.user_id.value,
             role=dto.role.value,
             joined_at=dto.joined_at,
-            invited_by_user_id=(
-                dto.invited_by_user_id.value if dto.invited_by_user_id else None
-            ),
+            invited_by_user_id=(dto.invited_by_user_id.value if dto.invited_by_user_id else None),
             invited_at=dto.invited_at,
         )
 
@@ -72,4 +60,4 @@ class HouseholdMemberMapper:
         try:
             return HouseholdMemberMapper.to_dto(model)
         except Exception as e:
-            raise HouseholdMapperError(f"Failed to map model to DTO: {str(e)}")
+            raise HouseholdMapperError(f"Failed to map model to DTO: {str(e)}") from Exception

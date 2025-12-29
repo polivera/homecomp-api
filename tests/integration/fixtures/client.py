@@ -3,7 +3,7 @@
 Provides fixtures for FastAPI test client with database dependency overrides.
 """
 
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import pytest_asyncio
 from httpx import ASGITransport, AsyncClient
@@ -16,7 +16,7 @@ from app.shared.infrastructure.database import get_db
 @pytest_asyncio.fixture(scope="function")
 async def test_client(
     test_db_session: AsyncSession,
-) -> AsyncGenerator[AsyncClient, None]:
+) -> AsyncGenerator[AsyncClient]:
     """Create a test client with overridden database dependency."""
 
     async def override_get_db():

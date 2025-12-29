@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class FindUserErrorCode(str, Enum):
@@ -17,11 +16,11 @@ class FindUserResult:
     """Result of find user operation"""
 
     # Success fields - populated when operation succeeds
-    user_id: Optional[int] = None
-    email: Optional[str] = None
-    username: Optional[str] = None
-    password: Optional[str] = None
+    user_id: int | None = None
+    email: str | None = None
+    username: str | None = None
+    password: str | None = None
 
     # Error fields - populated when operation fails
-    error_code: Optional[FindUserErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: FindUserErrorCode | None = None
+    error_message: str | None = None

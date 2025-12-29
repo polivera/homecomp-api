@@ -1,16 +1,9 @@
 """Unit tests for HouseholdMemberMapper"""
 
-import pytest
 from datetime import UTC, datetime
 
-from app.context.household.infrastructure.mappers.household_member_mapper import (
-    HouseholdMemberMapper,
-)
-from app.context.household.infrastructure.models import (
-    HouseholdMemberModel,
-    HouseholdModel,
-)
-from app.context.user.infrastructure.models import UserModel
+import pytest
+
 from app.context.household.domain.dto import HouseholdMemberDTO
 from app.context.household.domain.value_objects import (
     HouseholdID,
@@ -20,7 +13,14 @@ from app.context.household.domain.value_objects import (
     HouseholdUserID,
     HouseholdUserName,
 )
-from app.context.household.domain.exceptions import HouseholdMapperError
+from app.context.household.infrastructure.mappers.household_member_mapper import (
+    HouseholdMemberMapper,
+)
+from app.context.household.infrastructure.models import (
+    HouseholdMemberModel,
+    HouseholdModel,
+)
+from app.context.user.infrastructure.models import UserModel
 
 
 @pytest.mark.unit

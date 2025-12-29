@@ -1,5 +1,7 @@
 """Unit tests for HouseholdUserName value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.household.domain.value_objects import HouseholdUserName
@@ -27,5 +29,5 @@ class TestHouseholdUserName:
     def test_immutability(self):
         """Test that value object is immutable"""
         username = HouseholdUserName("test_user")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             username.value = "changed"

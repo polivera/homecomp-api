@@ -223,8 +223,8 @@ class TestLoginFlow:
     ):
         """Test that multiple users can login concurrently without conflicts."""
         # Arrange - Create a second user
-        from app.shared.domain.value_objects import SharedPassword
         from app.context.user.infrastructure.models import UserModel
+        from app.shared.domain.value_objects import SharedPassword
 
         second_user_email = "seconduser@example.com"
         second_user_password = "AnotherPassword123!"

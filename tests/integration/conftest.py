@@ -5,13 +5,12 @@ Add global integration test fixtures here if they're truly shared across all int
 """
 
 # Import database fixtures
+# Import client fixtures
+from tests.integration.fixtures.client import test_client
 from tests.integration.fixtures.database import (
     test_db_session,
     test_engine,
 )
-
-# Import client fixtures
-from tests.integration.fixtures.client import test_client
 
 # Import user fixtures
 from tests.integration.fixtures.users import (

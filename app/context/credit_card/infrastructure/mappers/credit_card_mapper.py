@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.exceptions import CreditCardMapperError
@@ -19,7 +18,7 @@ class CreditCardMapper:
     """Mapper for converting between CreditCardModel and CreditCardDTO"""
 
     @staticmethod
-    def to_dto(model: Optional[CreditCardModel]) -> Optional[CreditCardDTO]:
+    def to_dto(model: CreditCardModel | None) -> CreditCardDTO | None:
         """Convert database model to domain DTO"""
         return (
             CreditCardDTO(

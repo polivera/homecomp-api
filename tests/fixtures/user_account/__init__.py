@@ -1,22 +1,22 @@
 """User account context test fixtures"""
 
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
+
 import pytest
 
 from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.value_objects import (
-    UserAccountID,
     AccountName,
-    UserAccountCurrency,
     UserAccountBalance,
-    UserAccountUserID,
+    UserAccountCurrency,
     UserAccountDeletedAt,
+    UserAccountID,
+    UserAccountUserID,
 )
 from app.context.user_account.infrastructure.models.user_account_model import (
     UserAccountModel,
 )
-
 
 # ──────────────────────────────────────────────────────────────────────────────
 # Domain Value Object Fixtures

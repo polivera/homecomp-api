@@ -1,24 +1,25 @@
 """Unit tests for RemoveMemberService"""
 
-import pytest
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.household.domain.dto import HouseholdDTO, HouseholdMemberDTO
+from app.context.household.domain.exceptions import (
+    CannotRemoveSelfError,
+    InviteNotFoundError,
+    OnlyOwnerCanRemoveMemberError,
+)
 from app.context.household.domain.services.remove_member_service import (
     RemoveMemberService,
 )
-from app.context.household.domain.dto import HouseholdDTO, HouseholdMemberDTO
 from app.context.household.domain.value_objects import (
     HouseholdID,
     HouseholdMemberID,
     HouseholdName,
     HouseholdRole,
     HouseholdUserID,
-)
-from app.context.household.domain.exceptions import (
-    CannotRemoveSelfError,
-    InviteNotFoundError,
-    OnlyOwnerCanRemoveMemberError,
 )
 
 

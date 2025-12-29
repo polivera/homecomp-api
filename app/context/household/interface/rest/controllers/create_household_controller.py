@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import CreateHouseholdCommand
@@ -18,8 +20,8 @@ router = APIRouter()
 @router.post("/", status_code=201)
 async def create_household(
     request: CreateHouseholdRequest,
-    handler: CreateHouseholdHandlerContract = Depends(get_create_household_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[CreateHouseholdHandlerContract, Depends(get_create_household_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> CreateHouseholdResponse:
     """Create a new household"""
 

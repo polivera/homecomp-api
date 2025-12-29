@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.credit_card.application.commands import CreateCreditCardCommand
@@ -23,8 +25,8 @@ router = APIRouter(prefix="/cards", tags=["credit-cards"])
 @router.post("", response_model=CreateCreditCardResponse, status_code=201)
 async def create_credit_card(
     request: CreateCreditCardRequest,
-    handler: CreateCreditCardHandlerContract = Depends(get_create_credit_card_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[CreateCreditCardHandlerContract, Depends(get_create_credit_card_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Create a new credit card"""
     command = CreateCreditCardCommand(

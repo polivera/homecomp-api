@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.credit_card.application.contracts import (
     FindCreditCardByIdHandlerContract,
@@ -19,7 +18,7 @@ class FindCreditCardByIdHandler(FindCreditCardByIdHandlerContract):
 
     async def handle(
         self, query: FindCreditCardByIdQuery
-    ) -> Optional[CreditCardResponseDTO]:
+    ) -> CreditCardResponseDTO | None:
         """Execute the find credit card by ID query"""
 
         # Convert query primitives to value objects and find card for user

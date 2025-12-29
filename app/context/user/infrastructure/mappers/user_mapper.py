@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.user.domain.dto.user_dto import UserDTO
 from app.context.user.domain.exceptions import UserMapperError
@@ -16,7 +15,7 @@ class UserMapper:
     """Mapper between UserModel (database) and UserDTO (domain)"""
 
     @staticmethod
-    def to_dto(model: Optional[UserModel]) -> Optional[UserDTO]:
+    def to_dto(model: UserModel | None) -> UserDTO | None:
         """
         Convert database model to domain DTO.
         Uses from_trusted_source for performance optimization.

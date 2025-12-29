@@ -1,7 +1,9 @@
 """Unit tests for UserAccountDeletedAt value object"""
 
+from dataclasses import FrozenInstanceError
+from datetime import UTC, datetime
+
 import pytest
-from datetime import datetime, UTC
 
 from app.context.user_account.domain.value_objects import UserAccountDeletedAt
 
@@ -40,5 +42,5 @@ class TestUserAccountDeletedAt:
     def test_immutability(self):
         """Test that value object is immutable"""
         deleted_at = UserAccountDeletedAt.now()
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             deleted_at.value = datetime.now()

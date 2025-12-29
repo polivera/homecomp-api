@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from app.context.credit_card.domain.value_objects import (
     CreditCardAccountID,
@@ -24,9 +23,9 @@ class CreditCardDTO:
     name: CreditCardName
     currency: CreditCardCurrency
     limit: CardLimit
-    used: Optional[CardUsed] = None
-    credit_card_id: Optional[CreditCardID] = None
-    deleted_at: Optional[CreditCardDeletedAt] = None
+    used: CardUsed | None = None
+    credit_card_id: CreditCardID | None = None
+    deleted_at: CreditCardDeletedAt | None = None
 
     @property
     def is_deleted(self) -> bool:

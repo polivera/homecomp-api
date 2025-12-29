@@ -4,7 +4,7 @@ Provides fixtures for database engine and session management.
 """
 
 import os
-from typing import AsyncGenerator
+from collections.abc import AsyncGenerator
 
 import pytest_asyncio
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -41,7 +41,7 @@ async def test_engine():
 
 
 @pytest_asyncio.fixture(scope="function")
-async def test_db_session(test_engine) -> AsyncGenerator[AsyncSession, None]:
+async def test_db_session(test_engine) -> AsyncGenerator[AsyncSession]:
     """Create a test database session."""
     async_session_maker = async_sessionmaker(
         test_engine, class_=AsyncSession, expire_on_commit=False

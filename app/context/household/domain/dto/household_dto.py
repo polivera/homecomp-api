@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from app.context.household.domain.value_objects import (
     HouseholdID,
@@ -11,7 +10,7 @@ from app.context.household.domain.value_objects import (
 
 @dataclass(frozen=True)
 class HouseholdDTO:
-    household_id: Optional[HouseholdID]
+    household_id: HouseholdID | None
     owner_user_id: HouseholdUserID
     name: HouseholdName
-    created_at: Optional[datetime] = None
+    created_at: datetime | None = None

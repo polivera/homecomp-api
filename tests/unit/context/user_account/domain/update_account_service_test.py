@@ -1,23 +1,24 @@
 """Unit tests for UpdateAccountService"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.user_account.domain.dto import UserAccountDTO
+from app.context.user_account.domain.exceptions import (
+    UserAccountNameAlreadyExistError,
+    UserAccountNotFoundError,
+)
 from app.context.user_account.domain.services.update_account_service import (
     UpdateAccountService,
 )
-from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.value_objects import (
-    UserAccountID,
     AccountName,
-    UserAccountCurrency,
     UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
     UserAccountUserID,
-)
-from app.context.user_account.domain.exceptions import (
-    UserAccountNotFoundError,
-    UserAccountNameAlreadyExistError,
 )
 
 

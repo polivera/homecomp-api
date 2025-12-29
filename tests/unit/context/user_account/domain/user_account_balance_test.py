@@ -1,7 +1,9 @@
 """Unit tests for UserAccountBalance value object"""
 
-import pytest
+from dataclasses import FrozenInstanceError
 from decimal import Decimal
+
+import pytest
 
 from app.context.user_account.domain.value_objects import UserAccountBalance
 
@@ -48,5 +50,5 @@ class TestUserAccountBalance:
     def test_immutability(self):
         """Test that value object is immutable"""
         balance = UserAccountBalance(Decimal("100.00"))
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             balance.value = Decimal("200.00")

@@ -1,13 +1,14 @@
 """Unit tests for DeleteCreditCardHandler"""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.credit_card.application.commands import DeleteCreditCardCommand
+from app.context.credit_card.application.dto import DeleteCreditCardErrorCode
 from app.context.credit_card.application.handlers.delete_credit_card_handler import (
     DeleteCreditCardHandler,
 )
-from app.context.credit_card.application.commands import DeleteCreditCardCommand
-from app.context.credit_card.application.dto import DeleteCreditCardErrorCode
 from app.context.credit_card.domain.exceptions import CreditCardNotFoundError
 
 

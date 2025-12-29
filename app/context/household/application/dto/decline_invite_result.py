@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class DeclineInviteErrorCode(str, Enum):
@@ -18,5 +17,5 @@ class DeclineInviteResult:
     success: bool = False
 
     # Error fields - populated when operation fails
-    error_code: Optional[DeclineInviteErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: DeclineInviteErrorCode | None = None
+    error_message: str | None = None

@@ -1,5 +1,7 @@
 """Unit tests for AuthEmail value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.auth.domain.value_objects import AuthEmail
@@ -56,7 +58,7 @@ class TestAuthEmail:
     def test_immutability(self):
         """Test that value object is immutable"""
         email = AuthEmail("test@example.com")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             email.value = "changed@example.com"
 
     def test_equality(self):

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from app.context.household.domain.dto import HouseholdMemberDTO
 
@@ -13,11 +12,11 @@ class HouseholdMemberResponseDTO:
     household_id: int
     user_id: int
     role: str
-    joined_at: Optional[datetime]
-    invited_by_user_id: Optional[int]
-    invited_at: Optional[datetime]
-    household_name: Optional[str] = None
-    inviter: Optional[str] = None
+    joined_at: datetime | None
+    invited_by_user_id: int | None
+    invited_at: datetime | None
+    household_name: str | None = None
+    inviter: str | None = None
 
     @staticmethod
     def from_domain_dto(member_dto: HouseholdMemberDTO) -> "HouseholdMemberResponseDTO":

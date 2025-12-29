@@ -1,10 +1,9 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass(frozen=True)
 class GetSessionResultDTO:
     user_id: int
-    token: Optional[str]
+    token: str | None
     failed_attempts: int
-    blocked_until: Optional[str]
+    blocked_until: str | None

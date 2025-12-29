@@ -5,7 +5,7 @@ Provides FastAPI dependency for extracting and validating session tokens
 from HTTP-only cookies. Used to protect routes that require authentication.
 """
 
-from typing import Optional
+from typing import Annotated
 
 from fastapi import Cookie, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +21,7 @@ from app.shared.infrastructure.database import get_db
 
 
 def get_session_repository_for_auth(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> SessionRepositoryContract:
     """
     Factory function to create session repository for authentication.
@@ -31,8 +31,8 @@ def get_session_repository_for_auth(
 
 
 async def get_current_user_id(
-    access_token: Optional[str] = Cookie(default=None),
-    session_repo: SessionRepositoryContract = Depends(get_session_repository_for_auth),
+    session_repo: Annotated[SessionRepositoryContract, Depends(get_session_repository_for_auth)],
+    access_token: Annotated[str | None, Cookie()] = None,
 ) -> int:
     """
     Extract and validate session token from HTTP-only cookie.
@@ -77,19 +77,19 @@ async def get_current_user_id(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token format: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
-        )
-    except Exception as e:
+        ) from ValueError
+    except Exception:
         # Unexpected error during session lookup
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication service unavailable",
-        )
+        ) from Exception
 
 
 async def get_current_user_id_optional(
-    access_token: Optional[str] = Cookie(default=None),
-    session_repo: SessionRepositoryContract = Depends(get_session_repository_for_auth),
-) -> Optional[int]:
+    session_repo: Annotated[SessionRepositoryContract, Depends(get_session_repository_for_auth)],
+    access_token: Annotated[str | None, Cookie()] = None,
+) -> int | None:
     """
     Extract and validate session token from HTTP-only cookie (optional version).
 
@@ -128,9 +128,9 @@ async def get_current_user_id_optional(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail=f"Invalid token format: {str(e)}",
             headers={"WWW-Authenticate": "Bearer"},
-        )
-    except Exception as e:
+        ) from ValueError
+    except Exception:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Authentication service unavailable",
-        )
+        ) from Exception

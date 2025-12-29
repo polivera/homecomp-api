@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -8,7 +7,7 @@ class UpdateCreditCardCommand:
 
     credit_card_id: int
     user_id: int
-    name: Optional[str] = None
-    limit: Optional[float] = None
-    used: Optional[float] = None
-    currency: Optional[str] = None
+    name: str | None = None
+    limit: float | None = None
+    used: float | None = None
+    currency: str | None = None

@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
     CreditCardRepositoryContract,
@@ -35,10 +34,10 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
         self,
         credit_card_id: CreditCardID,
         user_id: CreditCardUserID,
-        name: Optional[CreditCardName] = None,
-        limit: Optional[CardLimit] = None,
-        used: Optional[CardUsed] = None,
-        currency: Optional[CreditCardCurrency] = None,
+        name: CreditCardName | None = None,
+        limit: CardLimit | None = None,
+        used: CardUsed | None = None,
+        currency: CreditCardCurrency | None = None,
     ) -> CreditCardDTO:
         """Update an existing credit card with validation"""
 

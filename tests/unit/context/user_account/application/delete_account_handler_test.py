@@ -1,17 +1,13 @@
 """Unit tests for DeleteAccountHandler"""
 
-import pytest
-from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
-from app.context.user_account.application.handlers.delete_account_handler import (
-    DeleteAccountHandler,
-)
+import pytest
+
 from app.context.user_account.application.commands import DeleteAccountCommand
 from app.context.user_account.application.dto import DeleteAccountErrorCode
-from app.context.user_account.domain.value_objects import (
-    UserAccountID,
-    UserAccountUserID,
+from app.context.user_account.application.handlers.delete_account_handler import (
+    DeleteAccountHandler,
 )
 
 

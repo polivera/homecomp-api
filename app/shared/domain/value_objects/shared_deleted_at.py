@@ -1,6 +1,6 @@
 from dataclasses import dataclass, field
 from datetime import UTC, datetime
-from typing import Optional, Self
+from typing import Self
 
 
 @dataclass(frozen=True)
@@ -42,7 +42,7 @@ class SharedDeletedAt:
         return cls(value=value, _validated=True)
 
     @classmethod
-    def from_optional(cls, value: Optional[datetime]) -> Optional[Self]:
+    def from_optional(cls, value: datetime | None) -> Self | None:
         """
         Create DeletedAt from optional datetime.
         Returns None if value is None (entity is not deleted).

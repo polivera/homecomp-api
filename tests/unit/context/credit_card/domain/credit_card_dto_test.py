@@ -1,8 +1,9 @@
 """Unit tests for CreditCardDTO"""
 
-import pytest
+from dataclasses import FrozenInstanceError
 from decimal import Decimal
-from datetime import UTC, datetime
+
+import pytest
 
 from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.value_objects import (
@@ -97,7 +98,7 @@ class TestCreditCardDTO:
             limit=CardLimit(Decimal("1000.00")),
         )
 
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             dto.name = CreditCardName("New Name")
 
     def test_zero_used_amount(self):

@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends
 
 from app.context.household.application.contracts import (
@@ -16,10 +18,10 @@ router = APIRouter()
 @router.get("/{household_id}/invites", status_code=200)
 async def list_household_invites(
     household_id: int,
-    handler: ListHouseholdInvitesHandlerContract = Depends(
-        get_list_household_invites_handler
-    ),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[
+        ListHouseholdInvitesHandlerContract, Depends(get_list_household_invites_handler)
+    ],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> list[HouseholdMemberResponse]:
     """List pending invitations for a household"""
 

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 from app.context.household.domain.value_objects import (
     HouseholdID,
@@ -16,15 +15,15 @@ from app.shared.domain.value_objects import SharedUsername
 class HouseholdMemberDTO:
     """Domain DTO for household member"""
 
-    member_id: Optional[HouseholdMemberID]
+    member_id: HouseholdMemberID | None
     household_id: HouseholdID
     user_id: HouseholdUserID
     role: HouseholdRole
-    joined_at: Optional[datetime] = None
-    invited_by_user_id: Optional[HouseholdUserID] = None
-    invited_at: Optional[datetime] = None
-    household_name: Optional[HouseholdName] = None
-    inviter_username: Optional[SharedUsername] = None
+    joined_at: datetime | None = None
+    invited_by_user_id: HouseholdUserID | None = None
+    invited_at: datetime | None = None
+    household_name: HouseholdName | None = None
+    inviter_username: SharedUsername | None = None
 
     @property
     def is_invited(self) -> bool:

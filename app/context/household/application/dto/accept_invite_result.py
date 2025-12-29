@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class AcceptInviteErrorCode(str, Enum):
@@ -16,11 +15,11 @@ class AcceptInviteResult:
     """Result of accept invitation operation"""
 
     # Success fields - populated when operation succeeds
-    member_id: Optional[int] = None
-    household_id: Optional[int] = None
-    user_id: Optional[int] = None
-    role: Optional[str] = None
+    member_id: int | None = None
+    household_id: int | None = None
+    user_id: int | None = None
+    role: str | None = None
 
     # Error fields - populated when operation fails
-    error_code: Optional[AcceptInviteErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: AcceptInviteErrorCode | None = None
+    error_message: str | None = None

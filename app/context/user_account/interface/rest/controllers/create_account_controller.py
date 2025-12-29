@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.user_account.application.commands import (
@@ -24,8 +26,8 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.post("", response_model=CreateAccountResponse, status_code=201)
 async def create_account(
     request: CreateAccountRequest,
-    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[CreateAccountHandlerContract, Depends(get_create_account_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Create a new user account"""
     command = CreateAccountCommand(

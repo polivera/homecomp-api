@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.user_account.application.commands import (
@@ -20,8 +22,8 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.delete("/{account_id}", status_code=204)
 async def delete_account(
     account_id: int,
-    handler: DeleteAccountHandlerContract = Depends(get_delete_account_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[DeleteAccountHandlerContract, Depends(get_delete_account_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Delete a user account (soft delete)"""
     command = DeleteAccountCommand(

@@ -1,15 +1,17 @@
 """Unit tests for CardUsed value object"""
 
-import pytest
+from dataclasses import FrozenInstanceError
 from decimal import Decimal
 
-from app.context.credit_card.domain.value_objects import CardUsed
+import pytest
+
 from app.context.credit_card.domain.exceptions import (
+    InvalidCardUsedFormatError,
+    InvalidCardUsedPrecisionError,
     InvalidCardUsedTypeError,
     InvalidCardUsedValueError,
-    InvalidCardUsedPrecisionError,
-    InvalidCardUsedFormatError,
 )
+from app.context.credit_card.domain.value_objects import CardUsed
 
 
 @pytest.mark.unit
@@ -82,5 +84,5 @@ class TestCardUsed:
     def test_immutability(self):
         """Test that value object is immutable"""
         used = CardUsed(Decimal("500.00"))
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             used.value = Decimal("1000.00")

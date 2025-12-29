@@ -1,5 +1,7 @@
 """Unit tests for UserAccountUserID value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.user_account.domain.value_objects import UserAccountUserID
@@ -22,5 +24,5 @@ class TestUserAccountUserID:
     def test_immutability(self):
         """Test that value object is immutable"""
         user_id = UserAccountUserID(1)
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             user_id.value = 2

@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from app.context.user_account.application.dto.account_response_dto import (
     AccountResponseDTO,
@@ -13,5 +12,5 @@ class FindAccountByIdHandlerContract(ABC):
     @abstractmethod
     async def handle(
         self, query: FindAccountByIdQuery
-    ) -> Optional[AccountResponseDTO]:
+    ) -> AccountResponseDTO | None:
         pass

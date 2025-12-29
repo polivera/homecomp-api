@@ -1,17 +1,19 @@
 """Unit tests for user_account domain DTOs"""
 
-import pytest
-from decimal import Decimal
+from dataclasses import FrozenInstanceError
 from datetime import datetime
+from decimal import Decimal
+
+import pytest
 
 from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.value_objects import (
-    UserAccountID,
     AccountName,
-    UserAccountCurrency,
     UserAccountBalance,
-    UserAccountUserID,
+    UserAccountCurrency,
     UserAccountDeletedAt,
+    UserAccountID,
+    UserAccountUserID,
 )
 
 
@@ -21,8 +23,6 @@ class TestUserAccountDTO:
 
     def test_create_dto_with_all_fields(self):
         """Test creating DTO with all fields populated"""
-        from datetime import UTC
-        now = datetime.now(UTC)
         dto = UserAccountDTO(
             user_id=UserAccountUserID(1),
             name=AccountName("My Account"),
@@ -36,7 +36,9 @@ class TestUserAccountDTO:
         assert dto.name.value == "My Account"
         assert dto.currency.value == "USD"
         assert dto.balance.value == Decimal("100.50")
+        assert dto.account_id is not None
         assert dto.account_id.value == 10
+        assert dto.deleted_at is not None
         assert isinstance(dto.deleted_at.value, datetime)
 
     def test_create_dto_without_optional_fields(self):
@@ -104,7 +106,7 @@ class TestUserAccountDTO:
             balance=UserAccountBalance(Decimal("100.50")),
         )
 
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             dto.user_id = UserAccountUserID(2)
 
     def test_dto_with_negative_balance(self):

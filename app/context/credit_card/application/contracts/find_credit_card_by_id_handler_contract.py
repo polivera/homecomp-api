@@ -1,11 +1,10 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
-from app.context.credit_card.application.queries.find_credit_card_by_id_query import (
-    FindCreditCardByIdQuery,
-)
 from app.context.credit_card.application.dto.credit_card_response_dto import (
     CreditCardResponseDTO,
+)
+from app.context.credit_card.application.queries.find_credit_card_by_id_query import (
+    FindCreditCardByIdQuery,
 )
 
 
@@ -15,6 +14,6 @@ class FindCreditCardByIdHandlerContract(ABC):
     @abstractmethod
     async def handle(
         self, query: FindCreditCardByIdQuery
-    ) -> Optional[CreditCardResponseDTO]:
+    ) -> CreditCardResponseDTO | None:
         """Handle the find credit card by ID query"""
         pass

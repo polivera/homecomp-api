@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
@@ -25,8 +25,8 @@ router = APIRouter(prefix="/cards", tags=["credit-cards"])
 async def update_credit_card(
     credit_card_id: int,
     request: UpdateCreditCardRequest,
-    handler: UpdateCreditCardHandlerContract = Depends(get_update_credit_card_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[UpdateCreditCardHandlerContract, Depends(get_update_credit_card_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Update an existing credit card"""
     command = UpdateCreditCardCommand(

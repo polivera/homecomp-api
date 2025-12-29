@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from app.context.user.domain.dto import UserDTO
 from app.context.user.domain.value_objects import UserEmail, UserID
@@ -10,8 +9,8 @@ class UserRepositoryContract(ABC):
 
     @abstractmethod
     async def find_user(
-        self, user_id: Optional[UserID] = None, email: Optional[UserEmail] = None
-    ) -> Optional[UserDTO]:
+        self, user_id: UserID | None = None, email: UserEmail | None = None
+    ) -> UserDTO | None:
         """
         Find a user by ID or email.
 

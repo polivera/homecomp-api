@@ -50,15 +50,15 @@ async def get_db():
 # IMPORTANT: Order matters! Parent tables must be imported before child tables
 # ──────────────────────────────────────────────────────────────────────────────
 
-from app.context.user.infrastructure.models.user_model import UserModel  # noqa: F401, E402
-from app.context.user_account.infrastructure.models.user_account_model import (  # noqa: F401, E402
-    UserAccountModel,
-)
 from app.context.auth.infrastructure.models.session_model import SessionModel  # noqa: F401, E402
 from app.context.credit_card.infrastructure.models.credit_card_model import (  # noqa: F401, E402
     CreditCardModel,
 )
 from app.context.household.infrastructure.models.household_model import (  # noqa: F401, E402
-    HouseholdModel,
     HouseholdMemberModel,
+    HouseholdModel,
+)
+from app.context.user.infrastructure.models.user_model import UserModel  # noqa: F401, E402
+from app.context.user_account.infrastructure.models.user_account_model import (  # noqa: F401, E402
+    UserAccountModel,
 )

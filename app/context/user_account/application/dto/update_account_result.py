@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class UpdateAccountErrorCode(str, Enum):
@@ -17,10 +16,10 @@ class UpdateAccountResult:
     """Result of account update operation"""
 
     # Success fields - populated when operation succeeds
-    account_id: Optional[int] = None
-    account_name: Optional[str] = None
-    account_balance: Optional[float] = None
+    account_id: int | None = None
+    account_name: str | None = None
+    account_balance: float | None = None
 
     # Error fields - populated when operation fails
-    error_code: Optional[UpdateAccountErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: UpdateAccountErrorCode | None = None
+    error_message: str | None = None

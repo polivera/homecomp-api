@@ -1,6 +1,5 @@
 """Mock repositories for auth context testing."""
 
-from typing import Optional
 from unittest.mock import AsyncMock
 
 import pytest
@@ -19,8 +18,8 @@ class MockSessionRepository(SessionRepositoryContract):
         self.update_session_mock = AsyncMock()
 
     async def getSession(
-        self, user_id: Optional[AuthUserID] = None, token: Optional[SessionToken] = None
-    ) -> Optional[SessionDTO]:
+        self, user_id: AuthUserID | None = None, token: SessionToken | None = None
+    ) -> SessionDTO | None:
         return await self.get_session_mock(user_id=user_id, token=token)
 
     async def createSession(self, session: SessionDTO) -> SessionDTO:

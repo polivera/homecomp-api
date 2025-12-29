@@ -1,4 +1,4 @@
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from sqlalchemy import select, update
 from sqlalchemy.engine import CursorResult
@@ -45,17 +45,15 @@ class CreditCardRepository(CreditCardRepositoryContract):
             ) from e
         except SQLAlchemyError as e:
             await self._db.rollback()
-            raise CreditCardDatabaseError(
-                f"Database error while saving credit card: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while saving credit card: {str(e)}") from e
 
     async def find_credit_card(
         self,
-        card_id: Optional[CreditCardID] = None,
-        user_id: Optional[CreditCardUserID] = None,
-        name: Optional[CreditCardName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[CreditCardDTO]:
+        card_id: CreditCardID | None = None,
+        user_id: CreditCardUserID | None = None,
+        name: CreditCardName | None = None,
+        only_active: bool | None = True,
+    ) -> CreditCardDTO | None:
         """Find a credit card by ID or by user_id and name (admin/unrestricted usage)"""
         try:
             stmt = select(CreditCardModel)
@@ -77,22 +75,18 @@ class CreditCardRepository(CreditCardRepositoryContract):
 
             return CreditCardMapper.to_dto(model) if model else None
         except SQLAlchemyError as e:
-            raise CreditCardDatabaseError(
-                f"Database error while finding credit card: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while finding credit card: {str(e)}") from e
 
     async def find_user_credit_cards(
         self,
         user_id: CreditCardUserID,
-        card_id: Optional[CreditCardID] = None,
-        name: Optional[CreditCardName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[list[CreditCardDTO]]:
+        card_id: CreditCardID | None = None,
+        name: CreditCardName | None = None,
+        only_active: bool | None = True,
+    ) -> list[CreditCardDTO] | None:
         """Find user credit cards always filtering by user_id (for user-scoped queries)"""
         try:
-            stmt = select(CreditCardModel).where(
-                CreditCardModel.user_id == user_id.value
-            )
+            stmt = select(CreditCardModel).where(CreditCardModel.user_id == user_id.value)
             if only_active:
                 stmt = stmt.where(CreditCardModel.deleted_at.is_(None))
 
@@ -103,22 +97,16 @@ class CreditCardRepository(CreditCardRepositoryContract):
                     stmt = stmt.where(CreditCardModel.name.like(f"%{name.value}%"))
 
             models = (await self._db.execute(stmt)).scalars()
-            return (
-                [CreditCardMapper.to_dto_or_fail(model) for model in models]
-                if models
-                else []
-            )
+            return [CreditCardMapper.to_dto_or_fail(model) for model in models] if models else []
         except SQLAlchemyError as e:
-            raise CreditCardDatabaseError(
-                f"Database error while finding user credit cards: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while finding user credit cards: {str(e)}") from e
 
     async def find_user_credit_card_by_id(
         self,
         user_id: CreditCardUserID,
         card_id: CreditCardID,
-        only_active: Optional[bool] = True,
-    ) -> Optional[CreditCardDTO]:
+        only_active: bool | None = True,
+    ) -> CreditCardDTO | None:
         """Find a specific credit card by ID for a user"""
         try:
             stmt = select(CreditCardModel).where(
@@ -131,9 +119,7 @@ class CreditCardRepository(CreditCardRepositoryContract):
             model = (await self._db.execute(stmt)).scalar_one_or_none()
             return CreditCardMapper.to_dto(model)
         except SQLAlchemyError as e:
-            raise CreditCardDatabaseError(
-                f"Database error while finding credit card by ID: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while finding credit card by ID: {str(e)}") from e
 
     async def update_credit_card(self, card: CreditCardDTO) -> CreditCardDTO:
         """Update an existing credit card"""
@@ -171,13 +157,9 @@ class CreditCardRepository(CreditCardRepositoryContract):
             ) from e
         except SQLAlchemyError as e:
             await self._db.rollback()
-            raise CreditCardDatabaseError(
-                f"Database error while updating credit card: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while updating credit card: {str(e)}") from e
 
-    async def delete_credit_card(
-        self, card_id: CreditCardID, user_id: CreditCardUserID
-    ) -> bool:
+    async def delete_credit_card(self, card_id: CreditCardID, user_id: CreditCardUserID) -> bool:
         """Soft delete a credit card"""
         try:
             # Verify card exists and user owns it
@@ -200,8 +182,9 @@ class CreditCardRepository(CreditCardRepositoryContract):
             await self._db.commit()
 
             return result.rowcount > 0
-        except Exception or SQLAlchemyError as e:
+        except SQLAlchemyError as e:
             await self._db.rollback()
-            raise CreditCardDatabaseError(
-                f"Database error while deleting credit card: {str(e)}"
-            ) from e
+            raise CreditCardDatabaseError(f"Database error while deleting credit card: {str(e)}") from e
+        except Exception as e:
+            await self._db.rollback()
+            raise CreditCardDatabaseError(f"Unexpected error while deleting credit card: {str(e)}") from e

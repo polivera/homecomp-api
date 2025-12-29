@@ -1,25 +1,26 @@
 """Unit tests for user_account infrastructure mapper"""
 
-import pytest
-from decimal import Decimal
 from datetime import datetime
+from decimal import Decimal
 
+import pytest
+
+from app.context.user_account.domain.dto import UserAccountDTO
+from app.context.user_account.domain.exceptions import UserAccountMapperError
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountDeletedAt,
+    UserAccountID,
+    UserAccountUserID,
+)
 from app.context.user_account.infrastructure.mappers.user_account_mapper import (
     UserAccountMapper,
 )
 from app.context.user_account.infrastructure.models.user_account_model import (
     UserAccountModel,
 )
-from app.context.user_account.domain.dto import UserAccountDTO
-from app.context.user_account.domain.value_objects import (
-    UserAccountID,
-    AccountName,
-    UserAccountCurrency,
-    UserAccountBalance,
-    UserAccountUserID,
-    UserAccountDeletedAt,
-)
-from app.context.user_account.domain.exceptions import UserAccountMapperError
 
 
 @pytest.mark.unit

@@ -1,5 +1,7 @@
 """Unit tests for ThrottleTime value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.auth.domain.value_objects import FailedLoginAttempts
@@ -56,7 +58,7 @@ class TestThrottleTime:
     def test_immutability(self):
         """Test that value object is immutable"""
         throttle = ThrottleTime(value=2)
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             throttle.value = 4
 
     def test_equality(self):

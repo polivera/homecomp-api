@@ -1,4 +1,5 @@
 from os import getenv
+from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
 
@@ -15,7 +16,7 @@ router = APIRouter(prefix="/login", tags=["login"])
 async def login(
     response: Response,
     request: LoginRequest,
-    handler: LoginHandlerContract = Depends(get_login_handler),
+    handler: Annotated[LoginHandlerContract, Depends(get_login_handler)],
 ):
     """User login endpoint"""
     login_result = await handler.handle(

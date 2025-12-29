@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from app.context.user.domain.value_objects import (
     UserDeletedAt,
@@ -17,8 +16,8 @@ class UserDTO:
     user_id: UserID
     email: UserEmail
     password: UserPassword
-    username: Optional[UserName] = None
-    deleted_at: Optional[UserDeletedAt] = None
+    username: UserName | None = None
+    deleted_at: UserDeletedAt | None = None
 
     @property
     def is_deleted(self) -> bool:

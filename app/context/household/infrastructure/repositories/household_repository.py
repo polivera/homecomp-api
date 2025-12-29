@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from typing import List, Optional
 
 from sqlalchemy import and_, select
 from sqlalchemy.exc import IntegrityError
@@ -32,9 +31,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
     def __init__(self, db: AsyncSession):
         self._db = db
 
-    async def create_household(
-        self, household_dto: HouseholdDTO, creator_user_id: HouseholdUserID
-    ) -> HouseholdDTO:
+    async def create_household(self, household_dto: HouseholdDTO, creator_user_id: HouseholdUserID) -> HouseholdDTO:
         """Create a new household with the owner stored in the household table"""
 
         household_model = HouseholdMapper.to_model(household_dto)
@@ -49,14 +46,12 @@ class HouseholdRepository(HouseholdRepositoryContract):
             if "uq_households_owner_name" in str(e.orig):
                 raise HouseholdNameAlreadyExistError(
                     f"Household with name '{household_dto.name.value}' already exists for this user"
-                )
-            raise Exception(e)
+                ) from None
+            raise Exception(e) from None
 
         return HouseholdMapper.to_dto_or_fail(household_model)
 
-    async def find_household_by_name(
-        self, name: HouseholdName, user_id: HouseholdUserID
-    ) -> Optional[HouseholdDTO]:
+    async def find_household_by_name(self, name: HouseholdName, user_id: HouseholdUserID) -> HouseholdDTO | None:
         """Find a household by name for a specific user (owner)"""
 
         stmt = select(HouseholdModel).where(
@@ -71,9 +66,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return HouseholdMapper.to_dto(model) if model else None
 
-    async def find_household_by_id(
-        self, household_id: HouseholdID
-    ) -> Optional[HouseholdDTO]:
+    async def find_household_by_id(self, household_id: HouseholdID) -> HouseholdDTO | None:
         """Find a household by ID"""
 
         stmt = select(HouseholdModel).where(HouseholdModel.id == household_id.value)
@@ -94,9 +87,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return HouseholdMemberMapper.to_dto_or_fail(member_model)
 
-    async def find_member(
-        self, household_id: HouseholdID, user_id: HouseholdUserID
-    ) -> Optional[HouseholdMemberDTO]:
+    async def find_member(self, household_id: HouseholdID, user_id: HouseholdUserID) -> HouseholdMemberDTO | None:
         """Find the most recent member record for user in household"""
         stmt = (
             select(HouseholdMemberModel)
@@ -115,9 +106,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return HouseholdMemberMapper.to_dto(model) if model else None
 
-    async def accept_invite(
-        self, household_id: HouseholdID, user_id: HouseholdUserID
-    ) -> HouseholdMemberDTO:
+    async def accept_invite(self, household_id: HouseholdID, user_id: HouseholdUserID) -> HouseholdMemberDTO:
         """Accept invite by setting joined_at to current timestamp"""
         # Find the pending invite
         stmt = (
@@ -147,9 +136,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return HouseholdMemberMapper.to_dto_or_fail(member_model)
 
-    async def revoke_or_remove(
-        self, household_id: HouseholdID, user_id: HouseholdUserID
-    ) -> None:
+    async def revoke_or_remove(self, household_id: HouseholdID, user_id: HouseholdUserID) -> None:
         """Revoke invite or remove member by setting left_at to current timestamp"""
         # Find active invite or membership
         stmt = (
@@ -172,14 +159,10 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         await self._db.commit()
 
-    async def list_user_households(
-        self, user_id: HouseholdUserID
-    ) -> List[HouseholdDTO]:
+    async def list_user_households(self, user_id: HouseholdUserID) -> list[HouseholdDTO]:
         """List all households user owns or is an active participant in"""
         # Get households where user is owner
-        owner_stmt = select(HouseholdModel).where(
-            HouseholdModel.owner_user_id == user_id.value
-        )
+        owner_stmt = select(HouseholdModel).where(HouseholdModel.owner_user_id == user_id.value)
 
         # Get households where user is active member
         member_stmt = (
@@ -209,9 +192,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return [HouseholdMapper.to_dto(h) for h in all_households.values()]
 
-    async def list_user_pending_invites(
-        self, user_id: HouseholdUserID
-    ) -> List[HouseholdDTO]:
+    async def list_user_pending_invites(self, user_id: HouseholdUserID) -> list[HouseholdDTO]:
         """List all households user has been invited to but not yet accepted"""
         stmt = (
             select(HouseholdModel)
@@ -232,19 +213,13 @@ class HouseholdRepository(HouseholdRepositoryContract):
 
         return [HouseholdMapper.to_dto_or_fail(h) for h in households]
 
-    async def list_user_pending_household_invites(
-        self, user_id: HouseholdUserID
-    ) -> List[HouseholdMemberDTO]:
+    async def list_user_pending_household_invites(self, user_id: HouseholdUserID) -> list[HouseholdMemberDTO]:
         """List user pending invitation to households"""
         InviterUser = aliased(UserModel)
         stmt = (
             select(HouseholdMemberModel, HouseholdModel, InviterUser)
-            .join(
-                HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id
-            )
-            .join(
-                InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id
-            )
+            .join(HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id)
+            .join(InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id)
             .where(
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
@@ -259,16 +234,14 @@ class HouseholdRepository(HouseholdRepositoryContract):
         # Each row is a tuple: (HouseholdMemberModel, HouseholdModel, InviterUser)
         member_list = []
         for member_model, household_model, inviter_model in rows:
-            member_dto = HouseholdMemberMapper.to_dto(
-                member_model, household_model, inviter_model
-            )
+            member_dto = HouseholdMemberMapper.to_dto(member_model, household_model, inviter_model)
             member_list.append(member_dto)
 
         return member_list
 
     async def list_household_pending_invites(
         self, household_id: HouseholdID, owner_id: HouseholdUserID
-    ) -> List[HouseholdMemberDTO]:
+    ) -> list[HouseholdMemberDTO]:
         """List all pending invites for a household with household name and inviter username"""
         # Create alias for the inviter user
         InviterUser = aliased(UserModel)
@@ -276,12 +249,8 @@ class HouseholdRepository(HouseholdRepositoryContract):
         # Join with HouseholdModel and UserModel to get household name and inviter username
         stmt = (
             select(HouseholdMemberModel, HouseholdModel, InviterUser)
-            .join(
-                HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id
-            )
-            .join(
-                InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id
-            )
+            .join(HouseholdModel, HouseholdModel.id == HouseholdMemberModel.household_id)
+            .join(InviterUser, InviterUser.id == HouseholdMemberModel.invited_by_user_id)
             .where(
                 and_(
                     HouseholdMemberModel.household_id == household_id.value,
@@ -297,16 +266,12 @@ class HouseholdRepository(HouseholdRepositoryContract):
         # Each row is a tuple: (HouseholdMemberModel, HouseholdModel, InviterUser)
         member_list = []
         for member_model, household_model, inviter_model in rows:
-            member_dto = HouseholdMemberMapper.to_dto(
-                member_model, household_model, inviter_model
-            )
+            member_dto = HouseholdMemberMapper.to_dto(member_model, household_model, inviter_model)
             member_list.append(member_dto)
 
         return member_list
 
-    async def user_has_access(
-        self, user_id: HouseholdUserID, household_id: HouseholdID
-    ) -> bool:
+    async def user_has_access(self, user_id: HouseholdUserID, household_id: HouseholdID) -> bool:
         """Check if user owns or is an active member of household"""
         # Check if owner
         household = await self.find_household_by_id(household_id)

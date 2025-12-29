@@ -1,5 +1,7 @@
 """Unit tests for SessionToken value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.auth.domain.value_objects import SessionToken
@@ -54,7 +56,7 @@ class TestSessionToken:
     def test_immutability(self):
         """Test that value object is immutable"""
         token = SessionToken.generate()
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             token.value = "modified-token"
 
     def test_equality(self):

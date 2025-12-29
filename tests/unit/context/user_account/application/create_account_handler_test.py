@@ -1,25 +1,26 @@
 """Unit tests for CreateAccountHandler"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.user_account.application.commands import CreateAccountCommand
+from app.context.user_account.application.dto import CreateAccountErrorCode
 from app.context.user_account.application.handlers.create_account_handler import (
     CreateAccountHandler,
 )
-from app.context.user_account.application.commands import CreateAccountCommand
-from app.context.user_account.application.dto import CreateAccountErrorCode
 from app.context.user_account.domain.dto import UserAccountDTO
-from app.context.user_account.domain.value_objects import (
-    UserAccountID,
-    AccountName,
-    UserAccountCurrency,
-    UserAccountBalance,
-    UserAccountUserID,
-)
 from app.context.user_account.domain.exceptions import (
-    UserAccountNameAlreadyExistError,
     UserAccountMapperError,
+    UserAccountNameAlreadyExistError,
+)
+from app.context.user_account.domain.value_objects import (
+    AccountName,
+    UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
+    UserAccountUserID,
 )
 
 

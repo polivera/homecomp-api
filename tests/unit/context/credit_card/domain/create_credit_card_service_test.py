@@ -1,13 +1,14 @@
 """Unit tests for CreateCreditCardService"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.services.create_credit_card_service import (
     CreateCreditCardService,
 )
-from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.value_objects import (
     CardLimit,
     CreditCardAccountID,

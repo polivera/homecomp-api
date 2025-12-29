@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class DeleteAccountErrorCode(str, Enum):
@@ -18,5 +17,5 @@ class DeleteAccountResult:
     success: bool = False
 
     # Error fields - populated when operation fails
-    error_code: Optional[DeleteAccountErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: DeleteAccountErrorCode | None = None
+    error_message: str | None = None

@@ -1,4 +1,3 @@
-from typing import Optional
 
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -17,8 +16,8 @@ class SessionRepository(SessionRepositoryContract):
         self._db = db
 
     async def getSession(
-        self, user_id: Optional[AuthUserID] = None, token: Optional[SessionToken] = None
-    ) -> Optional[SessionDTO]:
+        self, user_id: AuthUserID | None = None, token: SessionToken | None = None
+    ) -> SessionDTO | None:
         stmt = select(SessionModel)
         if user_id is not None:
             stmt = stmt.where(SessionModel.user_id == user_id.value)

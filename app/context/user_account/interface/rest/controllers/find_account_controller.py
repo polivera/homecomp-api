@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.user_account.application.contracts.find_account_by_id_handler_contract import (
@@ -25,8 +27,8 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.get("/{account_id}", response_model=AccountResponse)
 async def get_account(
     account_id: int,
-    handler: FindAccountByIdHandlerContract = Depends(get_find_account_by_id_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[FindAccountByIdHandlerContract, Depends(get_find_account_by_id_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get a specific user account by ID"""
     query = FindAccountByIdQuery(
@@ -48,10 +50,10 @@ async def get_account(
 
 @router.get("", response_model=list[AccountResponse])
 async def get_all_accounts(
-    handler: FindAccountsByUserHandlerContract = Depends(
-        get_find_accounts_by_user_handler
-    ),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[
+        FindAccountsByUserHandlerContract, Depends(get_find_accounts_by_user_handler)
+    ],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get all accounts for the authenticated user"""
     query = FindAccountsByUserQuery(user_id=user_id)

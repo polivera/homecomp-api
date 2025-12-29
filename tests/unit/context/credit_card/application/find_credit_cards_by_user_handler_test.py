@@ -1,8 +1,9 @@
 """Unit tests for FindCreditCardsByUserHandler"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
+
+import pytest
 
 from app.context.credit_card.application.handlers.find_credit_cards_by_user_handler import (
     FindCreditCardsByUserHandler,

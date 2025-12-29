@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.credit_card.application.contracts import (
@@ -23,10 +25,10 @@ router = APIRouter(prefix="/cards", tags=["credit-cards"])
 @router.get("/{credit_card_id}", response_model=CreditCardResponse)
 async def get_credit_card(
     credit_card_id: int,
-    handler: FindCreditCardByIdHandlerContract = Depends(
-        get_find_credit_card_by_id_handler
-    ),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[
+        FindCreditCardByIdHandlerContract, Depends(get_find_credit_card_by_id_handler)
+    ],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get a credit card by ID"""
     query = FindCreditCardByIdQuery(
@@ -55,10 +57,10 @@ async def get_credit_card(
 
 @router.get("", response_model=list[CreditCardResponse])
 async def get_credit_cards(
-    handler: FindCreditCardsByUserHandlerContract = Depends(
-        get_find_credit_cards_by_user_handler
-    ),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[
+        FindCreditCardsByUserHandlerContract, Depends(get_find_credit_cards_by_user_handler)
+    ],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get all credit cards for the current user"""
     query = FindCreditCardsByUserQuery(user_id=user_id)

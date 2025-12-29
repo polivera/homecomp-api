@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.user_account.application.contracts.find_account_by_id_handler_contract import (
     FindAccountByIdHandlerContract,
@@ -22,7 +21,7 @@ class FindAccountByIdHandler(FindAccountByIdHandlerContract):
     def __init__(self, repository: UserAccountRepositoryContract):
         self._repository = repository
 
-    async def handle(self, query: FindAccountByIdQuery) -> Optional[AccountResponseDTO]:
+    async def handle(self, query: FindAccountByIdQuery) -> AccountResponseDTO | None:
         account = await self._repository.find_user_accounts(
             account_id=UserAccountID(query.account_id),
             user_id=UserAccountUserID(query.user_id),

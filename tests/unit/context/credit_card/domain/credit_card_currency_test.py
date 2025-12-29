@@ -1,5 +1,7 @@
 """Unit tests for CreditCardCurrency value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.credit_card.domain.value_objects import CreditCardCurrency
@@ -65,5 +67,5 @@ class TestCreditCardCurrency:
     def test_immutability(self):
         """Test that value object is immutable"""
         currency = CreditCardCurrency("USD")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             currency.value = "EUR"

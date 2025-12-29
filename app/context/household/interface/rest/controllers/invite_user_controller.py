@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import InviteUserCommand
@@ -17,8 +19,8 @@ router = APIRouter()
 async def invite_user(
     household_id: int,
     request: InviteUserRequest,
-    handler: InviteUserHandlerContract = Depends(get_invite_user_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[InviteUserHandlerContract, Depends(get_invite_user_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> InviteUserResponse:
     """Invite a user to a household"""
 

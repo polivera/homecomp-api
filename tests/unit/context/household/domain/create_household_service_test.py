@@ -1,18 +1,19 @@
 """Unit tests for CreateHouseholdService"""
 
-import pytest
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.household.domain.dto import HouseholdDTO
+from app.context.household.domain.exceptions import HouseholdNameAlreadyExistError
 from app.context.household.domain.services.create_household_service import (
     CreateHouseholdService,
 )
-from app.context.household.domain.dto import HouseholdDTO
 from app.context.household.domain.value_objects import (
     HouseholdID,
     HouseholdName,
     HouseholdUserID,
 )
-from app.context.household.domain.exceptions import HouseholdNameAlreadyExistError
 
 
 @pytest.mark.unit

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class DeleteCreditCardErrorCode(str, Enum):
@@ -15,5 +14,5 @@ class DeleteCreditCardResult:
     """Result of credit card deletion operation"""
 
     success: bool = False
-    error_code: Optional[DeleteCreditCardErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: DeleteCreditCardErrorCode | None = None
+    error_message: str | None = None

@@ -1,5 +1,7 @@
 """Unit tests for FailedLoginAttempts value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.auth.domain.value_objects import FailedLoginAttempts
@@ -74,7 +76,7 @@ class TestFailedLoginAttempts:
     def test_immutability(self):
         """Test that value object is immutable"""
         attempts = FailedLoginAttempts(2)
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             attempts.value = 3
 
     def test_equality(self):

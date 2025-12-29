@@ -1,15 +1,17 @@
 """Unit tests for CardLimit value object"""
 
-import pytest
+from dataclasses import FrozenInstanceError
 from decimal import Decimal
 
-from app.context.credit_card.domain.value_objects import CardLimit
+import pytest
+
 from app.context.credit_card.domain.exceptions import (
+    InvalidCardLimitFormatError,
+    InvalidCardLimitPrecisionError,
     InvalidCardLimitTypeError,
     InvalidCardLimitValueError,
-    InvalidCardLimitPrecisionError,
-    InvalidCardLimitFormatError,
 )
+from app.context.credit_card.domain.value_objects import CardLimit
 
 
 @pytest.mark.unit
@@ -84,5 +86,5 @@ class TestCardLimit:
     def test_immutability(self):
         """Test that value object is immutable"""
         limit = CardLimit(Decimal("1000.00"))
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             limit.value = Decimal("2000.00")

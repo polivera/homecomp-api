@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import DeclineInviteCommand
@@ -13,8 +15,8 @@ router = APIRouter()
 @router.post("/{household_id}/invites/decline", status_code=200)
 async def decline_invite(
     household_id: int,
-    handler: DeclineInviteHandlerContract = Depends(get_decline_invite_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[DeclineInviteHandlerContract, Depends(get_decline_invite_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> DeclineInviteResponse:
     """Decline a household invitation"""
 

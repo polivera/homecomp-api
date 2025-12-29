@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class UpdateCreditCardErrorCode(str, Enum):
@@ -17,9 +16,9 @@ class UpdateCreditCardResult:
     """Result of credit card update operation"""
 
     # Success fields - populated when operation succeeds
-    credit_card_id: Optional[int] = None
-    credit_card_name: Optional[str] = None
+    credit_card_id: int | None = None
+    credit_card_name: str | None = None
 
     # Error fields - populated when operation fails
-    error_code: Optional[UpdateCreditCardErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: UpdateCreditCardErrorCode | None = None
+    error_message: str | None = None

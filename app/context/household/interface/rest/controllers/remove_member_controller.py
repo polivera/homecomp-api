@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import RemoveMemberCommand
@@ -14,8 +16,8 @@ router = APIRouter()
 async def remove_member(
     household_id: int,
     member_user_id: int,
-    handler: RemoveMemberHandlerContract = Depends(get_remove_member_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[RemoveMemberHandlerContract, Depends(get_remove_member_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> RemoveMemberResponse:
     """Remove a member from a household"""
 

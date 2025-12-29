@@ -1,18 +1,19 @@
 """Unit tests for CreateAccountService"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.services.create_account_service import (
     CreateAccountService,
 )
-from app.context.user_account.domain.dto import UserAccountDTO
 from app.context.user_account.domain.value_objects import (
-    UserAccountID,
     AccountName,
-    UserAccountCurrency,
     UserAccountBalance,
+    UserAccountCurrency,
+    UserAccountID,
     UserAccountUserID,
 )
 

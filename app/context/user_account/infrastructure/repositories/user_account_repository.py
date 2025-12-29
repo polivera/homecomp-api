@@ -1,4 +1,4 @@
-from typing import Any, Optional, cast
+from typing import Any, cast
 
 from sqlalchemy import select, update
 from sqlalchemy.engine import CursorResult
@@ -50,11 +50,11 @@ class UserAccountRepository(UserAccountRepositoryContract):
 
     async def find_account(
         self,
-        account_id: Optional[UserAccountID] = None,
-        user_id: Optional[UserAccountUserID] = None,
-        name: Optional[AccountName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[UserAccountDTO]:
+        account_id: UserAccountID | None = None,
+        user_id: UserAccountUserID | None = None,
+        name: AccountName | None = None,
+        only_active: bool | None = True,
+    ) -> UserAccountDTO | None:
         """Find an account by ID or by user_id and name (admin/unrestricted usage)"""
         stmt = select(UserAccountModel)
         if only_active:
@@ -78,10 +78,10 @@ class UserAccountRepository(UserAccountRepositoryContract):
     async def find_user_accounts(
         self,
         user_id: UserAccountUserID,
-        account_id: Optional[UserAccountID] = None,
-        name: Optional[AccountName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[list[UserAccountDTO]]:
+        account_id: UserAccountID | None = None,
+        name: AccountName | None = None,
+        only_active: bool | None = True,
+    ) -> list[UserAccountDTO] | None:
         """Find user account always filtering by user_id (for user-scoped queries)"""
         stmt = select(UserAccountModel).where(UserAccountModel.user_id == user_id.value)
         if only_active:
@@ -104,8 +104,8 @@ class UserAccountRepository(UserAccountRepositoryContract):
         self,
         user_id: UserAccountUserID,
         account_id: UserAccountID,
-        only_active: Optional[bool] = True,
-    ) -> Optional[UserAccountDTO]:
+        only_active: bool | None = True,
+    ) -> UserAccountDTO | None:
         stmt = select(UserAccountModel).where(
             UserAccountModel.id == account_id.value,
             UserAccountModel.user_id == user_id.value,

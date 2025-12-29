@@ -1,5 +1,7 @@
 """Unit tests for AuthPassword value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.auth.domain.value_objects import AuthPassword
@@ -66,7 +68,7 @@ class TestAuthPassword:
     def test_immutability(self):
         """Test that value object is immutable"""
         password = AuthPassword.from_plain_text("test123")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             password.value = "changed"
 
     def test_verify_with_empty_password_returns_false(self):

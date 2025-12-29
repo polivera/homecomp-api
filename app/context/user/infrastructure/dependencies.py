@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -8,7 +10,7 @@ from app.context.user.infrastructure.repositories import UserRepository
 from app.shared.infrastructure.database import get_db
 
 
-def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepositoryContract:
+def get_user_repository(db: Annotated[AsyncSession, Depends(get_db)]) -> UserRepositoryContract:
     """
     Initialize user repository
     """
@@ -16,7 +18,7 @@ def get_user_repository(db: AsyncSession = Depends(get_db)) -> UserRepositoryCon
 
 
 def get_find_user_query_handler(
-    user_repo: UserRepositoryContract = Depends(get_user_repository),
+    user_repo: Annotated[UserRepositoryContract, Depends(get_user_repository)],
 ) -> FindUserHandlerContract:
     """
     Initialize FindUserHandler

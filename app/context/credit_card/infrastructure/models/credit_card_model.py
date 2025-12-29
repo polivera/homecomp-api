@@ -1,6 +1,5 @@
 from datetime import datetime
 from decimal import Decimal
-from typing import Optional
 
 from sqlalchemy import DECIMAL, DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column
@@ -22,6 +21,6 @@ class CreditCardModel(BaseDBModel):
     currency: Mapped[str] = mapped_column(String(3), nullable=False)
     limit: Mapped[Decimal] = mapped_column(DECIMAL(15, 2), nullable=False)
     used: Mapped[Decimal] = mapped_column(DECIMAL(15, 2), nullable=False)
-    deleted_at: Mapped[Optional[datetime]] = mapped_column(
+    deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None
     )

@@ -1,13 +1,20 @@
 """Unit tests for UpdateCreditCardService"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.credit_card.domain.dto import CreditCardDTO
+from app.context.credit_card.domain.exceptions import (
+    CreditCardNameAlreadyExistError,
+    CreditCardNotFoundError,
+    CreditCardUnauthorizedAccessError,
+    CreditCardUsedExceedsLimitError,
+)
 from app.context.credit_card.domain.services.update_credit_card_service import (
     UpdateCreditCardService,
 )
-from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.value_objects import (
     CardLimit,
     CardUsed,
@@ -16,12 +23,6 @@ from app.context.credit_card.domain.value_objects import (
     CreditCardID,
     CreditCardName,
     CreditCardUserID,
-)
-from app.context.credit_card.domain.exceptions import (
-    CreditCardNotFoundError,
-    CreditCardUnauthorizedAccessError,
-    CreditCardNameAlreadyExistError,
-    CreditCardUsedExceedsLimitError,
 )
 
 

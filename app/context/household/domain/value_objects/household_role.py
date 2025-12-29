@@ -1,6 +1,5 @@
 from dataclasses import dataclass, field
-
-from typing_extensions import Self
+from typing import Self
 
 
 @dataclass(frozen=True)

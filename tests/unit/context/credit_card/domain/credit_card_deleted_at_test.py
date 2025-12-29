@@ -1,7 +1,9 @@
 """Unit tests for CreditCardDeletedAt value object"""
 
-import pytest
+from dataclasses import FrozenInstanceError
 from datetime import UTC, datetime, timedelta
+
+import pytest
 
 from app.context.credit_card.domain.value_objects import CreditCardDeletedAt
 
@@ -61,5 +63,5 @@ class TestCreditCardDeletedAt:
     def test_immutability(self):
         """Test that value object is immutable"""
         deleted_at = CreditCardDeletedAt.now()
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             deleted_at.value = datetime.now(UTC)

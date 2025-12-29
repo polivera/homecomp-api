@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import Optional
 
 
 class RemoveMemberErrorCode(str, Enum):
@@ -20,5 +19,5 @@ class RemoveMemberResult:
     success: bool = False
 
     # Error fields - populated when operation fails
-    error_code: Optional[RemoveMemberErrorCode] = None
-    error_message: Optional[str] = None
+    error_code: RemoveMemberErrorCode | None = None
+    error_message: str | None = None

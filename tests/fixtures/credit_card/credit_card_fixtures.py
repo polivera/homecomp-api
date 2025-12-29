@@ -1,8 +1,9 @@
 """Test fixtures for credit card context"""
 
-import pytest
+from datetime import datetime
 from decimal import Decimal
-from datetime import UTC, datetime
+
+import pytest
 
 from app.context.credit_card.domain.dto import CreditCardDTO
 from app.context.credit_card.domain.value_objects import (

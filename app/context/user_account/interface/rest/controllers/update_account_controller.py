@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.user_account.application.commands import (
@@ -25,8 +27,8 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 async def update_account(
     account_id: int,
     request: UpdateAccountRequest,
-    handler: UpdateAccountHandlerContract = Depends(get_update_account_handler),
-    user_id: int = Depends(get_current_user_id),
+    handler: Annotated[UpdateAccountHandlerContract, Depends(get_update_account_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Update a user account (full update - all fields required)"""
     command = UpdateAccountCommand(

@@ -1,5 +1,7 @@
 """Unit tests for UserAccountCurrency value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
 from app.context.user_account.domain.value_objects import UserAccountCurrency
@@ -42,5 +44,5 @@ class TestUserAccountCurrency:
     def test_immutability(self):
         """Test that value object is immutable"""
         currency = UserAccountCurrency("USD")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             currency.value = "EUR"

@@ -1,6 +1,5 @@
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Optional
 
 
 @dataclass(frozen=True)
@@ -9,6 +8,6 @@ class CreateEntryCommand:
     expense_date: datetime
     account_id: int
     category_id: int
-    household_id: Optional[int]
+    household_id: int | None
     amount: float
     description: str

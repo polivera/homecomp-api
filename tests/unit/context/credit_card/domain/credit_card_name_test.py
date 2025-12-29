@@ -1,12 +1,14 @@
 """Unit tests for CreditCardName value object"""
 
+from dataclasses import FrozenInstanceError
+
 import pytest
 
-from app.context.credit_card.domain.value_objects import CreditCardName
 from app.context.credit_card.domain.exceptions import (
-    InvalidCreditCardNameTypeError,
     InvalidCreditCardNameLengthError,
+    InvalidCreditCardNameTypeError,
 )
+from app.context.credit_card.domain.value_objects import CreditCardName
 
 
 @pytest.mark.unit
@@ -31,9 +33,7 @@ class TestCreditCardName:
 
     def test_invalid_type_raises_error(self):
         """Test that invalid types raise InvalidCreditCardNameTypeError"""
-        with pytest.raises(
-            InvalidCreditCardNameTypeError, match="CreditCardName must be a string"
-        ):
+        with pytest.raises(InvalidCreditCardNameTypeError, match="CreditCardName must be a string"):
             CreditCardName(123)
 
     def test_too_short_name_raises_error(self):
@@ -62,5 +62,5 @@ class TestCreditCardName:
     def test_immutability(self):
         """Test that value object is immutable"""
         name = CreditCardName("My Card")
-        with pytest.raises(Exception):  # FrozenInstanceError
+        with pytest.raises(FrozenInstanceError):
             name.value = "New Name"

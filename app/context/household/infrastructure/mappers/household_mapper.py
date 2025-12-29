@@ -1,4 +1,3 @@
-from typing import Optional
 
 from app.context.household.domain.dto import HouseholdDTO
 from app.context.household.domain.exceptions import HouseholdMapperError
@@ -12,7 +11,7 @@ from app.context.household.infrastructure.models import HouseholdModel
 
 class HouseholdMapper:
     @staticmethod
-    def to_dto(model: Optional[HouseholdModel]) -> Optional[HouseholdDTO]:
+    def to_dto(model: HouseholdModel | None) -> HouseholdDTO | None:
         """Convert database model to domain DTO"""
         if model is None:
             return None
@@ -30,7 +29,7 @@ class HouseholdMapper:
             ) from e
 
     @staticmethod
-    def to_dto_or_fail(model: Optional[HouseholdModel]) -> HouseholdDTO:
+    def to_dto_or_fail(model: HouseholdModel | None) -> HouseholdDTO:
         dto = HouseholdMapper.to_dto(model)
         if not dto:
             raise HouseholdMapperError("Error mapping HouseholdModel to DTO")

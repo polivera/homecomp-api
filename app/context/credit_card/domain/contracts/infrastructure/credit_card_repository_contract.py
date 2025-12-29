@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-from typing import Optional
 
 from app.context.credit_card.domain.dto.credit_card_dto import CreditCardDTO
 from app.context.credit_card.domain.value_objects import CreditCardUserID
@@ -32,11 +31,11 @@ class CreditCardRepositoryContract(ABC):
     @abstractmethod
     async def find_credit_card(
         self,
-        card_id: Optional[CreditCardID] = None,
-        user_id: Optional[CreditCardUserID] = None,
-        name: Optional[CreditCardName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[CreditCardDTO]:
+        card_id: CreditCardID | None = None,
+        user_id: CreditCardUserID | None = None,
+        name: CreditCardName | None = None,
+        only_active: bool | None = True,
+    ) -> CreditCardDTO | None:
         """
         Find a credit card by ID or by user_id and name (admin/unrestricted usage)
 
@@ -55,10 +54,10 @@ class CreditCardRepositoryContract(ABC):
     async def find_user_credit_cards(
         self,
         user_id: CreditCardUserID,
-        card_id: Optional[CreditCardID] = None,
-        name: Optional[CreditCardName] = None,
-        only_active: Optional[bool] = True,
-    ) -> Optional[list[CreditCardDTO]]:
+        card_id: CreditCardID | None = None,
+        name: CreditCardName | None = None,
+        only_active: bool | None = True,
+    ) -> list[CreditCardDTO] | None:
         """
         Find user credit cards always filtering by user_id (for user-scoped queries)
 
@@ -78,8 +77,8 @@ class CreditCardRepositoryContract(ABC):
         self,
         user_id: CreditCardUserID,
         card_id: CreditCardID,
-        only_active: Optional[bool] = True,
-    ) -> Optional[CreditCardDTO]:
+        only_active: bool | None = True,
+    ) -> CreditCardDTO | None:
         """
         Find a specific credit card by ID for a user
 

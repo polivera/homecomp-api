@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from typing import Optional
 
 from app.context.auth.domain.dto import SessionDTO
 from app.context.auth.domain.value_objects import (
@@ -14,7 +13,7 @@ from app.context.auth.infrastructure.models import SessionModel
 @dataclass(frozen=True)
 class SessionMapper:
     @staticmethod
-    def toDTO(model: Optional[SessionModel]) -> Optional[SessionDTO]:
+    def toDTO(model: SessionModel | None) -> SessionDTO | None:
         if model is None:
             return None
 

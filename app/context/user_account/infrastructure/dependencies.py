@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -29,7 +31,7 @@ from app.shared.infrastructure.database import get_db
 
 
 def get_user_account_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> UserAccountRepositoryContract:
     """UserAccountRepository dependency injection"""
     from app.context.user_account.infrastructure.repositories.user_account_repository import (
@@ -45,9 +47,9 @@ def get_user_account_repository(
 
 
 def get_create_account_service(
-    account_repository: UserAccountRepositoryContract = Depends(
-        get_user_account_repository
-    ),
+    account_repository: Annotated[
+        UserAccountRepositoryContract, Depends(get_user_account_repository)
+    ],
 ) -> CreateAccountServiceContract:
     """CreateAccountService dependency injection"""
     from app.context.user_account.domain.services.create_account_service import (
@@ -58,7 +60,7 @@ def get_create_account_service(
 
 
 def get_create_account_handler(
-    service: CreateAccountServiceContract = Depends(get_create_account_service),
+    service: Annotated[CreateAccountServiceContract, Depends(get_create_account_service)],
 ) -> CreateAccountHandlerContract:
     """CreateAccountHandler dependency injection"""
     from app.context.user_account.application.handlers.create_account_handler import (
@@ -69,7 +71,7 @@ def get_create_account_handler(
 
 
 def get_update_account_service(
-    repository: UserAccountRepositoryContract = Depends(get_user_account_repository),
+    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
 ) -> UpdateAccountServiceContract:
     """UpdateAccountService dependency injection"""
     from app.context.user_account.domain.services.update_account_service import (
@@ -80,7 +82,7 @@ def get_update_account_service(
 
 
 def get_update_account_handler(
-    service: UpdateAccountServiceContract = Depends(get_update_account_service),
+    service: Annotated[UpdateAccountServiceContract, Depends(get_update_account_service)],
 ) -> UpdateAccountHandlerContract:
     """UpdateAccountHandler dependency injection"""
     from app.context.user_account.application.handlers.update_account_handler import (
@@ -91,7 +93,7 @@ def get_update_account_handler(
 
 
 def get_delete_account_handler(
-    repository: UserAccountRepositoryContract = Depends(get_user_account_repository),
+    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
 ) -> DeleteAccountHandlerContract:
     """DeleteAccountHandler dependency injection"""
     from app.context.user_account.application.handlers.delete_account_handler import (
@@ -107,7 +109,7 @@ def get_delete_account_handler(
 
 
 def get_find_account_by_id_handler(
-    repository: UserAccountRepositoryContract = Depends(get_user_account_repository),
+    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
 ) -> FindAccountByIdHandlerContract:
     """FindAccountByIdHandler dependency injection"""
     from app.context.user_account.application.handlers.find_account_by_id_handler import (
@@ -118,7 +120,7 @@ def get_find_account_by_id_handler(
 
 
 def get_find_accounts_by_user_handler(
-    repository: UserAccountRepositoryContract = Depends(get_user_account_repository),
+    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
 ) -> FindAccountsByUserHandlerContract:
     """FindAccountsByUserHandler dependency injection"""
     from app.context.user_account.application.handlers.find_accounts_by_user_handler import (

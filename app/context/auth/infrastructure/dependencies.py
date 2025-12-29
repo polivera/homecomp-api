@@ -1,3 +1,5 @@
+from typing import Annotated
+
 from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -25,13 +27,13 @@ from app.shared.infrastructure.database import get_db
 
 
 def get_session_repository(
-    db: AsyncSession = Depends(get_db),
+    db: Annotated[AsyncSession, Depends(get_db)],
 ) -> SessionRepositoryContract:
     return SessionRepository(db)
 
 
 def get_login_service(
-    session_repo: SessionRepositoryContract = Depends(get_session_repository),
+    session_repo: Annotated[SessionRepositoryContract, Depends(get_session_repository)],
 ) -> LoginServiceContract:
     """
     LoginService dependency injection
@@ -40,14 +42,14 @@ def get_login_service(
 
 
 def get_session_handler(
-    session_repo: SessionRepository = Depends(get_session_repository),
+    session_repo: Annotated[SessionRepository, Depends(get_session_repository)],
 ) -> GetSessionHandlerContract:
     return GetSessionHandler(session_repo)
 
 
 def get_login_handler(
-    user_query_handler: FindUserHandlerContract = Depends(get_find_user_query_handler),
-    login_service: LoginServiceContract = Depends(get_login_service),
+    user_query_handler: Annotated[FindUserHandlerContract, Depends(get_find_user_query_handler)],
+    login_service: Annotated[LoginServiceContract, Depends(get_login_service)],
 ) -> LoginHandlerContract:
     """
     LoginHandler dependency injection

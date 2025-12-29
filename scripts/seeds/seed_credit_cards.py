@@ -3,8 +3,8 @@ from decimal import Decimal
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.context.credit_card.infrastructure.models import CreditCardModel
-from app.context.user_account.infrastructure.models import UserAccountModel
 from app.context.user.infrastructure.models import UserModel
+from app.context.user_account.infrastructure.models import UserAccountModel
 
 
 async def seed_credit_cards(

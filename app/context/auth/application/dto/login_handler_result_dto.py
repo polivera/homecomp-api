@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from typing import Optional
 
 
 class LoginHandlerResultStatus(Enum):
@@ -14,7 +13,7 @@ class LoginHandlerResultStatus(Enum):
 @dataclass(frozen=True)
 class LoginHandlerResultDTO:
     status: LoginHandlerResultStatus
-    token: Optional[str] = None
-    user_id: Optional[int] = None
-    error_msg: Optional[str] = None
-    retry_after: Optional[datetime] = None
+    token: str | None = None
+    user_id: int | None = None
+    error_msg: str | None = None
+    retry_after: datetime | None = None

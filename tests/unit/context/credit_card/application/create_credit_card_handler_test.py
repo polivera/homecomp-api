@@ -1,15 +1,20 @@
 """Unit tests for CreateCreditCardHandler"""
 
-import pytest
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.credit_card.application.commands import CreateCreditCardCommand
+from app.context.credit_card.application.dto import CreateCreditCardErrorCode
 from app.context.credit_card.application.handlers.create_credit_card_handler import (
     CreateCreditCardHandler,
 )
-from app.context.credit_card.application.commands import CreateCreditCardCommand
-from app.context.credit_card.application.dto import CreateCreditCardErrorCode
 from app.context.credit_card.domain.dto import CreditCardDTO
+from app.context.credit_card.domain.exceptions import (
+    CreditCardMapperError,
+    CreditCardNameAlreadyExistError,
+)
 from app.context.credit_card.domain.value_objects import (
     CardLimit,
     CreditCardAccountID,
@@ -17,10 +22,6 @@ from app.context.credit_card.domain.value_objects import (
     CreditCardID,
     CreditCardName,
     CreditCardUserID,
-)
-from app.context.credit_card.domain.exceptions import (
-    CreditCardNameAlreadyExistError,
-    CreditCardMapperError,
 )
 
 

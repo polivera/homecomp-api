@@ -2,7 +2,7 @@ run:
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
 run-with-test:
-    DB_PORT=5434 DB_NAME=homecomp_test uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+    APP_ENV=test uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
 migration-generate comment:
     alembic revision -m "{{comment}}"
@@ -11,7 +11,7 @@ migrate:
     uv run alembic upgrade head
 
 migrate-test:
-    DB_PORT=5434 DB_NAME=homecomp_test uv run alembic upgrade head
+    APP_ENV=test uv run alembic upgrade head
 
 db-clear:
     uv run python scripts/db_clear.py
@@ -36,4 +36,24 @@ test-unit-cov:
     uv run pytest -m unit --ignore=tests/integration --cov --cov-report=term --cov-report=html
 
 test-integration:
-    uv run pytest -m integration
+    APP_ENV=test uv run pytest -m integration
+
+lint:
+    uv run ruff check .
+
+lint-fix:
+    uv run ruff check --fix .
+
+format:
+    uv run ruff format .
+
+format-check:
+    uv run ruff format --check .
+
+check:
+    uv run ruff check .
+    uv run ruff format --check .
+
+fix:
+    uv run ruff check --fix .
+    uv run ruff format .

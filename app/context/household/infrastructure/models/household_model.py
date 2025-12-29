@@ -1,5 +1,4 @@
 from datetime import UTC, datetime
-from typing import Optional
 
 from sqlalchemy import DateTime, ForeignKey, Integer, String, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column
@@ -34,16 +33,16 @@ class HouseholdMemberModel(BaseDBModel):
     )
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="participant")
     # NULL = invited (pending), NOT NULL = active member
-    joined_at: Mapped[Optional[datetime]] = mapped_column(
+    joined_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=None
     )
-    invited_by_user_id: Mapped[Optional[int]] = mapped_column(
+    invited_by_user_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="RESTRICT"),
         nullable=True,
         default=None,
     )
-    invited_at: Mapped[Optional[datetime]] = mapped_column(
+    invited_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True), nullable=True, default=lambda: datetime.now(UTC)
     )
 

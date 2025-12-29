@@ -1,20 +1,21 @@
 """Unit tests for AcceptInviteService"""
 
-import pytest
 from datetime import UTC, datetime
 from unittest.mock import AsyncMock, MagicMock
 
+import pytest
+
+from app.context.household.domain.dto import HouseholdMemberDTO
+from app.context.household.domain.exceptions import NotInvitedError
 from app.context.household.domain.services.accept_invite_service import (
     AcceptInviteService,
 )
-from app.context.household.domain.dto import HouseholdMemberDTO
 from app.context.household.domain.value_objects import (
     HouseholdID,
     HouseholdMemberID,
     HouseholdRole,
     HouseholdUserID,
 )
-from app.context.household.domain.exceptions import NotInvitedError
 
 
 @pytest.mark.unit
