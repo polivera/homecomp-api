@@ -27,10 +27,10 @@ pgcli-test:
     pgcli postgresql://$DB_USER:$DB_PASS@$DB_HOST:5433/homecomp_test
 
 test-unit:
-    uv run pytest -m unit
+    uv run pytest -m unit --ignore=tests/integration
 
 test-unit-cov:
-    uv run pytest -m unit --cov --cov-report=term --cov-report=html
+    uv run pytest -m unit --ignore=tests/integration --cov --cov-report=term --cov-report=html
 
 test-integration:
     uv run pytest -m integration

@@ -37,12 +37,12 @@ jobs:
         run: uv sync --frozen
 
       - name: Run unit tests
-        run: uv run pytest -m unit --tb=short
+        run: uv run pytest -m unit --ignore=tests/integration --tb=short
 
       - name: Upload coverage to artifacts (optional)
         if: always()
         run: |
-          uv run pytest -m unit --cov --cov-report=xml --cov-report=term
+          uv run pytest -m unit --ignore=tests/integration --cov --cov-report=xml --cov-report=term
         continue-on-error: true
 
       - name: Upload coverage artifact
