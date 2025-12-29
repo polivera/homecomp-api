@@ -55,17 +55,13 @@ class TestUpdateCreditCardService:
         )
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_name_success(
-        self, service, mock_repository, existing_card_dto
-    ):
+    async def test_update_credit_card_name_success(self, service, mock_repository, existing_card_dto):
         """Test successful credit card name update"""
         # Arrange
         new_name = CreditCardName("New Name")
 
         # First call returns existing card, second call returns None (no duplicate)
-        mock_repository.find_credit_card = AsyncMock(
-            side_effect=[existing_card_dto, None]
-        )
+        mock_repository.find_credit_card = AsyncMock(side_effect=[existing_card_dto, None])
 
         updated_dto = CreditCardDTO(
             credit_card_id=existing_card_dto.credit_card_id,
@@ -92,9 +88,7 @@ class TestUpdateCreditCardService:
         mock_repository.update_credit_card.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_limit_success(
-        self, service, mock_repository, existing_card_dto
-    ):
+    async def test_update_credit_card_limit_success(self, service, mock_repository, existing_card_dto):
         """Test successful credit card limit update"""
         # Arrange
         new_limit = CardLimit(Decimal("5000.00"))
@@ -124,9 +118,7 @@ class TestUpdateCreditCardService:
         assert result.limit.value == Decimal("5000.00")
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_used_success(
-        self, service, mock_repository, existing_card_dto
-    ):
+    async def test_update_credit_card_used_success(self, service, mock_repository, existing_card_dto):
         """Test successful credit card used amount update"""
         # Arrange
         new_used = CardUsed(Decimal("500.00"))
@@ -156,9 +148,7 @@ class TestUpdateCreditCardService:
         assert result.used.value == Decimal("500.00")
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_not_found_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_update_credit_card_not_found_raises_error(self, service, mock_repository):
         """Test that updating non-existent card raises CreditCardNotFoundError"""
         # Arrange
         mock_repository.find_credit_card = AsyncMock(return_value=None)
@@ -191,9 +181,7 @@ class TestUpdateCreditCardService:
             )
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_duplicate_name_raises_error(
-        self, service, mock_repository, existing_card_dto
-    ):
+    async def test_update_credit_card_duplicate_name_raises_error(self, service, mock_repository, existing_card_dto):
         """Test that updating to duplicate name raises CreditCardNameAlreadyExistError"""
         # Arrange
         new_name = CreditCardName("Duplicate Name")
@@ -243,9 +231,7 @@ class TestUpdateCreditCardService:
             )
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_limit_below_used_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_update_credit_card_limit_below_used_raises_error(self, service, mock_repository):
         """Test that setting limit < used raises CreditCardUsedExceedsLimitError"""
         # Arrange
         card_with_usage = CreditCardDTO(
@@ -272,9 +258,7 @@ class TestUpdateCreditCardService:
             )
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_same_name_no_duplicate_check(
-        self, service, mock_repository, existing_card_dto
-    ):
+    async def test_update_credit_card_same_name_no_duplicate_check(self, service, mock_repository, existing_card_dto):
         """Test that updating with same name doesn't check for duplicates"""
         # Arrange
         same_name = CreditCardName("Old Name")  # Same as existing

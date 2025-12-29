@@ -18,11 +18,5 @@ class FindAccountsByUserHandler(FindAccountsByUserHandlerContract):
         self._repository = repository
 
     async def handle(self, query: FindAccountsByUserQuery) -> list[AccountResponseDTO]:
-        accounts = await self._repository.find_user_accounts(
-            user_id=UserAccountUserID(query.user_id)
-        )
-        return (
-            [AccountResponseDTO.from_domain_dto(acc) for acc in accounts]
-            if accounts is not None
-            else []
-        )
+        accounts = await self._repository.find_user_accounts(user_id=UserAccountUserID(query.user_id))
+        return [AccountResponseDTO.from_domain_dto(acc) for acc in accounts] if accounts is not None else []

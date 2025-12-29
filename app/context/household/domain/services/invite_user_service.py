@@ -39,19 +39,13 @@ class InviteUserService(InviteUserServiceContract):
         if not household or household.owner_user_id.value != inviter_user_id.value:
             raise OnlyOwnerCanInviteError("Only the household owner can invite users")
 
-        existing_member = await self._household_repo.find_member(
-            household_id, invitee_user_id
-        )
+        existing_member = await self._household_repo.find_member(household_id, invitee_user_id)
 
         if existing_member:
             if existing_member.is_active:
-                raise AlreadyActiveMemberError(
-                    "User is already an active member of this household"
-                )
+                raise AlreadyActiveMemberError("User is already an active member of this household")
             if existing_member.is_invited:
-                raise AlreadyInvitedError(
-                    "User already has a pending invite to this household"
-                )
+                raise AlreadyInvitedError("User already has a pending invite to this household")
 
         # 3. Create invite (household_member with joined_at=None)
         member_dto = HouseholdMemberDTO(

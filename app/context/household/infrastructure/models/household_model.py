@@ -10,9 +10,7 @@ class HouseholdModel(BaseDBModel):
     __tablename__ = "households"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
-    )
+    owner_user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
@@ -25,17 +23,11 @@ class HouseholdMemberModel(BaseDBModel):
     __tablename__ = "household_members"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    household_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("households.id", ondelete="CASCADE"), nullable=False
-    )
-    user_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False
-    )
+    household_id: Mapped[int] = mapped_column(Integer, ForeignKey("households.id", ondelete="CASCADE"), nullable=False)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id", ondelete="RESTRICT"), nullable=False)
     role: Mapped[str] = mapped_column(String(20), nullable=False, default="participant")
     # NULL = invited (pending), NOT NULL = active member
-    joined_at: Mapped[datetime | None] = mapped_column(
-        DateTime(timezone=True), nullable=True, default=None
-    )
+    joined_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True, default=None)
     invited_by_user_id: Mapped[int | None] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="RESTRICT"),
@@ -47,6 +39,4 @@ class HouseholdMemberModel(BaseDBModel):
     )
 
     # Composite unique constraint - user can only have one record per household
-    __table_args__ = (
-        UniqueConstraint("household_id", "user_id", name="uq_household_user"),
-    )
+    __table_args__ = (UniqueConstraint("household_id", "user_id", name="uq_household_user"),)

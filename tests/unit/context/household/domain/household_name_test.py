@@ -49,9 +49,7 @@ class TestHouseholdName:
 
     def test_exceeds_max_length_raises_error(self):
         """Test that names over 100 characters raise ValueError"""
-        with pytest.raises(
-            ValueError, match="Household name cannot exceed 100 characters"
-        ):
+        with pytest.raises(ValueError, match="Household name cannot exceed 100 characters"):
             HouseholdName("H" * 101)
 
     def test_from_trusted_source_skips_validation(self):

@@ -12,11 +12,7 @@ class FailedLoginAttempts:
         return self.value >= self._max_attempts
 
     def getAttemptDelay(self) -> float:
-        return (
-            self._wait_attempts[self.value]
-            if self.value < len(self._wait_attempts)
-            else 4
-        )
+        return self._wait_attempts[self.value] if self.value < len(self._wait_attempts) else 4
 
     @classmethod
     def reset(cls) -> Self:

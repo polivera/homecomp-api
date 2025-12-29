@@ -16,9 +16,7 @@ class SharedBalance:
                 raise ValueError(f"Balance must be a Decimal, got {type(self.value)}")
             # TODO: Fix this
             if self.value.as_tuple().exponent < -2:
-                raise ValueError(
-                    f"Balance cannot have more than 2 decimal places, got {self.value}"
-                )
+                raise ValueError(f"Balance cannot have more than 2 decimal places, got {self.value}")
 
     @classmethod
     def from_float(cls, value: float) -> Self:

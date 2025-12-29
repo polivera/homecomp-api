@@ -50,16 +50,12 @@ class TestCardUsed:
 
     def test_invalid_type_raises_error(self):
         """Test that invalid types raise InvalidCardUsedTypeError"""
-        with pytest.raises(
-            InvalidCardUsedTypeError, match="CardUsed must be a Decimal"
-        ):
+        with pytest.raises(InvalidCardUsedTypeError, match="CardUsed must be a Decimal"):
             CardUsed(500)  # int instead of Decimal
 
     def test_negative_used_raises_error(self):
         """Test that negative used amounts raise InvalidCardUsedValueError"""
-        with pytest.raises(
-            InvalidCardUsedValueError, match="CardUsed must be non-negative"
-        ):
+        with pytest.raises(InvalidCardUsedValueError, match="CardUsed must be non-negative"):
             CardUsed(Decimal("-50.00"))
 
     def test_too_many_decimal_places_raises_error(self):

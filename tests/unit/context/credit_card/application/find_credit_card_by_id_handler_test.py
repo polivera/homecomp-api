@@ -50,16 +50,12 @@ class TestFindCreditCardByIdHandler:
         )
 
     @pytest.mark.asyncio
-    async def test_find_credit_card_by_id_success(
-        self, handler, mock_repository, sample_card_dto
-    ):
+    async def test_find_credit_card_by_id_success(self, handler, mock_repository, sample_card_dto):
         """Test successful credit card lookup"""
         # Arrange
         query = FindCreditCardByIdQuery(user_id=100, credit_card_id=1)
 
-        mock_repository.find_user_credit_card_by_id = AsyncMock(
-            return_value=sample_card_dto
-        )
+        mock_repository.find_user_credit_card_by_id = AsyncMock(return_value=sample_card_dto)
 
         # Act
         result = await handler.handle(query)
@@ -91,16 +87,12 @@ class TestFindCreditCardByIdHandler:
         mock_repository.find_user_credit_card_by_id.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_find_credit_card_by_id_converts_primitives(
-        self, handler, mock_repository, sample_card_dto
-    ):
+    async def test_find_credit_card_by_id_converts_primitives(self, handler, mock_repository, sample_card_dto):
         """Test that handler converts query primitives to value objects"""
         # Arrange
         query = FindCreditCardByIdQuery(user_id=100, credit_card_id=1)
 
-        mock_repository.find_user_credit_card_by_id = AsyncMock(
-            return_value=sample_card_dto
-        )
+        mock_repository.find_user_credit_card_by_id = AsyncMock(return_value=sample_card_dto)
 
         # Act
         await handler.handle(query)
@@ -113,16 +105,12 @@ class TestFindCreditCardByIdHandler:
         assert call_args.kwargs["card_id"].value == 1
 
     @pytest.mark.asyncio
-    async def test_find_credit_card_by_id_returns_application_dto(
-        self, handler, mock_repository, sample_card_dto
-    ):
+    async def test_find_credit_card_by_id_returns_application_dto(self, handler, mock_repository, sample_card_dto):
         """Test that handler returns application layer DTO (not domain DTO)"""
         # Arrange
         query = FindCreditCardByIdQuery(user_id=100, credit_card_id=1)
 
-        mock_repository.find_user_credit_card_by_id = AsyncMock(
-            return_value=sample_card_dto
-        )
+        mock_repository.find_user_credit_card_by_id = AsyncMock(return_value=sample_card_dto)
 
         # Act
         result = await handler.handle(query)

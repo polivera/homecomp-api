@@ -21,9 +21,7 @@ class LoginHandler(LoginHandlerContract):
     _user_handler: FindUserHandlerContract
     _login_service: LoginServiceContract
 
-    def __init__(
-        self, user_handler: FindUserHandlerContract, login_service: LoginServiceContract
-    ):
+    def __init__(self, user_handler: FindUserHandlerContract, login_service: LoginServiceContract):
         self._user_handler = user_handler
         self._login_service = login_service
         pass

@@ -12,8 +12,6 @@ class UpdateCreditCardHandlerContract(ABC):
     """Contract for update credit card command handler"""
 
     @abstractmethod
-    async def handle(
-        self, command: UpdateCreditCardCommand
-    ) -> UpdateCreditCardResult:
+    async def handle(self, command: UpdateCreditCardCommand) -> UpdateCreditCardResult:
         """Handle the update credit card command"""
         pass

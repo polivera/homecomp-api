@@ -13,9 +13,7 @@ from httpx import AsyncClient
 class TestLoginFlow:
     """Integration tests for login endpoint."""
 
-    async def test_successful_login_returns_200_and_sets_cookie(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_successful_login_returns_200_and_sets_cookie(self, test_client: AsyncClient, test_user: dict):
         """Test successful login returns 200 status and sets access_token cookie."""
         # Arrange
         login_payload = {
@@ -42,9 +40,7 @@ class TestLoginFlow:
         assert "SameSite=lax" in cookie_header
         assert "Max-Age=3600" in cookie_header  # 1 hour
 
-    async def test_login_with_invalid_email_returns_401(
-        self, test_client: AsyncClient
-    ):
+    async def test_login_with_invalid_email_returns_401(self, test_client: AsyncClient):
         """Test login with non-existent email returns 401."""
         # Arrange
         login_payload = {
@@ -62,9 +58,7 @@ class TestLoginFlow:
         # Verify no cookie is set
         assert "access_token" not in response.cookies
 
-    async def test_login_with_wrong_password_returns_401(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_login_with_wrong_password_returns_401(self, test_client: AsyncClient, test_user: dict):
         """Test login with correct email but wrong password returns 401."""
         # Arrange
         login_payload = {
@@ -82,9 +76,7 @@ class TestLoginFlow:
         # Verify no cookie is set
         assert "access_token" not in response.cookies
 
-    async def test_login_with_invalid_email_format_returns_422(
-        self, test_client: AsyncClient
-    ):
+    async def test_login_with_invalid_email_format_returns_422(self, test_client: AsyncClient):
         """Test login with invalid email format returns 422 (validation error)."""
         # Arrange
         login_payload = {
@@ -99,9 +91,7 @@ class TestLoginFlow:
         assert response.status_code == 422  # Pydantic validation error
         assert "detail" in response.json()
 
-    async def test_login_with_missing_password_returns_422(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_login_with_missing_password_returns_422(self, test_client: AsyncClient, test_user: dict):
         """Test login without password returns 422 (validation error)."""
         # Arrange
         login_payload = {
@@ -116,9 +106,7 @@ class TestLoginFlow:
         assert response.status_code == 422
         assert "detail" in response.json()
 
-    async def test_login_with_missing_email_returns_422(
-        self, test_client: AsyncClient
-    ):
+    async def test_login_with_missing_email_returns_422(self, test_client: AsyncClient):
         """Test login without email returns 422 (validation error)."""
         # Arrange
         login_payload = {
@@ -133,9 +121,7 @@ class TestLoginFlow:
         assert response.status_code == 422
         assert "detail" in response.json()
 
-    async def test_login_with_empty_payload_returns_422(
-        self, test_client: AsyncClient
-    ):
+    async def test_login_with_empty_payload_returns_422(self, test_client: AsyncClient):
         """Test login with empty payload returns 422."""
         # Arrange
         login_payload = {}
@@ -146,9 +132,7 @@ class TestLoginFlow:
         # Assert
         assert response.status_code == 422
 
-    async def test_multiple_successful_logins_same_user(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_multiple_successful_logins_same_user(self, test_client: AsyncClient, test_user: dict):
         """Test that the same user can login multiple times successfully."""
         # Arrange
         login_payload = {
@@ -172,9 +156,7 @@ class TestLoginFlow:
         token2 = response2.cookies.get("access_token")
         assert token2 is not None
 
-    async def test_login_with_case_sensitive_email(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_login_with_case_sensitive_email(self, test_client: AsyncClient, test_user: dict):
         """Test that email is case-sensitive (or case-insensitive based on implementation).
 
         Note: Adjust this test based on your email matching logic.
@@ -193,9 +175,7 @@ class TestLoginFlow:
         assert response.status_code == 401
         assert response.json()["detail"] == "Invalid username or password"
 
-    async def test_login_with_extra_whitespace_in_email(
-        self, test_client: AsyncClient, test_user: dict
-    ):
+    async def test_login_with_extra_whitespace_in_email(self, test_client: AsyncClient, test_user: dict):
         """Test that extra whitespace in email is handled correctly."""
         # Arrange - Add whitespace around email
         login_payload = {
@@ -218,9 +198,7 @@ class TestLoginFlow:
         # Assert - Should return 405 Method Not Allowed
         assert response.status_code == 405
 
-    async def test_concurrent_logins_different_users(
-        self, test_client: AsyncClient, test_user: dict, test_db_session
-    ):
+    async def test_concurrent_logins_different_users(self, test_client: AsyncClient, test_user: dict, test_db_session):
         """Test that multiple users can login concurrently without conflicts."""
         # Arrange - Create a second user
         from app.context.user.infrastructure.models import UserModel

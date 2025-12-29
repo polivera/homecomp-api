@@ -6,9 +6,7 @@ from app.context.auth.domain.value_objects import AuthPassword, SessionToken
 
 class LoginServiceContract(ABC):
     @abstractmethod
-    async def handle(
-        self, user_password: AuthPassword, db_user: AuthUserDTO
-    ) -> SessionToken:
+    async def handle(self, user_password: AuthPassword, db_user: AuthUserDTO) -> SessionToken:
         """
         Handle user login.
 

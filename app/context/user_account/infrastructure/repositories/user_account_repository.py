@@ -94,11 +94,7 @@ class UserAccountRepository(UserAccountRepositoryContract):
                 stmt = stmt.where(UserAccountModel.name.like(f"%{name.value}%"))
 
         models = (await self._db.execute(stmt)).scalars()
-        return (
-            [UserAccountMapper.to_dto_or_fail(model) for model in models]
-            if models
-            else []
-        )
+        return [UserAccountMapper.to_dto_or_fail(model) for model in models] if models else []
 
     async def find_user_account_by_id(
         self,
@@ -136,17 +132,13 @@ class UserAccountRepository(UserAccountRepositoryContract):
 
         result = cast(CursorResult[Any], await self._db.execute(stmt))
         if result.rowcount == 0:
-            raise UserAccountNotFoundError(
-                f"Account with ID {account.account_id.value} not found or already deleted"
-            )
+            raise UserAccountNotFoundError(f"Account with ID {account.account_id.value} not found or already deleted")
 
         await self._db.commit()
 
         return account
 
-    async def delete_account(
-        self, account_id: UserAccountID, user_id: UserAccountUserID
-    ) -> bool:
+    async def delete_account(self, account_id: UserAccountID, user_id: UserAccountUserID) -> bool:
         """Soft delete an account"""
         # Verify account exists and user owns it
         account = await self.find_account(account_id=account_id)

@@ -10,7 +10,5 @@ from app.context.user_account.application.queries.find_account_by_id_query impor
 
 class FindAccountByIdHandlerContract(ABC):
     @abstractmethod
-    async def handle(
-        self, query: FindAccountByIdQuery
-    ) -> AccountResponseDTO | None:
+    async def handle(self, query: FindAccountByIdQuery) -> AccountResponseDTO | None:
         pass

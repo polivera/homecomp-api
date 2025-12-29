@@ -19,19 +19,13 @@ class CardLimit:
     def __post_init__(self):
         if not self._validated:
             if not isinstance(self.value, Decimal):
-                raise InvalidCardLimitTypeError(
-                    f"CardLimit must be a Decimal, got {type(self.value)}"
-                )
+                raise InvalidCardLimitTypeError(f"CardLimit must be a Decimal, got {type(self.value)}")
             if self.value <= 0:
-                raise InvalidCardLimitValueError(
-                    f"CardLimit must be positive, got {self.value}"
-                )
+                raise InvalidCardLimitValueError(f"CardLimit must be positive, got {self.value}")
 
             # Check for max 2 decimal places
             if self.value.as_tuple().exponent < -2:
-                raise InvalidCardLimitPrecisionError(
-                    f"CardLimit must have at most 2 decimal places, got {self.value}"
-                )
+                raise InvalidCardLimitPrecisionError(f"CardLimit must have at most 2 decimal places, got {self.value}")
 
     @classmethod
     def from_float(cls, value: float) -> "CardLimit":

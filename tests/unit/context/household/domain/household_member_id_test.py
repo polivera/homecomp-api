@@ -23,16 +23,12 @@ class TestHouseholdMemberID:
 
     def test_zero_id_raises_error(self):
         """Test that zero raises ValueError"""
-        with pytest.raises(
-            ValueError, match="Household member ID must be a positive integer"
-        ):
+        with pytest.raises(ValueError, match="Household member ID must be a positive integer"):
             HouseholdMemberID(0)
 
     def test_negative_id_raises_error(self):
         """Test that negative number raises ValueError"""
-        with pytest.raises(
-            ValueError, match="Household member ID must be a positive integer"
-        ):
+        with pytest.raises(ValueError, match="Household member ID must be a positive integer"):
             HouseholdMemberID(-1)
 
     def test_non_integer_raises_error(self):

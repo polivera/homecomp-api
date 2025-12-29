@@ -63,9 +63,7 @@ class TestLoginService:
         service = LoginService(mock_session_repository)
 
         # Act
-        with patch.object(
-            SessionToken, "generate", return_value=SessionToken("mocked-token")
-        ):
+        with patch.object(SessionToken, "generate", return_value=SessionToken("mocked-token")):
             result = await service.handle(user_password, db_user)
 
         # Assert
@@ -74,9 +72,7 @@ class TestLoginService:
 
         # Verify getSession was called
         # mock_session_repository.get_session_mock.assert_called_once()
-        mock_session_repository.get_session_mock.assert_called_once_with(
-            user_id=user_id, token=None
-        )
+        mock_session_repository.get_session_mock.assert_called_once_with(user_id=user_id, token=None)
 
         # Verify createSession was called
         mock_session_repository.create_session_mock.assert_called_once()
@@ -94,9 +90,7 @@ class TestLoginService:
         assert updated_session.failed_attempts.value == 0
         assert updated_session.blocked_until is None
 
-    async def test_successful_login_with_existing_session(
-        self, mock_session_repository
-    ):
+    async def test_successful_login_with_existing_session(self, mock_session_repository):
         """Test successful login when session already exists."""
         # Arrange
         user_id = AuthUserID(99)
@@ -122,9 +116,7 @@ class TestLoginService:
         service = LoginService(mock_session_repository)
 
         # Act
-        with patch.object(
-            SessionToken, "generate", return_value=SessionToken("new-token")
-        ):
+        with patch.object(SessionToken, "generate", return_value=SessionToken("new-token")):
             result = await service.handle(user_password, db_user)
 
         # Assert
@@ -137,9 +129,7 @@ class TestLoginService:
         # Verify updateSession was called
         mock_session_repository.update_session_mock.assert_called_once()
 
-    async def test_failed_login_wrong_password_first_attempt(
-        self, mock_session_repository
-    ):
+    async def test_failed_login_wrong_password_first_attempt(self, mock_session_repository):
         """Test failed login increments attempt counter on first wrong password."""
         # Arrange
         user_id = AuthUserID(10)
@@ -218,9 +208,7 @@ class TestLoginService:
         updated_session = mock_session_repository.update_session_mock.call_args[0][0]
         assert updated_session.failed_attempts.value == 3
 
-    async def test_failed_login_max_attempts_blocks_account(
-        self, mock_session_repository
-    ):
+    async def test_failed_login_max_attempts_blocks_account(self, mock_session_repository):
         """Test that reaching max attempts blocks the account."""
         # Arrange
         user_id = AuthUserID(20)
@@ -259,9 +247,7 @@ class TestLoginService:
         # Verify blocked time is in the future
         assert updated_session.blocked_until.value > datetime.now()
 
-    async def test_login_blocked_account_raises_exception(
-        self, mock_session_repository
-    ):
+    async def test_login_blocked_account_raises_exception(self, mock_session_repository):
         """Test that login attempt on blocked account raises AccountBlockedException."""
         # Arrange
         user_id = AuthUserID(25)
@@ -325,9 +311,7 @@ class TestLoginService:
         service = LoginService(mock_session_repository)
 
         # Act
-        with patch.object(
-            SessionToken, "generate", return_value=SessionToken("unblock-token")
-        ):
+        with patch.object(SessionToken, "generate", return_value=SessionToken("unblock-token")):
             result = await service.handle(user_password, db_user)
 
         # Assert
@@ -340,9 +324,7 @@ class TestLoginService:
         assert updated_session.blocked_until is None
         assert updated_session.token.value == "unblock-token"
 
-    async def test_successful_login_resets_failed_attempts(
-        self, mock_session_repository
-    ):
+    async def test_successful_login_resets_failed_attempts(self, mock_session_repository):
         """Test that successful login resets failed attempts counter."""
         # Arrange
         user_id = AuthUserID(35)
@@ -368,9 +350,7 @@ class TestLoginService:
         service = LoginService(mock_session_repository)
 
         # Act
-        with patch.object(
-            SessionToken, "generate", return_value=SessionToken("reset-token")
-        ):
+        with patch.object(SessionToken, "generate", return_value=SessionToken("reset-token")):
             result = await service.handle(user_password, db_user)
 
         # Assert
@@ -382,9 +362,7 @@ class TestLoginService:
         assert updated_session.blocked_until is None
         assert updated_session.token is not None
 
-    async def test_password_verification_called_correctly(
-        self, mock_session_repository
-    ):
+    async def test_password_verification_called_correctly(self, mock_session_repository):
         """Test that password verification is called with correct parameters."""
         # Arrange
         user_id = AuthUserID(40)
@@ -409,9 +387,7 @@ class TestLoginService:
         service = LoginService(mock_session_repository)
 
         # Act
-        with patch.object(
-            SessionToken, "generate", return_value=SessionToken("verify-token")
-        ):
+        with patch.object(SessionToken, "generate", return_value=SessionToken("verify-token")):
             # Mock the password verify method to track calls
             with patch.object(AuthPassword, "verify", return_value=True) as mock_verify:
                 await service.handle(user_password, db_user)
@@ -445,9 +421,7 @@ class TestLoginService:
 
         # Act
         generated_token = SessionToken("unique-secure-token-xyz")
-        with patch.object(
-            SessionToken, "generate", return_value=generated_token
-        ) as mock_generate:
+        with patch.object(SessionToken, "generate", return_value=generated_token) as mock_generate:
             result = await service.handle(user_password, db_user)
 
             # Assert token generation was called
@@ -492,9 +466,7 @@ class TestLoginService:
                     await service.handle(user_password, db_user)
 
             # Verify attempt count increased
-            updated_session = mock_session_repository.update_session_mock.call_args[0][
-                0
-            ]
+            updated_session = mock_session_repository.update_session_mock.call_args[0][0]
             assert updated_session.failed_attempts.value == attempt + 1
 
             # Check if blocked on 4th attempt

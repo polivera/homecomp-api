@@ -12,10 +12,7 @@ class SharedDateTime:
         if not self._validated:
             # Rule 1: Must be timezone-aware
             if self.value.tzinfo is None:
-                raise ValueError(
-                    f"{self.__class__.__name__} must be timezone-aware. "
-                    "Naive datetimes are rejected."
-                )
+                raise ValueError(f"{self.__class__.__name__} must be timezone-aware. Naive datetimes are rejected.")
 
             # Rule 2: Convert to UTC (normalize)
             if self.value.tzinfo != UTC:

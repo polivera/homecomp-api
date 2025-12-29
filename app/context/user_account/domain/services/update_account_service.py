@@ -30,29 +30,18 @@ class UpdateAccountService(UpdateAccountServiceContract):
         currency: UserAccountCurrency,
         balance: UserAccountBalance,
     ) -> UserAccountDTO:
-        existing = await self._repository.find_user_account_by_id(
-            user_id=user_id, account_id=account_id
-        )
+        existing = await self._repository.find_user_account_by_id(user_id=user_id, account_id=account_id)
 
         if not existing:
-            raise UserAccountNotFoundError(
-                f"Account with ID {account_id.value} not found for user {user_id.value}"
-            )
+            raise UserAccountNotFoundError(f"Account with ID {account_id.value} not found for user {user_id.value}")
 
         # FIX: find_user_accounts use like instead of equal, error prone on this check
         if existing.name.value != name.value:
             # In this case, we should also search inactive for name repetition
-            duplicate = await self._repository.find_user_accounts(
-                user_id=user_id, name=name, only_active=False
-            )
+            duplicate = await self._repository.find_user_accounts(user_id=user_id, name=name, only_active=False)
 
-            if duplicate and any(
-                acc.account_id and acc.account_id.value != account_id.value
-                for acc in duplicate
-            ):
-                raise UserAccountNameAlreadyExistError(
-                    f"Account with name '{name.value}' already exists"
-                )
+            if duplicate and any(acc.account_id and acc.account_id.value != account_id.value for acc in duplicate):
+                raise UserAccountNameAlreadyExistError(f"Account with name '{name.value}' already exists")
 
         # 3. Update account
         updated_dto = UserAccountDTO(

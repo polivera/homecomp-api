@@ -83,9 +83,7 @@ class TestFindAccountsByUserHandler:
         assert result == []
 
     @pytest.mark.asyncio
-    async def test_find_accounts_by_user_none_returns_empty_list(
-        self, handler, mock_repository
-    ):
+    async def test_find_accounts_by_user_none_returns_empty_list(self, handler, mock_repository):
         """Test that None from repository returns empty list"""
         # Arrange
         query = FindAccountsByUserQuery(user_id=1)

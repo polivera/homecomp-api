@@ -1,4 +1,3 @@
-
 from sqlalchemy import select, update
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -32,9 +31,7 @@ class SessionRepository(SessionRepositoryContract):
             user_id=session.user_id.value,
             token=session.token.value if session.token is not None else None,
             failed_attempts=session.failed_attempts.value,
-            blocked_until=session.blocked_until.value
-            if session.blocked_until is not None
-            else None,
+            blocked_until=session.blocked_until.value if session.blocked_until is not None else None,
         )
 
         self._db.add(session_model)
@@ -54,9 +51,7 @@ class SessionRepository(SessionRepositoryContract):
             .values(
                 token=session.token.value if session.token is not None else None,
                 failed_attempts=session.failed_attempts.value,
-                blocked_until=session.blocked_until.value
-                if session.blocked_until is not None
-                else None,
+                blocked_until=session.blocked_until.value if session.blocked_until is not None else None,
             )
         )
         await self._db.execute(stmt)

@@ -47,9 +47,7 @@ def get_user_account_repository(
 
 
 def get_create_account_service(
-    account_repository: Annotated[
-        UserAccountRepositoryContract, Depends(get_user_account_repository)
-    ],
+    account_repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
 ) -> CreateAccountServiceContract:
     """CreateAccountService dependency injection"""
     from app.context.user_account.domain.services.create_account_service import (

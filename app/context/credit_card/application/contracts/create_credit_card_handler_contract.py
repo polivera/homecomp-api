@@ -12,8 +12,6 @@ class CreateCreditCardHandlerContract(ABC):
     """Contract for create credit card command handler"""
 
     @abstractmethod
-    async def handle(
-        self, command: CreateCreditCardCommand
-    ) -> CreateCreditCardResult:
+    async def handle(self, command: CreateCreditCardCommand) -> CreateCreditCardResult:
         """Handle the create credit card command"""
         pass

@@ -22,9 +22,7 @@ class AcceptInviteService(AcceptInviteServiceContract):
         member = await self._household_repo.find_member(household_id, user_id)
 
         if not member or not member.is_invited:
-            raise NotInvitedError(
-                "No pending invite found for this household"
-            )
+            raise NotInvitedError("No pending invite found for this household")
 
         # Accept the invite (sets joined_at)
         return await self._household_repo.accept_invite(household_id, user_id)

@@ -15,9 +15,7 @@ class HouseholdRole:
             if not self.value:
                 raise ValueError("Role cannot be empty")
             if self.value not in self.VALID_ROLES:
-                raise ValueError(
-                    f"Invalid role: '{self.value}'. Must be one of {self.VALID_ROLES}"
-                )
+                raise ValueError(f"Invalid role: '{self.value}'. Must be one of {self.VALID_ROLES}")
 
     @classmethod
     def from_trusted_source(cls, value: str) -> Self:

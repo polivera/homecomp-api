@@ -21,9 +21,7 @@ from app.context.user.application.dto import FindUserResult
 class TestLoginHandler:
     """Unit tests for LoginHandler."""
 
-    async def test_handle_successful_login(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_successful_login(self, mock_find_user_handler, mock_login_service):
         """Test successful login returns token and user_id."""
         # Arrange
         email = "test@example.com"
@@ -32,9 +30,7 @@ class TestLoginHandler:
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
         token_value = "secure-session-token-xyz"
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
         mock_login_service.handle_mock.return_value = SessionToken(token_value)
 
@@ -61,9 +57,7 @@ class TestLoginHandler:
         # Verify login service was called with correct parameters
         mock_login_service.handle_mock.assert_called_once()
 
-    async def test_handle_user_not_found(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_user_not_found(self, mock_find_user_handler, mock_login_service):
         """Test that login fails when user is not found."""
         # Arrange
         email = "nonexistent@example.com"
@@ -88,9 +82,7 @@ class TestLoginHandler:
         # Verify login service was NOT called since user not found
         mock_login_service.handle_mock.assert_not_called()
 
-    async def test_handle_invalid_credentials_exception(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_invalid_credentials_exception(self, mock_find_user_handler, mock_login_service):
         """Test that InvalidCredentialsException is handled correctly."""
         # Arrange
         email = "test@example.com"
@@ -98,9 +90,7 @@ class TestLoginHandler:
         user_id = 10
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
         mock_login_service.handle_mock.side_effect = InvalidCredentialsException()
 
@@ -121,9 +111,7 @@ class TestLoginHandler:
         # Verify login service was called
         mock_login_service.handle_mock.assert_called_once()
 
-    async def test_handle_account_blocked_exception(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_account_blocked_exception(self, mock_find_user_handler, mock_login_service):
         """Test that AccountBlockedException is handled correctly."""
         # Arrange
         email = "blocked@example.com"
@@ -132,13 +120,9 @@ class TestLoginHandler:
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
         blocked_until = datetime.now() + timedelta(minutes=15)
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
-        mock_login_service.handle_mock.side_effect = AccountBlockedException(
-            blocked_until
-        )
+        mock_login_service.handle_mock.side_effect = AccountBlockedException(blocked_until)
 
         handler = LoginHandler(mock_find_user_handler, mock_login_service)
         command = LoginCommand(email=email, password=password)
@@ -157,9 +141,7 @@ class TestLoginHandler:
         # Verify login service was called
         mock_login_service.handle_mock.assert_called_once()
 
-    async def test_handle_unexpected_error(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_unexpected_error(self, mock_find_user_handler, mock_login_service):
         """Test that unexpected exceptions are handled gracefully."""
         # Arrange
         email = "error@example.com"
@@ -167,9 +149,7 @@ class TestLoginHandler:
         user_id = 50
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
         mock_login_service.handle_mock.side_effect = RuntimeError("Unexpected error")
 
@@ -190,9 +170,7 @@ class TestLoginHandler:
         # Verify login service was called
         mock_login_service.handle_mock.assert_called_once()
 
-    async def test_handle_database_exception(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_database_exception(self, mock_find_user_handler, mock_login_service):
         """Test that database-related exceptions are handled as unexpected errors."""
         # Arrange
         email = "db-error@example.com"
@@ -200,13 +178,9 @@ class TestLoginHandler:
         user_id = 25
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
-        mock_login_service.handle_mock.side_effect = Exception(
-            "Database connection lost"
-        )
+        mock_login_service.handle_mock.side_effect = Exception("Database connection lost")
 
         handler = LoginHandler(mock_find_user_handler, mock_login_service)
         command = LoginCommand(email=email, password=password)
@@ -219,9 +193,7 @@ class TestLoginHandler:
         assert result.status == LoginHandlerResultStatus.UNEXPECTED_ERROR
         assert result.error_msg == "Unexpected error"
 
-    async def test_handle_passes_correct_auth_user_dto(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_passes_correct_auth_user_dto(self, mock_find_user_handler, mock_login_service):
         """Test that handler correctly constructs AuthUserDTO from UserContextDTO."""
         # Arrange
         email = "dto-test@example.com"
@@ -229,9 +201,7 @@ class TestLoginHandler:
         user_id = 777
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$correcthash"
 
-        mock_user = FindUserResult(
-            user_id=user_id, email=email, password=hashed_password
-        )
+        mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
         mock_find_user_handler.handle_mock.return_value = mock_user
         mock_login_service.handle_mock.return_value = SessionToken("test-token")
 
@@ -254,9 +224,7 @@ class TestLoginHandler:
         assert db_user.email.value == email
         assert db_user.password.value == hashed_password
 
-    async def test_handle_with_different_user_scenarios(
-        self, mock_find_user_handler, mock_login_service
-    ):
+    async def test_handle_with_different_user_scenarios(self, mock_find_user_handler, mock_login_service):
         """Test login with various user scenarios."""
         # Arrange
         test_cases = [
@@ -287,13 +255,9 @@ class TestLoginHandler:
             password = "testpassword"
             hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$hash"
 
-            mock_user = FindUserResult(
-                user_id=user_id, email=email, password=hashed_password
-            )
+            mock_user = FindUserResult(user_id=user_id, email=email, password=hashed_password)
             mock_find_user_handler.handle_mock.return_value = mock_user
-            mock_login_service.handle_mock.return_value = SessionToken(
-                f"token-{user_id}"
-            )
+            mock_login_service.handle_mock.return_value = SessionToken(f"token-{user_id}")
 
             handler = LoginHandler(mock_find_user_handler, mock_login_service)
             command = LoginCommand(email=email, password=password)

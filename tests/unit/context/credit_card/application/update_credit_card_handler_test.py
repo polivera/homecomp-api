@@ -153,9 +153,7 @@ class TestUpdateCreditCardHandler:
             used=None,
         )
 
-        mock_service.update_credit_card = AsyncMock(
-            side_effect=CreditCardNotFoundError("Card not found")
-        )
+        mock_service.update_credit_card = AsyncMock(side_effect=CreditCardNotFoundError("Card not found"))
 
         # Act
         result = await handler.handle(command)
@@ -178,9 +176,7 @@ class TestUpdateCreditCardHandler:
             used=None,
         )
 
-        mock_service.update_credit_card = AsyncMock(
-            side_effect=CreditCardNameAlreadyExistError("Duplicate name")
-        )
+        mock_service.update_credit_card = AsyncMock(side_effect=CreditCardNameAlreadyExistError("Duplicate name"))
 
         # Act
         result = await handler.handle(command)
@@ -203,9 +199,7 @@ class TestUpdateCreditCardHandler:
             used=None,
         )
 
-        mock_service.update_credit_card = AsyncMock(
-            side_effect=CreditCardMapperError("Mapping failed")
-        )
+        mock_service.update_credit_card = AsyncMock(side_effect=CreditCardMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -228,9 +222,7 @@ class TestUpdateCreditCardHandler:
             used=None,
         )
 
-        mock_service.update_credit_card = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_service.update_credit_card = AsyncMock(side_effect=Exception("Database error"))
 
         # Act
         result = await handler.handle(command)
@@ -241,9 +233,7 @@ class TestUpdateCreditCardHandler:
         assert result.credit_card_id is None
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_converts_primitives_to_value_objects(
-        self, handler, mock_service
-    ):
+    async def test_update_credit_card_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
         command = UpdateCreditCardCommand(
@@ -280,9 +270,7 @@ class TestUpdateCreditCardHandler:
         assert isinstance(call_args.kwargs["used"], CardUsed)
 
     @pytest.mark.asyncio
-    async def test_update_credit_card_with_none_values_converts_correctly(
-        self, handler, mock_service
-    ):
+    async def test_update_credit_card_with_none_values_converts_correctly(self, handler, mock_service):
         """Test that handler handles None values correctly"""
         # Arrange
         command = UpdateCreditCardCommand(

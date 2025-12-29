@@ -1,4 +1,3 @@
-
 from app.context.credit_card.domain.contracts.infrastructure.credit_card_repository_contract import (
     CreditCardRepositoryContract,
 )
@@ -42,27 +41,20 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
         """Update an existing credit card with validation"""
 
         # Find the existing card
-        existing_card = await self._repository.find_credit_card(
-            card_id=credit_card_id
-        )
+        existing_card = await self._repository.find_credit_card(card_id=credit_card_id)
 
         if not existing_card:
-            raise CreditCardNotFoundError(
-                f"Credit card with ID {credit_card_id.value} not found"
-            )
+            raise CreditCardNotFoundError(f"Credit card with ID {credit_card_id.value} not found")
 
         # Verify ownership
         if existing_card.user_id.value != user_id.value:
             raise CreditCardUnauthorizedAccessError(
-                f"User {user_id.value} is not authorized to update credit card "
-                f"{credit_card_id.value}"
+                f"User {user_id.value} is not authorized to update credit card {credit_card_id.value}"
             )
 
         # If name is being changed, check for duplicates
         if name and name.value != existing_card.name.value:
-            duplicate_card = await self._repository.find_credit_card(
-                user_id=user_id, name=name
-            )
+            duplicate_card = await self._repository.find_credit_card(user_id=user_id, name=name)
             if duplicate_card:
                 raise CreditCardNameAlreadyExistError(
                     f"Credit card with name '{name.value}' already exists for this user"
@@ -76,8 +68,7 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
         # Business rule: ensure used <= limit
         if updated_used.value > updated_limit.value:
             raise CreditCardUsedExceedsLimitError(
-                f"Used amount ({updated_used.value}) cannot exceed limit "
-                f"({updated_limit.value})"
+                f"Used amount ({updated_used.value}) cannot exceed limit ({updated_limit.value})"
             )
 
         # Create updated DTO

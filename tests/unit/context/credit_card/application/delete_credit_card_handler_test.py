@@ -44,9 +44,7 @@ class TestDeleteCreditCardHandler:
         mock_repository.delete_credit_card.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_delete_credit_card_not_found_returns_error(
-        self, handler, mock_repository
-    ):
+    async def test_delete_credit_card_not_found_returns_error(self, handler, mock_repository):
         """Test that deleting non-existent card returns error"""
         # Arrange
         command = DeleteCreditCardCommand(credit_card_id=999, user_id=100)
@@ -62,16 +60,12 @@ class TestDeleteCreditCardHandler:
         assert result.success is False
 
     @pytest.mark.asyncio
-    async def test_delete_credit_card_not_found_exception(
-        self, handler, mock_repository
-    ):
+    async def test_delete_credit_card_not_found_exception(self, handler, mock_repository):
         """Test handling of not found exception"""
         # Arrange
         command = DeleteCreditCardCommand(credit_card_id=999, user_id=100)
 
-        mock_repository.delete_credit_card = AsyncMock(
-            side_effect=CreditCardNotFoundError("Card not found")
-        )
+        mock_repository.delete_credit_card = AsyncMock(side_effect=CreditCardNotFoundError("Card not found"))
 
         # Act
         result = await handler.handle(command)
@@ -87,9 +81,7 @@ class TestDeleteCreditCardHandler:
         # Arrange
         command = DeleteCreditCardCommand(credit_card_id=1, user_id=100)
 
-        mock_repository.delete_credit_card = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_repository.delete_credit_card = AsyncMock(side_effect=Exception("Database error"))
 
         # Act
         result = await handler.handle(command)

@@ -16,9 +16,7 @@ class CreditCardName:
     def __post_init__(self):
         if not self._validated:
             if not isinstance(self.value, str):
-                raise InvalidCreditCardNameTypeError(
-                    f"CreditCardName must be a string, got {type(self.value)}"
-                )
+                raise InvalidCreditCardNameTypeError(f"CreditCardName must be a string, got {type(self.value)}")
             if len(self.value) < 3:
                 raise InvalidCreditCardNameLengthError(
                     f"CreditCardName must be at least 3 characters, got {len(self.value)}"

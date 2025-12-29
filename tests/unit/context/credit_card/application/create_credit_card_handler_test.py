@@ -72,14 +72,10 @@ class TestCreateCreditCardHandler:
         mock_service.create_credit_card.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_create_credit_card_without_id_returns_error(
-        self, handler, mock_service
-    ):
+    async def test_create_credit_card_without_id_returns_error(self, handler, mock_service):
         """Test that missing credit_card_id in result returns error"""
         # Arrange
-        command = CreateCreditCardCommand(
-            user_id=1, account_id=10, name="My Card", currency="USD", limit=1000.00
-        )
+        command = CreateCreditCardCommand(user_id=1, account_id=10, name="My Card", currency="USD", limit=1000.00)
 
         card_dto = CreditCardDTO(
             user_id=CreditCardUserID(1),
@@ -104,13 +100,9 @@ class TestCreateCreditCardHandler:
     async def test_create_credit_card_duplicate_name_error(self, handler, mock_service):
         """Test handling of duplicate name exception"""
         # Arrange
-        command = CreateCreditCardCommand(
-            user_id=1, account_id=10, name="Duplicate", currency="USD", limit=1000.00
-        )
+        command = CreateCreditCardCommand(user_id=1, account_id=10, name="Duplicate", currency="USD", limit=1000.00)
 
-        mock_service.create_credit_card = AsyncMock(
-            side_effect=CreditCardNameAlreadyExistError("Duplicate name")
-        )
+        mock_service.create_credit_card = AsyncMock(side_effect=CreditCardNameAlreadyExistError("Duplicate name"))
 
         # Act
         result = await handler.handle(command)
@@ -124,13 +116,9 @@ class TestCreateCreditCardHandler:
     async def test_create_credit_card_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        command = CreateCreditCardCommand(
-            user_id=1, account_id=10, name="Test", currency="USD", limit=1000.00
-        )
+        command = CreateCreditCardCommand(user_id=1, account_id=10, name="Test", currency="USD", limit=1000.00)
 
-        mock_service.create_credit_card = AsyncMock(
-            side_effect=CreditCardMapperError("Mapping failed")
-        )
+        mock_service.create_credit_card = AsyncMock(side_effect=CreditCardMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -144,13 +132,9 @@ class TestCreateCreditCardHandler:
     async def test_create_credit_card_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        command = CreateCreditCardCommand(
-            user_id=1, account_id=10, name="Test", currency="USD", limit=1000.00
-        )
+        command = CreateCreditCardCommand(user_id=1, account_id=10, name="Test", currency="USD", limit=1000.00)
 
-        mock_service.create_credit_card = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_service.create_credit_card = AsyncMock(side_effect=Exception("Database error"))
 
         # Act
         result = await handler.handle(command)
@@ -161,9 +145,7 @@ class TestCreateCreditCardHandler:
         assert result.credit_card_id is None
 
     @pytest.mark.asyncio
-    async def test_create_credit_card_converts_primitives_to_value_objects(
-        self, handler, mock_service
-    ):
+    async def test_create_credit_card_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
         command = CreateCreditCardCommand(

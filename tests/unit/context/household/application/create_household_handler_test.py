@@ -87,9 +87,7 @@ class TestCreateHouseholdHandler:
         # Arrange
         command = CreateHouseholdCommand(user_id=1, name="Duplicate")
 
-        mock_service.create_household = AsyncMock(
-            side_effect=HouseholdNameAlreadyExistError("Duplicate name")
-        )
+        mock_service.create_household = AsyncMock(side_effect=HouseholdNameAlreadyExistError("Duplicate name"))
 
         # Act
         result = await handler.handle(command)
@@ -105,9 +103,7 @@ class TestCreateHouseholdHandler:
         # Arrange
         command = CreateHouseholdCommand(user_id=1, name="Test")
 
-        mock_service.create_household = AsyncMock(
-            side_effect=HouseholdMapperError("Mapping failed")
-        )
+        mock_service.create_household = AsyncMock(side_effect=HouseholdMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -134,9 +130,7 @@ class TestCreateHouseholdHandler:
         assert result.household_id is None
 
     @pytest.mark.asyncio
-    async def test_create_household_converts_primitives_to_value_objects(
-        self, handler, mock_service
-    ):
+    async def test_create_household_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
         command = CreateHouseholdCommand(user_id=1, name="Test Household")

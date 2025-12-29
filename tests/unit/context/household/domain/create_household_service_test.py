@@ -65,9 +65,7 @@ class TestCreateHouseholdService:
         assert call_args.kwargs["creator_user_id"] == creator_user_id
 
     @pytest.mark.asyncio
-    async def test_create_household_duplicate_name_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_create_household_duplicate_name_raises_error(self, service, mock_repository):
         """Test that duplicate household name raises HouseholdNameAlreadyExistError"""
         # Arrange
         name = HouseholdName("Existing Household")
@@ -78,20 +76,14 @@ class TestCreateHouseholdService:
         )
 
         # Act & Assert
-        with pytest.raises(
-            HouseholdNameAlreadyExistError, match="Household name already exists"
-        ):
+        with pytest.raises(HouseholdNameAlreadyExistError, match="Household name already exists"):
             await service.create_household(name=name, creator_user_id=creator_user_id)
 
     @pytest.mark.asyncio
-    async def test_create_household_propagates_repository_exceptions(
-        self, service, mock_repository
-    ):
+    async def test_create_household_propagates_repository_exceptions(self, service, mock_repository):
         """Test that repository exceptions are propagated"""
         # Arrange
-        mock_repository.create_household = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_repository.create_household = AsyncMock(side_effect=Exception("Database error"))
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):
@@ -124,9 +116,7 @@ class TestCreateHouseholdService:
         mock_repository.create_household.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_create_household_with_special_characters(
-        self, service, mock_repository
-    ):
+    async def test_create_household_with_special_characters(self, service, mock_repository):
         """Test creating household with special characters in name"""
         # Arrange
         name = HouseholdName("Smith's Household #1")

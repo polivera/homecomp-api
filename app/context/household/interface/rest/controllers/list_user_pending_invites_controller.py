@@ -17,9 +17,7 @@ router = APIRouter()
 
 @router.get("/invites/pending", status_code=200)
 async def list_user_pending_invites(
-    handler: Annotated[
-        ListUserPendingInvitesHandlerContract, Depends(get_list_user_pending_invites_handler)
-    ],
+    handler: Annotated[ListUserPendingInvitesHandlerContract, Depends(get_list_user_pending_invites_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ) -> list[HouseholdMemberResponse]:
     """List all pending invitations for the authenticated user"""

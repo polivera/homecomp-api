@@ -75,9 +75,7 @@ class TestFindAccountByIdHandler:
         assert result is None
 
     @pytest.mark.asyncio
-    async def test_find_account_by_id_calls_repository_with_correct_params(
-        self, handler, mock_repository
-    ):
+    async def test_find_account_by_id_calls_repository_with_correct_params(self, handler, mock_repository):
         """Test that handler calls repository with correct parameters"""
         # Arrange
         query = FindAccountByIdQuery(account_id=10, user_id=1)

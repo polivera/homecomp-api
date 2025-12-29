@@ -61,16 +61,12 @@ class TestFindCreditCardsByUserHandler:
         ]
 
     @pytest.mark.asyncio
-    async def test_find_credit_cards_by_user_success(
-        self, handler, mock_repository, sample_card_dtos
-    ):
+    async def test_find_credit_cards_by_user_success(self, handler, mock_repository, sample_card_dtos):
         """Test successful credit cards lookup"""
         # Arrange
         query = FindCreditCardsByUserQuery(user_id=100)
 
-        mock_repository.find_user_credit_cards = AsyncMock(
-            return_value=sample_card_dtos
-        )
+        mock_repository.find_user_credit_cards = AsyncMock(return_value=sample_card_dtos)
 
         # Act
         result = await handler.handle(query)
@@ -99,9 +95,7 @@ class TestFindCreditCardsByUserHandler:
         mock_repository.find_user_credit_cards.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_find_credit_cards_by_user_none_returns_empty_list(
-        self, handler, mock_repository
-    ):
+    async def test_find_credit_cards_by_user_none_returns_empty_list(self, handler, mock_repository):
         """Test that None result returns empty list"""
         # Arrange
         query = FindCreditCardsByUserQuery(user_id=100)
@@ -116,16 +110,12 @@ class TestFindCreditCardsByUserHandler:
         mock_repository.find_user_credit_cards.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_find_credit_cards_by_user_converts_primitives(
-        self, handler, mock_repository, sample_card_dtos
-    ):
+    async def test_find_credit_cards_by_user_converts_primitives(self, handler, mock_repository, sample_card_dtos):
         """Test that handler converts query primitives to value objects"""
         # Arrange
         query = FindCreditCardsByUserQuery(user_id=100)
 
-        mock_repository.find_user_credit_cards = AsyncMock(
-            return_value=sample_card_dtos
-        )
+        mock_repository.find_user_credit_cards = AsyncMock(return_value=sample_card_dtos)
 
         # Act
         await handler.handle(query)
@@ -136,16 +126,12 @@ class TestFindCreditCardsByUserHandler:
         assert call_args.kwargs["user_id"].value == 100
 
     @pytest.mark.asyncio
-    async def test_find_credit_cards_by_user_returns_application_dtos(
-        self, handler, mock_repository, sample_card_dtos
-    ):
+    async def test_find_credit_cards_by_user_returns_application_dtos(self, handler, mock_repository, sample_card_dtos):
         """Test that handler returns application layer DTOs (not domain DTOs)"""
         # Arrange
         query = FindCreditCardsByUserQuery(user_id=100)
 
-        mock_repository.find_user_credit_cards = AsyncMock(
-            return_value=sample_card_dtos
-        )
+        mock_repository.find_user_credit_cards = AsyncMock(return_value=sample_card_dtos)
 
         # Act
         result = await handler.handle(query)
@@ -161,9 +147,7 @@ class TestFindCreditCardsByUserHandler:
             assert isinstance(card.used, Decimal)
 
     @pytest.mark.asyncio
-    async def test_find_credit_cards_by_user_single_card(
-        self, handler, mock_repository
-    ):
+    async def test_find_credit_cards_by_user_single_card(self, handler, mock_repository):
         """Test finding single card for user"""
         # Arrange
         query = FindCreditCardsByUserQuery(user_id=100)

@@ -12,8 +12,6 @@ class FindCreditCardsByUserHandlerContract(ABC):
     """Contract for find credit cards by user query handler"""
 
     @abstractmethod
-    async def handle(
-        self, query: FindCreditCardsByUserQuery
-    ) -> list[CreditCardResponseDTO]:
+    async def handle(self, query: FindCreditCardsByUserQuery) -> list[CreditCardResponseDTO]:
         """Handle the find credit cards by user query"""
         pass

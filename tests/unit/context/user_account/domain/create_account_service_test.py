@@ -53,9 +53,7 @@ class TestCreateAccountService:
         mock_repository.save_account = AsyncMock(return_value=expected_dto)
 
         # Act
-        result = await service.create_account(
-            user_id=user_id, name=name, currency=currency, balance=balance
-        )
+        result = await service.create_account(user_id=user_id, name=name, currency=currency, balance=balance)
 
         # Assert
         assert result == expected_dto
@@ -88,23 +86,17 @@ class TestCreateAccountService:
         mock_repository.save_account = AsyncMock(return_value=expected_dto)
 
         # Act
-        result = await service.create_account(
-            user_id=user_id, name=name, currency=currency, balance=balance
-        )
+        result = await service.create_account(user_id=user_id, name=name, currency=currency, balance=balance)
 
         # Assert
         assert result.balance.value == Decimal("0.00")
         mock_repository.save_account.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_create_account_propagates_repository_exceptions(
-        self, service, mock_repository
-    ):
+    async def test_create_account_propagates_repository_exceptions(self, service, mock_repository):
         """Test that repository exceptions are propagated"""
         # Arrange
-        mock_repository.save_account = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_repository.save_account = AsyncMock(side_effect=Exception("Database error"))
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):

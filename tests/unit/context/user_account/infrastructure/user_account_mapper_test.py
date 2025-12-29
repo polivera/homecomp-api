@@ -176,6 +176,7 @@ class TestUserAccountMapper:
         """Test converting DTO with deleted_at timestamp"""
         # Arrange
         from datetime import UTC
+
         now = datetime.now(UTC)
         dto = UserAccountDTO(
             account_id=UserAccountID(10),

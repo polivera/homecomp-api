@@ -15,9 +15,7 @@ class MockLoginService(LoginServiceContract):
     def __init__(self):
         self.handle_mock = AsyncMock()
 
-    async def handle(
-        self, user_password: AuthPassword, db_user: AuthUserDTO
-    ) -> SessionToken:
+    async def handle(self, user_password: AuthPassword, db_user: AuthUserDTO) -> SessionToken:
         return await self.handle_mock(user_password=user_password, db_user=db_user)
 
 

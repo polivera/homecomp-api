@@ -19,19 +19,13 @@ class CardUsed:
     def __post_init__(self):
         if not self._validated:
             if not isinstance(self.value, Decimal):
-                raise InvalidCardUsedTypeError(
-                    f"CardUsed must be a Decimal, got {type(self.value)}"
-                )
+                raise InvalidCardUsedTypeError(f"CardUsed must be a Decimal, got {type(self.value)}")
             if self.value < 0:
-                raise InvalidCardUsedValueError(
-                    f"CardUsed must be non-negative, got {self.value}"
-                )
+                raise InvalidCardUsedValueError(f"CardUsed must be non-negative, got {self.value}")
 
             # Check for max 2 decimal places
             if self.value.as_tuple().exponent < -2:
-                raise InvalidCardUsedPrecisionError(
-                    f"CardUsed must have at most 2 decimal places, got {self.value}"
-                )
+                raise InvalidCardUsedPrecisionError(f"CardUsed must have at most 2 decimal places, got {self.value}")
 
     @classmethod
     def from_float(cls, value: float) -> "CardUsed":

@@ -4,9 +4,7 @@ from app.context.household.infrastructure.models import HouseholdModel
 from app.context.user.infrastructure.models import UserModel
 
 
-async def seed_households(
-    session: AsyncSession, users: dict[str, UserModel]
-) -> dict[str, HouseholdModel]:
+async def seed_households(session: AsyncSession, users: dict[str, UserModel]) -> dict[str, HouseholdModel]:
     """Seed households table with test data"""
     print("  → Seeding households...")
 

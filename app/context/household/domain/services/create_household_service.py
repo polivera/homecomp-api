@@ -10,9 +10,7 @@ class CreateHouseholdService(CreateHouseholdServiceContract):
     def __init__(self, household_repository: HouseholdRepositoryContract):
         self._household_repository = household_repository
 
-    async def create_household(
-        self, name: HouseholdName, creator_user_id: HouseholdUserID
-    ) -> HouseholdDTO:
+    async def create_household(self, name: HouseholdName, creator_user_id: HouseholdUserID) -> HouseholdDTO:
         """Create a new household with the creator as owner"""
 
         # Create new household DTO with owner

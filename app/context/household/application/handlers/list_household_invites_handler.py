@@ -13,9 +13,7 @@ class ListHouseholdInvitesHandler(ListHouseholdInvitesHandlerContract):
     def __init__(self, repository: HouseholdRepositoryContract):
         self._repository = repository
 
-    async def handle(
-        self, query: ListHouseholdInvitesQuery
-    ) -> list[HouseholdMemberResponseDTO]:
+    async def handle(self, query: ListHouseholdInvitesQuery) -> list[HouseholdMemberResponseDTO]:
         """Execute the list household invites query"""
 
         members = await self._repository.list_household_pending_invites(
@@ -23,8 +21,4 @@ class ListHouseholdInvitesHandler(ListHouseholdInvitesHandlerContract):
             owner_id=HouseholdUserID(query.user_id),
         )
 
-        return (
-            [HouseholdMemberResponseDTO.from_domain_dto(member) for member in members]
-            if members
-            else []
-        )
+        return [HouseholdMemberResponseDTO.from_domain_dto(member) for member in members] if members else []

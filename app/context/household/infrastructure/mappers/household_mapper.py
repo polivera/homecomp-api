@@ -1,4 +1,3 @@
-
 from app.context.household.domain.dto import HouseholdDTO
 from app.context.household.domain.exceptions import HouseholdMapperError
 from app.context.household.domain.value_objects import (
@@ -24,9 +23,7 @@ class HouseholdMapper:
                 created_at=model.created_at,
             )
         except Exception as e:
-            raise HouseholdMapperError(
-                f"Error mapping HouseholdModel to DTO: {e}"
-            ) from e
+            raise HouseholdMapperError(f"Error mapping HouseholdModel to DTO: {e}") from e
 
     @staticmethod
     def to_dto_or_fail(model: HouseholdModel | None) -> HouseholdDTO:
@@ -52,6 +49,4 @@ class HouseholdMapper:
 
             return model
         except Exception as e:
-            raise HouseholdMapperError(
-                f"Error mapping HouseholdDTO to model: {e}"
-            ) from e
+            raise HouseholdMapperError(f"Error mapping HouseholdDTO to model: {e}") from e

@@ -21,9 +21,7 @@ class SessionMapper:
             user_id=AuthUserID(model.user_id),
             token=SessionToken.from_string(model.token) if model.token else None,
             failed_attempts=FailedLoginAttempts(model.failed_attempts),
-            blocked_until=BlockedTime(model.blocked_until)
-            if model.blocked_until is not None
-            else None,
+            blocked_until=BlockedTime(model.blocked_until) if model.blocked_until is not None else None,
         )
 
     @staticmethod

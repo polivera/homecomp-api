@@ -6,9 +6,7 @@ from app.context.user.infrastructure.models import UserModel
 from app.context.user_account.infrastructure.models import UserAccountModel
 
 
-async def seed_user_accounts(
-    session: AsyncSession, users: dict[str, UserModel]
-) -> dict[str, UserAccountModel]:
+async def seed_user_accounts(session: AsyncSession, users: dict[str, UserModel]) -> dict[str, UserAccountModel]:
     """Seed user_accounts table with test data"""
     print("  → Seeding user accounts...")
 
@@ -76,9 +74,7 @@ async def seed_user_accounts(
     accounts_map = {}
     for account in accounts:
         # Find user email by user_id
-        user_email = next(
-            email for email, user in users.items() if user.id == account.user_id
-        )
+        user_email = next(email for email, user in users.items() if user.id == account.user_id)
         key = f"{user_email}:{account.name}"
         accounts_map[key] = account
 

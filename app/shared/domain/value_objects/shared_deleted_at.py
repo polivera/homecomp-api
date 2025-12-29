@@ -21,9 +21,7 @@ class SharedDeletedAt:
 
             # Ensure timezone-aware comparison
             now = datetime.now(UTC)
-            value_utc = (
-                self.value if self.value.tzinfo else self.value.replace(tzinfo=UTC)
-            )
+            value_utc = self.value if self.value.tzinfo else self.value.replace(tzinfo=UTC)
 
             if value_utc > now:
                 raise ValueError("DeletedAt cannot be in the future")

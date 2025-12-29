@@ -94,9 +94,7 @@ class UserAccountRepositoryContract(ABC):
         pass
 
     @abstractmethod
-    async def delete_account(
-        self, account_id: UserAccountID, user_id: UserAccountUserID
-    ) -> bool:
+    async def delete_account(self, account_id: UserAccountID, user_id: UserAccountUserID) -> bool:
         """
         Soft delete an account. Returns True if deleted, False if not found/unauthorized
 

@@ -44,9 +44,7 @@ class TestInviteUserHandler:
     async def test_invite_user_success(self, handler, mock_service):
         """Test successful user invitation"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
         member_dto = HouseholdMemberDTO(
             member_id=HouseholdMemberID(1),
@@ -72,14 +70,10 @@ class TestInviteUserHandler:
         mock_service.invite_user.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_invite_user_without_member_id_returns_error(
-        self, handler, mock_service
-    ):
+    async def test_invite_user_without_member_id_returns_error(self, handler, mock_service):
         """Test that missing member_id in result returns error"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
         member_dto = HouseholdMemberDTO(
             member_id=None,  # Missing ID
@@ -105,13 +99,9 @@ class TestInviteUserHandler:
     async def test_invite_user_only_owner_can_invite_error(self, handler, mock_service):
         """Test handling of non-owner attempting to invite"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=99, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=99, household_id=10, invitee_user_id=2, role="participant")
 
-        mock_service.invite_user = AsyncMock(
-            side_effect=OnlyOwnerCanInviteError("Only owner can invite")
-        )
+        mock_service.invite_user = AsyncMock(side_effect=OnlyOwnerCanInviteError("Only owner can invite"))
 
         # Act
         result = await handler.handle(command)
@@ -125,58 +115,41 @@ class TestInviteUserHandler:
     async def test_invite_user_already_active_member_error(self, handler, mock_service):
         """Test handling of already active member exception"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
-        mock_service.invite_user = AsyncMock(
-            side_effect=AlreadyActiveMemberError("Already active")
-        )
+        mock_service.invite_user = AsyncMock(side_effect=AlreadyActiveMemberError("Already active"))
 
         # Act
         result = await handler.handle(command)
 
         # Assert
         assert result.error_code == InviteUserErrorCode.ALREADY_ACTIVE_MEMBER
-        assert (
-            result.error_message == "User is already an active member of this household"
-        )
+        assert result.error_message == "User is already an active member of this household"
         assert result.member_id is None
 
     @pytest.mark.asyncio
     async def test_invite_user_already_invited_error(self, handler, mock_service):
         """Test handling of already invited exception"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
-        mock_service.invite_user = AsyncMock(
-            side_effect=AlreadyInvitedError("Already invited")
-        )
+        mock_service.invite_user = AsyncMock(side_effect=AlreadyInvitedError("Already invited"))
 
         # Act
         result = await handler.handle(command)
 
         # Assert
         assert result.error_code == InviteUserErrorCode.ALREADY_INVITED
-        assert (
-            result.error_message
-            == "User already has a pending invite to this household"
-        )
+        assert result.error_message == "User already has a pending invite to this household"
         assert result.member_id is None
 
     @pytest.mark.asyncio
     async def test_invite_user_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
-        mock_service.invite_user = AsyncMock(
-            side_effect=HouseholdMapperError("Mapping failed")
-        )
+        mock_service.invite_user = AsyncMock(side_effect=HouseholdMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -190,9 +163,7 @@ class TestInviteUserHandler:
     async def test_invite_user_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
         mock_service.invite_user = AsyncMock(side_effect=Exception("Database error"))
 
@@ -205,14 +176,10 @@ class TestInviteUserHandler:
         assert result.member_id is None
 
     @pytest.mark.asyncio
-    async def test_invite_user_converts_primitives_to_value_objects(
-        self, handler, mock_service
-    ):
+    async def test_invite_user_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
-        command = InviteUserCommand(
-            inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant"
-        )
+        command = InviteUserCommand(inviter_user_id=1, household_id=10, invitee_user_id=2, role="participant")
 
         member_dto = HouseholdMemberDTO(
             member_id=HouseholdMemberID(1),

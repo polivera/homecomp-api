@@ -22,23 +22,17 @@ class TestCreditCardID:
 
     def test_invalid_type_raises_error(self):
         """Test that invalid types raise InvalidCreditCardIdTypeError"""
-        with pytest.raises(
-            InvalidCreditCardIdTypeError, match="CreditCardID must be an integer"
-        ):
+        with pytest.raises(InvalidCreditCardIdTypeError, match="CreditCardID must be an integer"):
             CreditCardID("not_an_int")
 
     def test_negative_id_raises_error(self):
         """Test that negative IDs raise InvalidCreditCardIdValueError"""
-        with pytest.raises(
-            InvalidCreditCardIdValueError, match="CreditCardID must be positive"
-        ):
+        with pytest.raises(InvalidCreditCardIdValueError, match="CreditCardID must be positive"):
             CreditCardID(-1)
 
     def test_zero_id_raises_error(self):
         """Test that zero ID raises InvalidCreditCardIdValueError"""
-        with pytest.raises(
-            InvalidCreditCardIdValueError, match="CreditCardID must be positive"
-        ):
+        with pytest.raises(InvalidCreditCardIdValueError, match="CreditCardID must be positive"):
             CreditCardID(0)
 
     def test_from_trusted_source_skips_validation(self):

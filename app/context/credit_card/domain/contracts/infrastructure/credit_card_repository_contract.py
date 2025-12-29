@@ -109,9 +109,7 @@ class CreditCardRepositoryContract(ABC):
         pass
 
     @abstractmethod
-    async def delete_credit_card(
-        self, card_id: CreditCardID, user_id: CreditCardUserID
-    ) -> bool:
+    async def delete_credit_card(self, card_id: CreditCardID, user_id: CreditCardUserID) -> bool:
         """
         Soft delete a credit card. Returns True if deleted, False if not found/unauthorized
 

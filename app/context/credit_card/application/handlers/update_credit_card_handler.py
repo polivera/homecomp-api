@@ -38,17 +38,9 @@ class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
             credit_card_id = CreditCardID(command.credit_card_id)
             user_id = CreditCardUserID(command.user_id)
             name = CreditCardName(command.name) if command.name else None
-            currency = (
-                CreditCardCurrency(command.currency) if command.currency else None
-            )
-            limit = (
-                CardLimit.from_float(command.limit)
-                if command.limit is not None
-                else None
-            )
-            used = (
-                CardUsed.from_float(command.used) if command.used is not None else None
-            )
+            currency = CreditCardCurrency(command.currency) if command.currency else None
+            limit = CardLimit.from_float(command.limit) if command.limit is not None else None
+            used = CardUsed.from_float(command.used) if command.used is not None else None
 
             # Call service with value objects
             updated_dto = await self._service.update_credit_card(

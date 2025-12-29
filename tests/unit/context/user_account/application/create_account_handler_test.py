@@ -43,9 +43,7 @@ class TestCreateAccountHandler:
     async def test_create_account_success(self, handler, mock_service):
         """Test successful account creation"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="My Account", currency="USD", balance=100.50
-        )
+        command = CreateAccountCommand(user_id=1, name="My Account", currency="USD", balance=100.50)
 
         account_dto = UserAccountDTO(
             user_id=UserAccountUserID(1),
@@ -71,9 +69,7 @@ class TestCreateAccountHandler:
     async def test_create_account_without_id_returns_error(self, handler, mock_service):
         """Test that missing account_id in result returns error"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="My Account", currency="USD", balance=100.00
-        )
+        command = CreateAccountCommand(user_id=1, name="My Account", currency="USD", balance=100.00)
 
         account_dto = UserAccountDTO(
             user_id=UserAccountUserID(1),
@@ -97,13 +93,9 @@ class TestCreateAccountHandler:
     async def test_create_account_duplicate_name_error(self, handler, mock_service):
         """Test handling of duplicate name exception"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="Duplicate", currency="USD", balance=100.00
-        )
+        command = CreateAccountCommand(user_id=1, name="Duplicate", currency="USD", balance=100.00)
 
-        mock_service.create_account = AsyncMock(
-            side_effect=UserAccountNameAlreadyExistError("Duplicate name")
-        )
+        mock_service.create_account = AsyncMock(side_effect=UserAccountNameAlreadyExistError("Duplicate name"))
 
         # Act
         result = await handler.handle(command)
@@ -117,13 +109,9 @@ class TestCreateAccountHandler:
     async def test_create_account_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="Test", currency="USD", balance=100.00
-        )
+        command = CreateAccountCommand(user_id=1, name="Test", currency="USD", balance=100.00)
 
-        mock_service.create_account = AsyncMock(
-            side_effect=UserAccountMapperError("Mapping failed")
-        )
+        mock_service.create_account = AsyncMock(side_effect=UserAccountMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -137,9 +125,7 @@ class TestCreateAccountHandler:
     async def test_create_account_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="Test", currency="USD", balance=100.00
-        )
+        command = CreateAccountCommand(user_id=1, name="Test", currency="USD", balance=100.00)
 
         mock_service.create_account = AsyncMock(side_effect=Exception("Database error"))
 
@@ -152,14 +138,10 @@ class TestCreateAccountHandler:
         assert result.account_id is None
 
     @pytest.mark.asyncio
-    async def test_create_account_converts_primitives_to_value_objects(
-        self, handler, mock_service
-    ):
+    async def test_create_account_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
-        command = CreateAccountCommand(
-            user_id=1, name="Test", currency="USD", balance=100.50
-        )
+        command = CreateAccountCommand(user_id=1, name="Test", currency="USD", balance=100.50)
 
         account_dto = UserAccountDTO(
             user_id=UserAccountUserID(1),

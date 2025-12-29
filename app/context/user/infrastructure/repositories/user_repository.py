@@ -1,4 +1,3 @@
-
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,9 +14,7 @@ class UserRepository(UserRepositoryContract):
     def __init__(self, db: AsyncSession):
         self._db = db
 
-    async def find_user(
-        self, user_id: UserID | None = None, email: UserEmail | None = None
-    ) -> UserDTO | None:
+    async def find_user(self, user_id: UserID | None = None, email: UserEmail | None = None) -> UserDTO | None:
         """
         Find a user by ID or email.
         Both filters can be applied simultaneously.

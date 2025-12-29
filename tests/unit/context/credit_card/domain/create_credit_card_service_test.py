@@ -78,9 +78,7 @@ class TestCreateCreditCardService:
         assert call_args.credit_card_id is None  # New card, no ID yet
 
     @pytest.mark.asyncio
-    async def test_create_credit_card_with_different_currencies(
-        self, service, mock_repository
-    ):
+    async def test_create_credit_card_with_different_currencies(self, service, mock_repository):
         """Test creating cards with different currency codes"""
         currencies = ["USD", "EUR", "GBP", "JPY"]
 
@@ -138,14 +136,10 @@ class TestCreateCreditCardService:
         assert result.limit.value == Decimal("100000.00")
 
     @pytest.mark.asyncio
-    async def test_create_credit_card_propagates_repository_exceptions(
-        self, service, mock_repository
-    ):
+    async def test_create_credit_card_propagates_repository_exceptions(self, service, mock_repository):
         """Test that repository exceptions are propagated"""
         # Arrange
-        mock_repository.save_credit_card = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_repository.save_credit_card = AsyncMock(side_effect=Exception("Database error"))
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):

@@ -1,5 +1,6 @@
 # Value Object Exceptions
 
+
 class InvalidCardLimitTypeError(Exception):
     pass
 
@@ -50,6 +51,7 @@ class InvalidCreditCardIdValueError(Exception):
 
 # Domain Service Exceptions
 
+
 class CreditCardNotFoundError(Exception):
     pass
 
@@ -67,6 +69,7 @@ class CreditCardUsedExceedsLimitError(Exception):
 
 
 # Repository Exceptions
+
 
 class CreditCardCreationError(Exception):
     pass

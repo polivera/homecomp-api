@@ -50,9 +50,7 @@ async def get_account(
 
 @router.get("", response_model=list[AccountResponse])
 async def get_all_accounts(
-    handler: Annotated[
-        FindAccountsByUserHandlerContract, Depends(get_find_accounts_by_user_handler)
-    ],
+    handler: Annotated[FindAccountsByUserHandlerContract, Depends(get_find_accounts_by_user_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get all accounts for the authenticated user"""

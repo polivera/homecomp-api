@@ -1,4 +1,3 @@
-
 from app.context.user_account.application.contracts.find_account_by_id_handler_contract import (
     FindAccountByIdHandlerContract,
 )

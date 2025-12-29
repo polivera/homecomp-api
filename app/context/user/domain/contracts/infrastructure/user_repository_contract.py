@@ -8,9 +8,7 @@ class UserRepositoryContract(ABC):
     """Contract for User repository operations"""
 
     @abstractmethod
-    async def find_user(
-        self, user_id: UserID | None = None, email: UserEmail | None = None
-    ) -> UserDTO | None:
+    async def find_user(self, user_id: UserID | None = None, email: UserEmail | None = None) -> UserDTO | None:
         """
         Find a user by ID or email.
 

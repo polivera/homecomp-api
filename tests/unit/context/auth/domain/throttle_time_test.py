@@ -75,9 +75,7 @@ class TestThrottleTime:
 
     def test_progressive_throttling(self):
         """Test that throttle times increase with more attempts"""
-        throttle_times = [
-            ThrottleTime.fromAttempts(FailedLoginAttempts(i)).value for i in range(4)
-        ]
+        throttle_times = [ThrottleTime.fromAttempts(FailedLoginAttempts(i)).value for i in range(4)]
 
         # Should be [0, 2, 4, 8]
         assert throttle_times == [0, 2, 4, 8]

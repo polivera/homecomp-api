@@ -1,4 +1,3 @@
-
 from app.context.auth.application.contracts import GetSessionHandlerContract
 from app.context.auth.application.dto.get_session_result_dto import GetSessionResultDTO
 from app.context.auth.application.queries import GetSessionQuery
@@ -22,9 +21,7 @@ class GetSessionHandler(GetSessionHandlerContract):
                 user_id=session.user_id.value,
                 token=session.token.value if session.token is not None else None,
                 failed_attempts=session.failed_attempts.value,
-                blocked_until=session.blocked_until.toString()
-                if session.blocked_until is not None
-                else None,
+                blocked_until=session.blocked_until.toString() if session.blocked_until is not None else None,
             )
             if session is not None
             else None

@@ -1,4 +1,3 @@
-
 from app.context.credit_card.application.contracts import (
     FindCreditCardByIdHandlerContract,
 )
@@ -16,9 +15,7 @@ class FindCreditCardByIdHandler(FindCreditCardByIdHandlerContract):
     def __init__(self, repository: CreditCardRepositoryContract):
         self._repository = repository
 
-    async def handle(
-        self, query: FindCreditCardByIdQuery
-    ) -> CreditCardResponseDTO | None:
+    async def handle(self, query: FindCreditCardByIdQuery) -> CreditCardResponseDTO | None:
         """Execute the find credit card by ID query"""
 
         # Convert query primitives to value objects and find card for user

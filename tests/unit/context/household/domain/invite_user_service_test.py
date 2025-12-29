@@ -100,9 +100,7 @@ class TestInviteUserService:
         mock_repository.find_household_by_id = AsyncMock(return_value=household_dto)
 
         # Act & Assert
-        with pytest.raises(
-            OnlyOwnerCanInviteError, match="Only the household owner can invite users"
-        ):
+        with pytest.raises(OnlyOwnerCanInviteError, match="Only the household owner can invite users"):
             await service.invite_user(
                 inviter_user_id=non_owner_id,  # Not the owner
                 household_id=household_id,
@@ -111,9 +109,7 @@ class TestInviteUserService:
             )
 
     @pytest.mark.asyncio
-    async def test_invite_user_household_not_found_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_invite_user_household_not_found_raises_error(self, service, mock_repository):
         """Test that non-existent household raises error"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -124,9 +120,7 @@ class TestInviteUserService:
         mock_repository.find_household_by_id = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(
-            OnlyOwnerCanInviteError, match="Only the household owner can invite users"
-        ):
+        with pytest.raises(OnlyOwnerCanInviteError, match="Only the household owner can invite users"):
             await service.invite_user(
                 inviter_user_id=owner_id,
                 household_id=household_id,
@@ -135,9 +129,7 @@ class TestInviteUserService:
             )
 
     @pytest.mark.asyncio
-    async def test_invite_user_already_active_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_invite_user_already_active_raises_error(self, service, mock_repository):
         """Test that inviting an already active member raises error"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -178,9 +170,7 @@ class TestInviteUserService:
             )
 
     @pytest.mark.asyncio
-    async def test_invite_user_already_invited_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_invite_user_already_invited_raises_error(self, service, mock_repository):
         """Test that inviting an already invited user raises error"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -221,9 +211,7 @@ class TestInviteUserService:
             )
 
     @pytest.mark.asyncio
-    async def test_invite_user_creates_member_with_correct_data(
-        self, service, mock_repository
-    ):
+    async def test_invite_user_creates_member_with_correct_data(self, service, mock_repository):
         """Test that invite creates member DTO with correct structure"""
         # Arrange
         owner_id = HouseholdUserID(1)

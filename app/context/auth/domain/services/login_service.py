@@ -23,9 +23,7 @@ class LoginService(LoginServiceContract):
     def __init__(self, session_repo: SessionRepositoryContract):
         self._session_repo = session_repo
 
-    async def handle(
-        self, user_password: AuthPassword, db_user: AuthUserDTO
-    ) -> SessionToken:
+    async def handle(self, user_password: AuthPassword, db_user: AuthUserDTO) -> SessionToken:
         session = await self._session_repo.getSession(user_id=db_user.user_id)
 
         if session is None:

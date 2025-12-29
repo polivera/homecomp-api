@@ -44,9 +44,7 @@ class TestUpdateAccountHandler:
     async def test_update_account_success(self, handler, mock_service):
         """Test successful account update"""
         # Arrange
-        command = UpdateAccountCommand(
-            account_id=10, user_id=1, name="Updated", currency="EUR", balance=200.00
-        )
+        command = UpdateAccountCommand(account_id=10, user_id=1, name="Updated", currency="EUR", balance=200.00)
 
         updated_dto = UserAccountDTO(
             user_id=UserAccountUserID(1),
@@ -71,13 +69,9 @@ class TestUpdateAccountHandler:
     async def test_update_account_not_found(self, handler, mock_service):
         """Test handling of account not found exception"""
         # Arrange
-        command = UpdateAccountCommand(
-            account_id=999, user_id=1, name="Test", currency="USD", balance=100.00
-        )
+        command = UpdateAccountCommand(account_id=999, user_id=1, name="Test", currency="USD", balance=100.00)
 
-        mock_service.update_account = AsyncMock(
-            side_effect=UserAccountNotFoundError("Not found")
-        )
+        mock_service.update_account = AsyncMock(side_effect=UserAccountNotFoundError("Not found"))
 
         # Act
         result = await handler.handle(command)
@@ -90,13 +84,9 @@ class TestUpdateAccountHandler:
     async def test_update_account_duplicate_name(self, handler, mock_service):
         """Test handling of duplicate name exception"""
         # Arrange
-        command = UpdateAccountCommand(
-            account_id=10, user_id=1, name="Duplicate", currency="USD", balance=100.00
-        )
+        command = UpdateAccountCommand(account_id=10, user_id=1, name="Duplicate", currency="USD", balance=100.00)
 
-        mock_service.update_account = AsyncMock(
-            side_effect=UserAccountNameAlreadyExistError("Duplicate")
-        )
+        mock_service.update_account = AsyncMock(side_effect=UserAccountNameAlreadyExistError("Duplicate"))
 
         # Act
         result = await handler.handle(command)
@@ -109,13 +99,9 @@ class TestUpdateAccountHandler:
     async def test_update_account_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        command = UpdateAccountCommand(
-            account_id=10, user_id=1, name="Test", currency="USD", balance=100.00
-        )
+        command = UpdateAccountCommand(account_id=10, user_id=1, name="Test", currency="USD", balance=100.00)
 
-        mock_service.update_account = AsyncMock(
-            side_effect=UserAccountMapperError("Mapping failed")
-        )
+        mock_service.update_account = AsyncMock(side_effect=UserAccountMapperError("Mapping failed"))
 
         # Act
         result = await handler.handle(command)
@@ -128,9 +114,7 @@ class TestUpdateAccountHandler:
     async def test_update_account_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        command = UpdateAccountCommand(
-            account_id=10, user_id=1, name="Test", currency="USD", balance=100.00
-        )
+        command = UpdateAccountCommand(account_id=10, user_id=1, name="Test", currency="USD", balance=100.00)
 
         mock_service.update_account = AsyncMock(side_effect=Exception("Database error"))
 

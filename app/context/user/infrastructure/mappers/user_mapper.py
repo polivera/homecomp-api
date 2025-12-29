@@ -1,4 +1,3 @@
-
 from app.context.user.domain.dto.user_dto import UserDTO
 from app.context.user.domain.exceptions import UserMapperError
 from app.context.user.domain.value_objects import (
@@ -25,9 +24,7 @@ class UserMapper:
                 user_id=UserID.from_trusted_source(model.id),
                 email=UserEmail.from_trusted_source(model.email),
                 password=UserPassword.from_hash(model.password),
-                username=UserName.from_trusted_source(model.username)
-                if model.username
-                else None,
+                username=UserName.from_trusted_source(model.username) if model.username else None,
                 deleted_at=UserDeletedAt.from_optional(model.deleted_at),
             )
             if model

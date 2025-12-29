@@ -25,9 +25,7 @@ router = APIRouter(prefix="/cards", tags=["credit-cards"])
 @router.get("/{credit_card_id}", response_model=CreditCardResponse)
 async def get_credit_card(
     credit_card_id: int,
-    handler: Annotated[
-        FindCreditCardByIdHandlerContract, Depends(get_find_credit_card_by_id_handler)
-    ],
+    handler: Annotated[FindCreditCardByIdHandlerContract, Depends(get_find_credit_card_by_id_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get a credit card by ID"""
@@ -57,9 +55,7 @@ async def get_credit_card(
 
 @router.get("", response_model=list[CreditCardResponse])
 async def get_credit_cards(
-    handler: Annotated[
-        FindCreditCardsByUserHandlerContract, Depends(get_find_credit_cards_by_user_handler)
-    ],
+    handler: Annotated[FindCreditCardsByUserHandlerContract, Depends(get_find_credit_cards_by_user_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get all credit cards for the current user"""

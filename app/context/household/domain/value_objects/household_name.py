@@ -12,9 +12,7 @@ class HouseholdName:
             if not self.value or not self.value.strip():
                 raise ValueError("Household name cannot be empty")
             if len(self.value) > 100:
-                raise ValueError(
-                    f"Household name cannot exceed 100 characters, got {len(self.value)}"
-                )
+                raise ValueError(f"Household name cannot exceed 100 characters, got {len(self.value)}")
 
     @classmethod
     def from_trusted_source(cls, value: str) -> Self:

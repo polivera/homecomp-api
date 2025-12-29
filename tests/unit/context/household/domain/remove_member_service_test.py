@@ -109,9 +109,7 @@ class TestRemoveMemberService:
             )
 
     @pytest.mark.asyncio
-    async def test_remove_member_household_not_found_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_remove_member_household_not_found_raises_error(self, service, mock_repository):
         """Test that non-existent household raises error"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -132,9 +130,7 @@ class TestRemoveMemberService:
             )
 
     @pytest.mark.asyncio
-    async def test_remove_member_cannot_remove_self_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_remove_member_cannot_remove_self_raises_error(self, service, mock_repository):
         """Test that owner cannot remove themselves"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -177,9 +173,7 @@ class TestRemoveMemberService:
         mock_repository.find_member = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(
-            InviteNotFoundError, match="No active member found with this user ID"
-        ):
+        with pytest.raises(InviteNotFoundError, match="No active member found with this user ID"):
             await service.remove_member(
                 remover_user_id=owner_id,
                 household_id=household_id,
@@ -215,9 +209,7 @@ class TestRemoveMemberService:
         mock_repository.find_member = AsyncMock(return_value=pending_member)
 
         # Act & Assert
-        with pytest.raises(
-            InviteNotFoundError, match="No active member found with this user ID"
-        ):
+        with pytest.raises(InviteNotFoundError, match="No active member found with this user ID"):
             await service.remove_member(
                 remover_user_id=owner_id,
                 household_id=household_id,
@@ -225,9 +217,7 @@ class TestRemoveMemberService:
             )
 
     @pytest.mark.asyncio
-    async def test_remove_member_propagates_repository_exceptions(
-        self, service, mock_repository
-    ):
+    async def test_remove_member_propagates_repository_exceptions(self, service, mock_repository):
         """Test that repository exceptions are propagated"""
         # Arrange
         owner_id = HouseholdUserID(1)
@@ -252,9 +242,7 @@ class TestRemoveMemberService:
 
         mock_repository.find_household_by_id = AsyncMock(return_value=household_dto)
         mock_repository.find_member = AsyncMock(return_value=active_member)
-        mock_repository.revoke_or_remove = AsyncMock(
-            side_effect=Exception("Database error")
-        )
+        mock_repository.revoke_or_remove = AsyncMock(side_effect=Exception("Database error"))
 
         # Act & Assert
         with pytest.raises(Exception, match="Database error"):

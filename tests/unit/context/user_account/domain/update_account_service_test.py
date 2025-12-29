@@ -78,9 +78,7 @@ class TestUpdateAccountService:
 
         # Assert
         assert result == updated_dto
-        mock_repository.find_user_account_by_id.assert_called_once_with(
-            user_id=user_id, account_id=account_id
-        )
+        mock_repository.find_user_account_by_id.assert_called_once_with(user_id=user_id, account_id=account_id)
         mock_repository.update_account.assert_called_once()
 
     @pytest.mark.asyncio
@@ -93,9 +91,7 @@ class TestUpdateAccountService:
         mock_repository.find_user_account_by_id = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(
-            UserAccountNotFoundError, match="Account with ID 999 not found"
-        ):
+        with pytest.raises(UserAccountNotFoundError, match="Account with ID 999 not found"):
             await service.update_account(
                 account_id=account_id,
                 user_id=user_id,
@@ -194,9 +190,7 @@ class TestUpdateAccountService:
         mock_repository.update_account.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_update_account_checks_inactive_accounts_for_duplicates(
-        self, service, mock_repository
-    ):
+    async def test_update_account_checks_inactive_accounts_for_duplicates(self, service, mock_repository):
         """Test that duplicate name check includes inactive accounts"""
         # Arrange
         account_id = UserAccountID(10)
@@ -233,14 +227,10 @@ class TestUpdateAccountService:
         )
 
         # Assert - should check both active and inactive accounts
-        mock_repository.find_user_accounts.assert_called_once_with(
-            user_id=user_id, name=new_name, only_active=False
-        )
+        mock_repository.find_user_accounts.assert_called_once_with(user_id=user_id, name=new_name, only_active=False)
 
     @pytest.mark.asyncio
-    async def test_update_account_allows_same_account_name(
-        self, service, mock_repository
-    ):
+    async def test_update_account_allows_same_account_name(self, service, mock_repository):
         """Test that updating account can keep same name (not duplicate)"""
         # Arrange
         account_id = UserAccountID(10)
@@ -273,9 +263,7 @@ class TestUpdateAccountService:
         )
 
         mock_repository.find_user_account_by_id = AsyncMock(return_value=existing_dto)
-        mock_repository.find_user_accounts = AsyncMock(
-            return_value=[same_account_dto]
-        )
+        mock_repository.find_user_accounts = AsyncMock(return_value=[same_account_dto])
         mock_repository.update_account = AsyncMock(return_value=updated_dto)
 
         # Act - should succeed because the found account is the same one being updated

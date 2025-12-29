@@ -55,7 +55,7 @@ class TestDeleteAccountHandler:
         assert result.error_code == DeleteAccountErrorCode.NOT_FOUND
         assert result.error_message == "Account not found"
         # When there's an error, success field should not be set (None by default)
-        assert hasattr(result, 'success')  # Field exists but should be None in error case
+        assert hasattr(result, "success")  # Field exists but should be None in error case
 
     @pytest.mark.asyncio
     async def test_delete_account_unexpected_error(self, handler, mock_repository):

@@ -119,9 +119,7 @@ class TestGetSessionHandler:
         assert call_args.kwargs["user_id"] == AuthUserID(user_id)
         assert call_args.kwargs["token"] == SessionToken(token_value)
 
-    async def test_handle_returns_none_when_session_not_found(
-        self, mock_session_repository
-    ):
+    async def test_handle_returns_none_when_session_not_found(self, mock_session_repository):
         """Test that handler returns None when repository returns None."""
         # Arrange
         mock_session_repository.get_session_mock.return_value = None
@@ -179,9 +177,7 @@ class TestGetSessionHandler:
         assert call_args.kwargs["user_id"] is None
         assert call_args.kwargs["token"] is None
 
-    async def test_handle_converts_value_objects_correctly(
-        self, mock_session_repository
-    ):
+    async def test_handle_converts_value_objects_correctly(self, mock_session_repository):
         """Test that handler correctly converts domain value objects to primitives."""
         # Arrange
         user_id = 555

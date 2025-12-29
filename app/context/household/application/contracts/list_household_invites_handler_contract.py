@@ -8,8 +8,6 @@ class ListHouseholdInvitesHandlerContract(ABC):
     """Contract for list household invites query handler"""
 
     @abstractmethod
-    async def handle(
-        self, query: ListHouseholdInvitesQuery
-    ) -> list[HouseholdMemberResponseDTO]:
+    async def handle(self, query: ListHouseholdInvitesQuery) -> list[HouseholdMemberResponseDTO]:
         """Execute the list household invites query"""
         pass

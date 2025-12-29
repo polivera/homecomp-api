@@ -27,16 +27,8 @@ class HouseholdMemberResponseDTO:
             user_id=member_dto.user_id.value,
             role=member_dto.role.value,
             joined_at=member_dto.joined_at,
-            invited_by_user_id=(
-                member_dto.invited_by_user_id.value
-                if member_dto.invited_by_user_id
-                else None
-            ),
+            invited_by_user_id=(member_dto.invited_by_user_id.value if member_dto.invited_by_user_id else None),
             invited_at=member_dto.invited_at,
-            household_name=member_dto.household_name.value
-            if member_dto.household_name
-            else None,
-            inviter=member_dto.inviter_username.value
-            if member_dto.inviter_username
-            else None,
+            household_name=member_dto.household_name.value if member_dto.household_name else None,
+            inviter=member_dto.inviter_username.value if member_dto.inviter_username else None,
         )

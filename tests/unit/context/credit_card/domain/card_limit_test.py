@@ -45,23 +45,17 @@ class TestCardLimit:
 
     def test_invalid_type_raises_error(self):
         """Test that invalid types raise InvalidCardLimitTypeError"""
-        with pytest.raises(
-            InvalidCardLimitTypeError, match="CardLimit must be a Decimal"
-        ):
+        with pytest.raises(InvalidCardLimitTypeError, match="CardLimit must be a Decimal"):
             CardLimit(1000)  # int instead of Decimal
 
     def test_negative_limit_raises_error(self):
         """Test that negative limits raise InvalidCardLimitValueError"""
-        with pytest.raises(
-            InvalidCardLimitValueError, match="CardLimit must be positive"
-        ):
+        with pytest.raises(InvalidCardLimitValueError, match="CardLimit must be positive"):
             CardLimit(Decimal("-100.00"))
 
     def test_zero_limit_raises_error(self):
         """Test that zero limit raises InvalidCardLimitValueError"""
-        with pytest.raises(
-            InvalidCardLimitValueError, match="CardLimit must be positive"
-        ):
+        with pytest.raises(InvalidCardLimitValueError, match="CardLimit must be positive"):
             CardLimit(Decimal("0.00"))
 
     def test_too_many_decimal_places_raises_error(self):

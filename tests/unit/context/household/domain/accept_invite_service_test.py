@@ -85,15 +85,11 @@ class TestAcceptInviteService:
         mock_repository.find_member = AsyncMock(return_value=None)
 
         # Act & Assert
-        with pytest.raises(
-            NotInvitedError, match="No pending invite found for this household"
-        ):
+        with pytest.raises(NotInvitedError, match="No pending invite found for this household"):
             await service.accept_invite(user_id=user_id, household_id=household_id)
 
     @pytest.mark.asyncio
-    async def test_accept_invite_already_active_raises_error(
-        self, service, mock_repository
-    ):
+    async def test_accept_invite_already_active_raises_error(self, service, mock_repository):
         """Test that accepting when already active raises error"""
         # Arrange
         user_id = HouseholdUserID(2)
@@ -113,15 +109,11 @@ class TestAcceptInviteService:
         mock_repository.find_member = AsyncMock(return_value=active_member)
 
         # Act & Assert
-        with pytest.raises(
-            NotInvitedError, match="No pending invite found for this household"
-        ):
+        with pytest.raises(NotInvitedError, match="No pending invite found for this household"):
             await service.accept_invite(user_id=user_id, household_id=household_id)
 
     @pytest.mark.asyncio
-    async def test_accept_invite_propagates_repository_exceptions(
-        self, service, mock_repository
-    ):
+    async def test_accept_invite_propagates_repository_exceptions(self, service, mock_repository):
         """Test that repository exceptions are propagated"""
         # Arrange
         user_id = HouseholdUserID(2)

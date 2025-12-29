@@ -19,9 +19,7 @@ async def login(
     handler: Annotated[LoginHandlerContract, Depends(get_login_handler)],
 ):
     """User login endpoint"""
-    login_result = await handler.handle(
-        LoginCommand(email=str(request.email), password=request.password)
-    )
+    login_result = await handler.handle(LoginCommand(email=str(request.email), password=request.password))
 
     if login_result.status == LoginHandlerResultStatus.SUCCESS:
         if login_result.token is None:
@@ -46,9 +44,7 @@ async def login(
         headers = {}
         if login_result.retry_after:
             headers["Retry-After"] = login_result.retry_after.isoformat()
-        raise HTTPException(
-            status_code=429, detail=login_result.error_msg, headers=headers
-        )
+        raise HTTPException(status_code=429, detail=login_result.error_msg, headers=headers)
 
     # UNEXPECTED_ERROR or any other status
     raise HTTPException(status_code=500, detail=login_result.error_msg)

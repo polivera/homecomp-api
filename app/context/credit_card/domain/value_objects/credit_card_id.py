@@ -15,13 +15,9 @@ class CreditCardID:
 
     def __post_init__(self):
         if not self._validated and not isinstance(self.value, int):
-            raise InvalidCreditCardIdTypeError(
-                f"CreditCardID must be an integer, got {type(self.value)}"
-            )
+            raise InvalidCreditCardIdTypeError(f"CreditCardID must be an integer, got {type(self.value)}")
         if not self._validated and self.value <= 0:
-            raise InvalidCreditCardIdValueError(
-                f"CreditCardID must be positive, got {self.value}"
-            )
+            raise InvalidCreditCardIdValueError(f"CreditCardID must be positive, got {self.value}")
 
     @classmethod
     def from_trusted_source(cls, value: int) -> "CreditCardID":

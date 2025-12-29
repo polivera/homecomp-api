@@ -23,9 +23,7 @@ class TestHouseholdRole:
 
     def test_invalid_role_raises_error(self):
         """Test that invalid role raises ValueError"""
-        with pytest.raises(
-            ValueError, match="Invalid role: 'admin'. Must be one of"
-        ):
+        with pytest.raises(ValueError, match="Invalid role: 'admin'. Must be one of"):
             HouseholdRole("admin")
 
     def test_owner_role_raises_error(self):
@@ -35,9 +33,7 @@ class TestHouseholdRole:
 
     def test_case_sensitive_role(self):
         """Test that role validation is case sensitive"""
-        with pytest.raises(
-            ValueError, match="Invalid role: 'Participant'. Must be one of"
-        ):
+        with pytest.raises(ValueError, match="Invalid role: 'Participant'. Must be one of"):
             HouseholdRole("Participant")
 
     def test_valid_roles_constant(self):

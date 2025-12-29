@@ -25,15 +25,11 @@ class RemoveMemberService(RemoveMemberServiceContract):
         # Check if remover is the owner
         household = await self._household_repo.find_household_by_id(household_id)
         if not household or household.owner_user_id.value != remover_user_id.value:
-            raise OnlyOwnerCanRemoveMemberError(
-                "Only the household owner can remove members"
-            )
+            raise OnlyOwnerCanRemoveMemberError("Only the household owner can remove members")
 
         # Owner cannot remove themselves
         if remover_user_id.value == member_user_id.value:
-            raise CannotRemoveSelfError(
-                "Owner cannot remove themselves from the household"
-            )
+            raise CannotRemoveSelfError("Owner cannot remove themselves from the household")
 
         # Check if member exists and is active
         member = await self._household_repo.find_member(household_id, member_user_id)

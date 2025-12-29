@@ -33,9 +33,7 @@ async_engine = create_async_engine(
     pool_recycle=3600,  # Recycle connections after 1 hour
 )
 
-AsyncSessionLocal = async_sessionmaker(
-    async_engine, class_=AsyncSession, expire_on_commit=False
-)
+AsyncSessionLocal = async_sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 
 Base = declarative_base()
 

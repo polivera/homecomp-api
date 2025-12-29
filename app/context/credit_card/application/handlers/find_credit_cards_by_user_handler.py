@@ -15,14 +15,10 @@ class FindCreditCardsByUserHandler(FindCreditCardsByUserHandlerContract):
     def __init__(self, repository: CreditCardRepositoryContract):
         self._repository = repository
 
-    async def handle(
-        self, query: FindCreditCardsByUserQuery
-    ) -> list[CreditCardResponseDTO]:
+    async def handle(self, query: FindCreditCardsByUserQuery) -> list[CreditCardResponseDTO]:
         """Execute the find credit cards by user query"""
 
         # Convert query primitive to value object
-        card_dtos = await self._repository.find_user_credit_cards(
-            user_id=CreditCardUserID(query.user_id)
-        )
+        card_dtos = await self._repository.find_user_credit_cards(user_id=CreditCardUserID(query.user_id))
 
         return [CreditCardResponseDTO.from_domain_dto(dto) for dto in card_dtos or []]

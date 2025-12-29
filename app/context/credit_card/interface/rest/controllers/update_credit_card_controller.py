@@ -50,6 +50,4 @@ async def update_credit_card(
         status_code = status_code_map.get(result.error_code, 500)
         raise HTTPException(status_code=status_code, detail=result.error_message)
 
-    return UpdateCreditCardResponse(
-        success=True, message="Credit card updated successfully"
-    )
+    return UpdateCreditCardResponse(success=True, message="Credit card updated successfully")
