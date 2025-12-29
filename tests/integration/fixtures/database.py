@@ -11,11 +11,15 @@ from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_asyn
 
 from app.shared.infrastructure.models import BaseDBModel
 
-# Test database URL - using a separate test database on port 5433
-TEST_DB_URL = os.getenv(
-    "TEST_DATABASE_URL",
-    "postgresql+asyncpg://uhomecomp:homecomppass@localhost:5433/homecomp_test",
-)
+# Test database configuration - using TEST_ prefixed environment variables
+TEST_DB_HOST = os.getenv("TEST_DB_HOST", "localhost")
+TEST_DB_PORT = os.getenv("TEST_DB_PORT", "5433")
+TEST_DB_USER = os.getenv("TEST_DB_USER", "uhomecomp")
+TEST_DB_PASS = os.getenv("TEST_DB_PASS", "homecomppass")
+TEST_DB_NAME = os.getenv("TEST_DB_NAME", "homecomp_test")
+
+# Construct test database URL
+TEST_DB_URL = f"postgresql+asyncpg://{TEST_DB_USER}:{TEST_DB_PASS}@{TEST_DB_HOST}:{TEST_DB_PORT}/{TEST_DB_NAME}"
 
 
 @pytest_asyncio.fixture(scope="function")

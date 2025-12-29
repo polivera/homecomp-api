@@ -64,11 +64,11 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      DB_HOST: localhost
-      DB_PORT: 5432
-      DB_USER: uhomecomp
-      DB_PASS: homecomppass
-      DB_NAME: homecomp_test
+      TEST_DB_HOST: localhost
+      TEST_DB_PORT: 5432
+      TEST_DB_USER: uhomecomp
+      TEST_DB_PASS: homecomppass
+      TEST_DB_NAME: homecomp_test
 
     services:
       postgres:
