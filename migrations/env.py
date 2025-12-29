@@ -20,6 +20,13 @@ DB_PORT = getenv("DB_PORT")
 DB_USER = getenv("DB_USER")
 DB_PASS = getenv("DB_PASS")
 DB_NAME = getenv("DB_NAME")
+if getenv("APP_ENV") == "test":
+    DB_HOST = getenv("TEST_DB_HOST")
+    DB_PORT = getenv("TEST_DB_PORT")
+    DB_USER = getenv("TEST_DB_USER")
+    DB_PASS = getenv("TEST_DB_PASS")
+    DB_NAME = getenv("TEST_DB_NAME")
+
 DATABASE_URL = getenv(
     "DATABASE_URL",
     f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
