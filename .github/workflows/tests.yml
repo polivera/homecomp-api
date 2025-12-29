@@ -84,6 +84,8 @@ jobs:
 
   integration-tests:
     # Run ONLY on PRs targeting main (not dev) or manual triggers
+    # Only runs if lint and unit-tests pass successfully
+    needs: [lint, unit-tests]
     if: |
       (github.event_name == 'pull_request' &&
        github.event.pull_request.draft == false &&
