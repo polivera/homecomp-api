@@ -3,11 +3,19 @@ from os import getenv
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
+# Database configuration - use TEST_ prefixed variables when APP_ENV=test
 DB_HOST = getenv("DB_HOST")
 DB_PORT = getenv("DB_PORT")
 DB_USER = getenv("DB_USER")
 DB_PASS = getenv("DB_PASS")
 DB_NAME = getenv("DB_NAME")
+
+if getenv("APP_ENV") == "test":
+    DB_HOST = getenv("TEST_DB_HOST")
+    DB_PORT = getenv("TEST_DB_PORT")
+    DB_USER = getenv("TEST_DB_USER")
+    DB_PASS = getenv("TEST_DB_PASS")
+    DB_NAME = getenv("TEST_DB_NAME")
 
 DATABASE_URL = getenv(
     "DATABASE_URL",

@@ -13,7 +13,7 @@ from app.shared.infrastructure.models import BaseDBModel
 
 # Test database configuration - using TEST_ prefixed environment variables
 TEST_DB_HOST = os.getenv("TEST_DB_HOST", "localhost")
-TEST_DB_PORT = os.getenv("TEST_DB_PORT", "5433")
+TEST_DB_PORT = os.getenv("TEST_DB_PORT", 5433)
 TEST_DB_USER = os.getenv("TEST_DB_USER", "uhomecomp")
 TEST_DB_PASS = os.getenv("TEST_DB_PASS", "homecomppass")
 TEST_DB_NAME = os.getenv("TEST_DB_NAME", "homecomp_test")
