@@ -1,12 +1,11 @@
 """Mock handlers for user context testing."""
 
-from typing import Optional
 from unittest.mock import AsyncMock
 
 import pytest
 
 from app.context.user.application.contracts import FindUserHandlerContract
-from app.context.user.application.dto import UserContextDTO
+from app.context.user.application.dto import FindUserResult
 from app.context.user.application.queries import FindUserQuery
 
 
@@ -16,7 +15,7 @@ class MockFindUserHandler(FindUserHandlerContract):
     def __init__(self):
         self.handle_mock = AsyncMock(return_value=None)
 
-    async def handle(self, query: FindUserQuery) -> Optional[UserContextDTO]:
+    async def handle(self, query: FindUserQuery) -> FindUserResult:
         return await self.handle_mock(query)
 
 

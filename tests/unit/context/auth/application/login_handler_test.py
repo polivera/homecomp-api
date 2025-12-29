@@ -13,7 +13,7 @@ from app.context.auth.domain.exceptions import (
     InvalidCredentialsException,
 )
 from app.context.auth.domain.value_objects import SessionToken
-from app.context.user.application.dto import UserContextDTO
+from app.context.user.application.dto import FindUserResult
 
 
 @pytest.mark.unit
@@ -32,7 +32,7 @@ class TestLoginHandler:
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
         token_value = "secure-session-token-xyz"
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
@@ -98,7 +98,7 @@ class TestLoginHandler:
         user_id = 10
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
@@ -132,7 +132,7 @@ class TestLoginHandler:
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
         blocked_until = datetime.now() + timedelta(minutes=15)
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
@@ -167,7 +167,7 @@ class TestLoginHandler:
         user_id = 50
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
@@ -200,11 +200,13 @@ class TestLoginHandler:
         user_id = 25
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$somehash"
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
-        mock_login_service.handle_mock.side_effect = Exception("Database connection lost")
+        mock_login_service.handle_mock.side_effect = Exception(
+            "Database connection lost"
+        )
 
         handler = LoginHandler(mock_find_user_handler, mock_login_service)
         command = LoginCommand(email=email, password=password)
@@ -227,7 +229,7 @@ class TestLoginHandler:
         user_id = 777
         hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$correcthash"
 
-        mock_user = UserContextDTO(
+        mock_user = FindUserResult(
             user_id=user_id, email=email, password=hashed_password
         )
         mock_find_user_handler.handle_mock.return_value = mock_user
@@ -285,7 +287,7 @@ class TestLoginHandler:
             password = "testpassword"
             hashed_password = "$argon2id$v=19$m=65536,t=3,p=4$hash"
 
-            mock_user = UserContextDTO(
+            mock_user = FindUserResult(
                 user_id=user_id, email=email, password=hashed_password
             )
             mock_find_user_handler.handle_mock.return_value = mock_user

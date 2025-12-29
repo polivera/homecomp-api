@@ -36,6 +36,7 @@ class FindUserHandler(FindUserHandlerContract):
             return FindUserResult(
                 user_id=user_dto.user_id.value,
                 email=user_dto.email.value,
+                password=user_dto.password.value,
                 username=user_dto.username.value if user_dto.username else None,
             )
 

@@ -20,6 +20,7 @@ class FindUserResult:
     user_id: Optional[int] = None
     email: Optional[str] = None
     username: Optional[str] = None
+    password: Optional[str] = None
 
     # Error fields - populated when operation fails
     error_code: Optional[FindUserErrorCode] = None

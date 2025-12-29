@@ -30,10 +30,16 @@ class LoginHandler(LoginHandlerContract):
 
     async def handle(self, command: LoginCommand) -> LoginHandlerResultDTO:
         user = await self._user_handler.handle(FindUserQuery(email=command.email))
-        if user is None:
+        if user is None or user.error_code is not None:
             return LoginHandlerResultDTO(
                 status=LoginHandlerResultStatus.INVALID_CREDENTIALS,
                 error_msg="Invalid username or password",
+            )
+
+        if user.user_id is None or user.email is None or user.password is None:
+            return LoginHandlerResultDTO(
+                status=LoginHandlerResultStatus.UNEXPECTED_ERROR,
+                error_msg="Invalid user data",
             )
 
         try:
