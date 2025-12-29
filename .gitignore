@@ -35,4 +35,6 @@ ENV/
 Thumbs.db
 
 .claude/settings.local.json
+htmlcov
+.coverage
 

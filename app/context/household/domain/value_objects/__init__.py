@@ -3,6 +3,7 @@ from .household_member_id import HouseholdMemberID
 from .household_name import HouseholdName
 from .household_role import HouseholdRole
 from .household_user_id import HouseholdUserID
+from .household_user_name import HouseholdUserName
 
 __all__ = [
     "HouseholdID",
@@ -10,4 +11,5 @@ __all__ = [
     "HouseholdName",
     "HouseholdRole",
     "HouseholdUserID",
+    "HouseholdUserName",
 ]

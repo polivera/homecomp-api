@@ -29,5 +29,8 @@ pgcli-test:
 test-unit:
     uv run pytest -m unit
 
+test-unit-cov:
+    uv run pytest -m unit --cov --cov-report=term --cov-report=html
+
 test-integration:
     uv run pytest -m integration
