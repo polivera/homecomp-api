@@ -60,6 +60,13 @@ jobs:
 
     runs-on: ubuntu-latest
 
+    env:
+      DB_HOST: localhost
+      DB_PORT: 5432
+      DB_USER: uhomecomp
+      DB_PASS: homecomppass
+      DB_NAME: homecomp_test
+
     services:
       postgres:
         image: postgres:16
@@ -93,19 +100,7 @@ jobs:
         run: uv sync --frozen
 
       - name: Run migrations
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: uhomecomp
-          DB_PASS: homecomppass
-          DB_NAME: homecomp_test
         run: uv run alembic upgrade head
 
       - name: Run integration tests
-        env:
-          DB_HOST: localhost
-          DB_PORT: 5432
-          DB_USER: uhomecomp
-          DB_PASS: homecomppass
-          DB_NAME: homecomp_test
         run: uv run pytest -m integration --tb=short
