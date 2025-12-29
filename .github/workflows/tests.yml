@@ -1,11 +1,10 @@
 name: Tests
 
 on:
-  push:
-    branches: [main, dev]
   pull_request:
     branches: [main, dev]
     types: [opened, synchronize, reopened, ready_for_review]
+  workflow_dispatch:  # Allow manual trigger from GitHub UI
 
 # Cancel in-progress runs when a new one starts
 concurrency:
@@ -14,8 +13,8 @@ concurrency:
 
 jobs:
   unit-tests:
-    # Skip draft PRs to save CI minutes
-    if: github.event.pull_request.draft == false || github.event_name == 'push'
+    # Run on all non-draft PRs (both dev and main) and manual triggers
+    if: (github.event_name == 'pull_request' && github.event.pull_request.draft == false) || github.event_name == 'workflow_dispatch'
 
     runs-on: ubuntu-latest
 
@@ -55,8 +54,12 @@ jobs:
         continue-on-error: true
 
   integration-tests:
-    # Only run integration tests on push to main/dev, not on every PR
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    # Run ONLY on PRs targeting main (not dev) or manual triggers
+    if: |
+      (github.event_name == 'pull_request' &&
+       github.event.pull_request.draft == false &&
+       github.base_ref == 'main') ||
+      github.event_name == 'workflow_dispatch'
 
     runs-on: ubuntu-latest
 

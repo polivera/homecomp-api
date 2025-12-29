@@ -1,6 +1,9 @@
 run:
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
+run-with-test:
+    DB_PORT=5434 DB_NAME=homecomp_test uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+
 migration-generate comment:
     alembic revision -m "{{comment}}"
 
