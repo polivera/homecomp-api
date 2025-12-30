@@ -22,16 +22,25 @@ from app.context.credit_card.domain.value_objects import (
     CreditCardName,
     CreditCardUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
     """Handler for update credit card command"""
 
-    def __init__(self, service: UpdateCreditCardServiceContract):
+    def __init__(self, service: UpdateCreditCardServiceContract, logger: LoggerContract):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: UpdateCreditCardCommand) -> UpdateCreditCardResult:
         """Execute the update credit card command"""
+
+        self._logger.debug(
+            "Handling update credit card command",
+            credit_card_id=command.credit_card_id,
+            user_id=command.user_id,
+            name=command.name,
+        )
 
         try:
             # Convert command primitives to value objects
@@ -60,23 +69,42 @@ class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
 
         # Catch specific domain exceptions and return error codes
         except CreditCardNotFoundError:
+            self._logger.debug(
+                "Credit card not found", credit_card_id=command.credit_card_id, user_id=command.user_id
+            )
             return UpdateCreditCardResult(
                 error_code=UpdateCreditCardErrorCode.NOT_FOUND,
                 error_message="Credit card not found",
             )
         except CreditCardNameAlreadyExistError:
+            self._logger.debug(
+                "Credit card name already exists",
+                user_id=command.user_id,
+                name=command.name,
+            )
             return UpdateCreditCardResult(
                 error_code=UpdateCreditCardErrorCode.NAME_ALREADY_EXISTS,
                 error_message="Credit card name already exists",
             )
         except CreditCardMapperError:
+            self._logger.error(
+                "Credit card mapper error",
+                credit_card_id=command.credit_card_id,
+                user_id=command.user_id,
+            )
             return UpdateCreditCardResult(
                 error_code=UpdateCreditCardErrorCode.MAPPER_ERROR,
                 error_message="Error mapping model to dto",
             )
 
         # Always catch generic Exception as final fallback
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error updating credit card",
+                credit_card_id=command.credit_card_id,
+                user_id=command.user_id,
+                error=str(e),
+            )
             return UpdateCreditCardResult(
                 error_code=UpdateCreditCardErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

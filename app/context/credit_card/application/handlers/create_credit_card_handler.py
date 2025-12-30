@@ -20,16 +20,25 @@ from app.context.credit_card.domain.value_objects import (
     CreditCardName,
     CreditCardUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class CreateCreditCardHandler(CreateCreditCardHandlerContract):
     """Handler for create credit card command"""
 
-    def __init__(self, service: CreateCreditCardServiceContract):
+    def __init__(self, service: CreateCreditCardServiceContract, logger: LoggerContract):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: CreateCreditCardCommand) -> CreateCreditCardResult:
         """Execute the create credit card command"""
+
+        self._logger.debug(
+            "Handling create credit card command",
+            user_id=command.user_id,
+            account_id=command.account_id,
+            name=command.name,
+        )
 
         try:
             # Convert command primitives to value objects
@@ -43,6 +52,11 @@ class CreateCreditCardHandler(CreateCreditCardHandlerContract):
 
             # Validate operation succeeded
             if card_dto.credit_card_id is None:
+                self._logger.error(
+                    "Credit card created but ID is None",
+                    user_id=command.user_id,
+                    account_id=command.account_id,
+                )
                 return CreateCreditCardResult(
                     error_code=CreateCreditCardErrorCode.UNEXPECTED_ERROR,
                     error_message="Error creating credit card",
@@ -53,18 +67,25 @@ class CreateCreditCardHandler(CreateCreditCardHandlerContract):
 
         # Catch specific domain exceptions and return error codes
         except CreditCardNameAlreadyExistError:
+            self._logger.debug(
+                "Credit card name already exists", user_id=command.user_id, name=command.name
+            )
             return CreateCreditCardResult(
                 error_code=CreateCreditCardErrorCode.NAME_ALREADY_EXISTS,
                 error_message="Credit card name already exists",
             )
         except CreditCardMapperError:
+            self._logger.error("Credit card mapper error", user_id=command.user_id)
             return CreateCreditCardResult(
                 error_code=CreateCreditCardErrorCode.MAPPER_ERROR,
                 error_message="Error mapping model to dto",
             )
 
         # Always catch generic Exception as final fallback
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error creating credit card", user_id=command.user_id, error=str(e)
+            )
             return CreateCreditCardResult(
                 error_code=CreateCreditCardErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

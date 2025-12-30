@@ -38,9 +38,14 @@ class TestUpdateCreditCardHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_service):
-        """Create handler with mocked service"""
-        return UpdateCreditCardHandler(mock_service)
+    def mock_logger(self):
+        """Create a mock logger"""
+        return MagicMock()
+
+    @pytest.fixture
+    def handler(self, mock_service, mock_logger):
+        """Create handler with mocked service and logger"""
+        return UpdateCreditCardHandler(mock_service, mock_logger)
 
     @pytest.mark.asyncio
     async def test_update_credit_card_success(self, handler, mock_service):

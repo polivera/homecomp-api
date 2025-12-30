@@ -37,9 +37,14 @@ class TestUpdateCreditCardService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
-        """Create service with mocked repository"""
-        return UpdateCreditCardService(mock_repository)
+    def mock_logger(self):
+        """Create a mock logger"""
+        return MagicMock()
+
+    @pytest.fixture
+    def service(self, mock_repository, mock_logger):
+        """Create service with mocked repository and logger"""
+        return UpdateCreditCardService(mock_repository, mock_logger)
 
     @pytest.fixture
     def existing_card_dto(self):

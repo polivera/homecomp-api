@@ -32,9 +32,14 @@ class TestFindCreditCardByIdHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_repository):
-        """Create handler with mocked repository"""
-        return FindCreditCardByIdHandler(mock_repository)
+    def mock_logger(self):
+        """Create a mock logger"""
+        return MagicMock()
+
+    @pytest.fixture
+    def handler(self, mock_repository, mock_logger):
+        """Create handler with mocked repository and logger"""
+        return FindCreditCardByIdHandler(mock_repository, mock_logger)
 
     @pytest.fixture
     def sample_card_dto(self):

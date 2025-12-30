@@ -55,20 +55,28 @@ def configure_structlog(use_json: bool = False) -> None:
     )
     logging.root.addHandler(console_handler)
 
-    # Add Loki handler in development (raw structured data, no formatting)
+    # Add Loki handler in development (sends structured data directly)
     if os.getenv("APP_ENV") != "prod":
         try:
             import logging_loki
+
+            # Create a custom processor that returns the event dict as JSON string
+            # This is needed because logging_loki expects a formatted message
+            def json_message_processor(logger, method_name, event_dict):
+                """Convert event dict to JSON string for Loki"""
+                import json
+                # Extract the message and include all structured data
+                return json.dumps(event_dict, default=str)
 
             loki_handler = logging_loki.LokiHandler(
                 url="http://localhost:3100/loki/api/v1/push",
                 tags={"app": "homecomp-api", "env": "dev"},
                 version="1",
             )
-            # Configure Loki handler to receive structured data
+            # Use ProcessorFormatter with custom JSON processor
             loki_handler.setFormatter(
                 structlog.stdlib.ProcessorFormatter(
-                    processor=structlog.processors.JSONRenderer(),
+                    processor=json_message_processor,
                     foreign_pre_chain=shared_processors,
                 )
             )

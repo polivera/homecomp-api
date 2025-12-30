@@ -27,7 +27,9 @@ from app.context.credit_card.domain.contracts.services.create_credit_card_servic
 from app.context.credit_card.domain.contracts.services.update_credit_card_service_contract import (
     UpdateCreditCardServiceContract,
 )
+from app.shared.domain.contracts import LoggerContract
 from app.shared.infrastructure.database import get_db
+from app.shared.infrastructure.dependencies import get_logger
 
 # ─────────────────────────────────────────────────────────────────
 # REPOSITORY
@@ -52,57 +54,62 @@ def get_credit_card_repository(
 
 def get_create_credit_card_service(
     card_repository: Annotated[CreditCardRepositoryContract, Depends(get_credit_card_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> CreateCreditCardServiceContract:
     """CreateCreditCardService dependency injection"""
     from app.context.credit_card.domain.services.create_credit_card_service import (
         CreateCreditCardService,
     )
 
-    return CreateCreditCardService(card_repository)
+    return CreateCreditCardService(card_repository, logger)
 
 
 def get_create_credit_card_handler(
     service: Annotated[CreateCreditCardServiceContract, Depends(get_create_credit_card_service)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> CreateCreditCardHandlerContract:
     """CreateCreditCardHandler dependency injection"""
     from app.context.credit_card.application.handlers.create_credit_card_handler import (
         CreateCreditCardHandler,
     )
 
-    return CreateCreditCardHandler(service)
+    return CreateCreditCardHandler(service, logger)
 
 
 def get_update_credit_card_service(
     repository: Annotated[CreditCardRepositoryContract, Depends(get_credit_card_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> UpdateCreditCardServiceContract:
     """UpdateCreditCardService dependency injection"""
     from app.context.credit_card.domain.services.update_credit_card_service import (
         UpdateCreditCardService,
     )
 
-    return UpdateCreditCardService(repository)
+    return UpdateCreditCardService(repository, logger)
 
 
 def get_update_credit_card_handler(
     service: Annotated[UpdateCreditCardServiceContract, Depends(get_update_credit_card_service)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> UpdateCreditCardHandlerContract:
     """UpdateCreditCardHandler dependency injection"""
     from app.context.credit_card.application.handlers.update_credit_card_handler import (
         UpdateCreditCardHandler,
     )
 
-    return UpdateCreditCardHandler(service)
+    return UpdateCreditCardHandler(service, logger)
 
 
 def get_delete_credit_card_handler(
     repository: Annotated[CreditCardRepositoryContract, Depends(get_credit_card_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> DeleteCreditCardHandlerContract:
     """DeleteCreditCardHandler dependency injection"""
     from app.context.credit_card.application.handlers.delete_credit_card_handler import (
         DeleteCreditCardHandler,
     )
 
-    return DeleteCreditCardHandler(repository)
+    return DeleteCreditCardHandler(repository, logger)
 
 
 # ─────────────────────────────────────────────────────────────────
@@ -112,21 +119,23 @@ def get_delete_credit_card_handler(
 
 def get_find_credit_card_by_id_handler(
     repository: Annotated[CreditCardRepositoryContract, Depends(get_credit_card_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> FindCreditCardByIdHandlerContract:
     """FindCreditCardByIdHandler dependency injection"""
     from app.context.credit_card.application.handlers.find_credit_card_by_id_handler import (
         FindCreditCardByIdHandler,
     )
 
-    return FindCreditCardByIdHandler(repository)
+    return FindCreditCardByIdHandler(repository, logger)
 
 
 def get_find_credit_cards_by_user_handler(
     repository: Annotated[CreditCardRepositoryContract, Depends(get_credit_card_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> FindCreditCardsByUserHandlerContract:
     """FindCreditCardsByUserHandler dependency injection"""
     from app.context.credit_card.application.handlers.find_credit_cards_by_user_handler import (
         FindCreditCardsByUserHandler,
     )
 
-    return FindCreditCardsByUserHandler(repository)
+    return FindCreditCardsByUserHandler(repository, logger)

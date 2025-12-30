@@ -23,9 +23,14 @@ class TestDeleteCreditCardHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_repository):
-        """Create handler with mocked repository"""
-        return DeleteCreditCardHandler(mock_repository)
+    def mock_logger(self):
+        """Create a mock logger"""
+        return MagicMock()
+
+    @pytest.fixture
+    def handler(self, mock_repository, mock_logger):
+        """Create handler with mocked repository and logger"""
+        return DeleteCreditCardHandler(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_delete_credit_card_success(self, handler, mock_repository):

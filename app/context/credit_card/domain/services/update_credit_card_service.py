@@ -21,13 +21,15 @@ from app.context.credit_card.domain.value_objects.credit_card_id import CreditCa
 from app.context.credit_card.domain.value_objects.credit_card_name import (
     CreditCardName,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class UpdateCreditCardService(UpdateCreditCardServiceContract):
     """Service for updating credit cards"""
 
-    def __init__(self, repository: CreditCardRepositoryContract):
+    def __init__(self, repository: CreditCardRepositoryContract, logger: LoggerContract):
         self._repository = repository
+        self._logger = logger
 
     async def update_credit_card(
         self,
@@ -40,14 +42,32 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
     ) -> CreditCardDTO:
         """Update an existing credit card with validation"""
 
+        self._logger.debug(
+            "Updating credit card",
+            credit_card_id=credit_card_id.value,
+            user_id=user_id.value,
+            name=name.value if name else None,
+            limit=float(limit.value) if limit else None,
+            used=float(used.value) if used else None,
+        )
+
         # Find the existing card
         existing_card = await self._repository.find_credit_card(card_id=credit_card_id)
 
         if not existing_card:
+            self._logger.warning(
+                "Credit card not found", credit_card_id=credit_card_id.value, user_id=user_id.value
+            )
             raise CreditCardNotFoundError(f"Credit card with ID {credit_card_id.value} not found")
 
         # Verify ownership
         if existing_card.user_id.value != user_id.value:
+            self._logger.warning(
+                "Unauthorized credit card access attempt",
+                credit_card_id=credit_card_id.value,
+                user_id=user_id.value,
+                owner_id=existing_card.user_id.value,
+            )
             raise CreditCardUnauthorizedAccessError(
                 f"User {user_id.value} is not authorized to update credit card {credit_card_id.value}"
             )
@@ -56,6 +76,14 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
         if name and name.value != existing_card.name.value:
             duplicate_card = await self._repository.find_credit_card(user_id=user_id, name=name)
             if duplicate_card:
+                self._logger.warning(
+                    "Credit card name already exists",
+                    user_id=user_id.value,
+                    name=name.value,
+                    existing_card_id=duplicate_card.credit_card_id.value
+                    if duplicate_card.credit_card_id
+                    else None,
+                )
                 raise CreditCardNameAlreadyExistError(
                     f"Credit card with name '{name.value}' already exists for this user"
                 )
@@ -67,6 +95,13 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
 
         # Business rule: ensure used <= limit
         if updated_used.value > updated_limit.value:
+            self._logger.warning(
+                "Credit card used amount exceeds limit",
+                credit_card_id=credit_card_id.value,
+                user_id=user_id.value,
+                used=float(updated_used.value),
+                limit=float(updated_limit.value),
+            )
             raise CreditCardUsedExceedsLimitError(
                 f"Used amount ({updated_used.value}) cannot exceed limit ({updated_limit.value})"
             )

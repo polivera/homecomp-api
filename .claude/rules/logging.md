@@ -124,6 +124,78 @@ self._logger.critical("Unable to connect to authentication service", error=str(e
 
 ## Logging Strategy by Layer
 
+### CRITICAL RULE: Avoid Redundant Success Logs
+
+**DO NOT log successful operations at multiple layers.** This creates log bloat and makes debugging harder.
+
+**Pattern**: Log success **ONLY at the controller layer** for audit trail purposes.
+
+```python
+# ✅ GOOD - Success logged only at controller
+@router.post("/cards")
+async def create_credit_card(
+    request: CreateCreditCardRequest,
+    handler: CreateCreditCardHandlerContract = Depends(...),
+    logger: LoggerContract = Depends(get_logger),
+):
+    logger.info("Create credit card request", user_id=user_id, name=request.name)
+    result = await handler.handle(command)
+
+    # Log success at controller level (audit trail)
+    logger.info("Credit card created successfully", user_id=user_id, credit_card_id=result.id)
+    return response
+
+# ✅ GOOD - Handler logs only errors/warnings, NOT success
+class CreateCreditCardHandler:
+    async def handle(self, command):
+        try:
+            card = await self._service.create(...)
+            return CreateCreditCardResult(credit_card_id=card.id)  # No success log
+        except CreditCardNameAlreadyExistError:
+            self._logger.debug("Card name already exists", user_id=command.user_id)
+            return CreateCreditCardResult(error_code=...)
+
+# ✅ GOOD - Service logs only business events, NOT success
+class CreateCreditCardService:
+    async def create(self, user_id, name, ...):
+        self._logger.debug("Creating credit card", user_id=user_id.value, name=name.value)
+        # ... business logic ...
+        return await self._repository.save(card)  # No success log
+```
+
+```python
+# ❌ BAD - Success logged at all layers (redundant!)
+@router.post("/cards")
+async def create_credit_card(...):
+    logger.info("Create credit card request", ...)
+    result = await handler.handle(command)
+    logger.info("Credit card created successfully", ...)  # ✅ Keep this one
+    return response
+
+class CreateCreditCardHandler:
+    async def handle(self, command):
+        card = await self._service.create(...)
+        self._logger.info("Handler succeeded", ...)  # ❌ Remove - redundant!
+        return CreateCreditCardResult(...)
+
+class CreateCreditCardService:
+    async def create(...):
+        result = await self._repository.save(card)
+        self._logger.info("Card created", ...)  # ❌ Remove - redundant!
+        return result
+```
+
+**Why this matters**:
+- **Audit trail**: Controller logs capture what happened (one log = one operation)
+- **Less noise**: Easier to find errors when not buried in success logs
+- **Better performance**: Fewer logs = lower overhead
+- **Cleaner queries**: `{severity="error"}` shows real problems, not buried in success logs
+
+**What to log at each layer**:
+- **Controllers**: Success (info), errors/warnings for HTTP outcomes
+- **Handlers**: Only errors, business rule violations, cross-context calls (debug)
+- **Services**: Only business events (warnings), errors, debug flow
+
 ### Controller Layer (Interface/REST)
 
 **Purpose**: Log HTTP-level events and user-facing outcomes

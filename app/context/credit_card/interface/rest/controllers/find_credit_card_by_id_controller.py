@@ -12,6 +12,8 @@ from app.context.credit_card.infrastructure.dependencies import (
 from app.context.credit_card.interface.schemas.credit_card_response import (
     CreditCardResponse,
 )
+from app.shared.domain.contracts import LoggerContract
+from app.shared.infrastructure.dependencies import get_logger
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/cards")
@@ -22,8 +24,11 @@ async def get_credit_card(
     credit_card_id: int,
     handler: Annotated[FindCreditCardByIdHandlerContract, Depends(get_find_credit_card_by_id_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get a credit card by ID"""
+    logger.info("Get credit card by ID request", user_id=user_id, credit_card_id=credit_card_id)
+
     query = FindCreditCardByIdQuery(
         credit_card_id=credit_card_id,
         user_id=user_id,
@@ -32,10 +37,13 @@ async def get_credit_card(
     result = await handler.handle(query)
 
     if not result:
+        logger.warning("Credit card not found", user_id=user_id, credit_card_id=credit_card_id)
         raise HTTPException(
             status_code=404,
             detail=f"Credit card with ID {credit_card_id} not found",
         )
+
+    logger.info("Credit card retrieved successfully", user_id=user_id, credit_card_id=credit_card_id)
 
     return CreditCardResponse(
         credit_card_id=result.credit_card_id,
