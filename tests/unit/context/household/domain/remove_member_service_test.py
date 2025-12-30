@@ -34,9 +34,9 @@ class TestRemoveMemberService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
-        """Create service with mocked repository"""
-        return RemoveMemberService(mock_repository)
+    def service(self, mock_repository, mock_logger):
+        """Create service with mocked repository and logger"""
+        return RemoveMemberService(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_remove_member_success(self, service, mock_repository):

@@ -9,16 +9,25 @@ from app.context.household.domain.exceptions import (
     OnlyOwnerCanUpdateError,
 )
 from app.context.household.domain.value_objects import HouseholdID, HouseholdName, HouseholdUserID
+from app.shared.domain.contracts import LoggerContract
 
 
 class UpdateHouseholdHandler(UpdateHouseholdHandlerContract):
     """Handler for update household command"""
 
-    def __init__(self, service: UpdateHouseholdServiceContract):
+    def __init__(self, service: UpdateHouseholdServiceContract, logger: LoggerContract):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: UpdateHouseholdCommand) -> UpdateHouseholdResult:
         """Execute the update household command"""
+
+        self._logger.debug(
+            "Handling update household command",
+            household_id=command.household_id,
+            user_id=command.user_id,
+            name=command.name,
+        )
 
         try:
             # Convert primitives to value objects
@@ -29,6 +38,11 @@ class UpdateHouseholdHandler(UpdateHouseholdHandlerContract):
             )
 
             if updated.household_id is None:
+                self._logger.error(
+                    "Household ID is None after update",
+                    household_id=command.household_id,
+                    user_id=command.user_id,
+                )
                 return UpdateHouseholdResult(
                     error_code=UpdateHouseholdErrorCode.UNEXPECTED_ERROR,
                     error_message="Error updating household",
@@ -42,26 +56,35 @@ class UpdateHouseholdHandler(UpdateHouseholdHandlerContract):
             )
 
         except HouseholdNotFoundError:
+            self._logger.debug("Household not found", household_id=command.household_id)
             return UpdateHouseholdResult(
                 error_code=UpdateHouseholdErrorCode.NOT_FOUND,
                 error_message="Household not found",
             )
         except OnlyOwnerCanUpdateError:
+            self._logger.debug(
+                "Non-owner attempted to update household",
+                household_id=command.household_id,
+                user_id=command.user_id,
+            )
             return UpdateHouseholdResult(
                 error_code=UpdateHouseholdErrorCode.NOT_OWNER,
                 error_message="Only the household owner can update the household",
             )
         except HouseholdNameAlreadyExistError:
+            self._logger.debug("Duplicate household name", household_id=command.household_id, name=command.name)
             return UpdateHouseholdResult(
                 error_code=UpdateHouseholdErrorCode.NAME_ALREADY_EXISTS,
                 error_message="Household name already exists",
             )
         except HouseholdMapperError:
+            self._logger.error("Mapper error updating household", household_id=command.household_id)
             return UpdateHouseholdResult(
                 error_code=UpdateHouseholdErrorCode.MAPPER_ERROR,
                 error_message="Error mapping model to dto",
             )
-        except Exception:
+        except Exception as e:
+            self._logger.error("Unexpected error updating household", household_id=command.household_id, error=str(e))
             return UpdateHouseholdResult(
                 error_code=UpdateHouseholdErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

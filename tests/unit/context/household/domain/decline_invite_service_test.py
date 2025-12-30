@@ -29,9 +29,9 @@ class TestDeclineInviteService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
-        """Create service with mocked repository"""
-        return DeclineInviteService(mock_repository)
+    def service(self, mock_repository, mock_logger):
+        """Create service with mocked repository and logger"""
+        return DeclineInviteService(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_decline_invite_success(self, service, mock_repository):

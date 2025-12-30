@@ -10,6 +10,8 @@ from app.context.household.interface.schemas import (
     InviteUserRequest,
     InviteUserResponse,
 )
+from app.shared.domain.contracts import LoggerContract
+from app.shared.infrastructure.dependencies import get_logger
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -21,8 +23,16 @@ async def invite_user(
     request: InviteUserRequest,
     handler: Annotated[InviteUserHandlerContract, Depends(get_invite_user_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> InviteUserResponse:
     """Invite a user to a household"""
+
+    logger.info(
+        "Invite user request",
+        inviter_user_id=user_id,
+        household_id=household_id,
+        invitee_user_id=request.invitee_user_id,
+    )
 
     command = InviteUserCommand(
         inviter_user_id=user_id,
@@ -44,11 +54,14 @@ async def invite_user(
         }
 
         status_code = status_code_map.get(result.error_code, 500)
+        logger.warning("Invite user failed", household_id=household_id, error_code=result.error_code.value)
         raise HTTPException(status_code=status_code, detail=result.error_message)
 
     if not result.member_id:
+        logger.error("Invite user failed - missing member ID", household_id=household_id)
         raise HTTPException(status_code=500, detail="Unexpected server error")
 
+    logger.info("User invited successfully", household_id=household_id, invitee_user_id=request.invitee_user_id)
     return InviteUserResponse(
         member_id=result.member_id,
         household_id=result.household_id,

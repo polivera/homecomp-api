@@ -36,9 +36,9 @@ class TestInviteUserHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_service):
-        """Create handler with mocked service"""
-        return InviteUserHandler(mock_service)
+    def handler(self, mock_service, mock_logger):
+        """Create handler with mocked service and logger"""
+        return InviteUserHandler(mock_service, mock_logger)
 
     @pytest.mark.asyncio
     async def test_invite_user_success(self, handler, mock_service):

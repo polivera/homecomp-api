@@ -7,6 +7,8 @@ from app.context.household.application.contracts import UpdateHouseholdHandlerCo
 from app.context.household.application.dto import UpdateHouseholdErrorCode
 from app.context.household.infrastructure.dependencies import get_update_household_handler
 from app.context.household.interface.schemas import HouseholdResponse, UpdateHouseholdRequest
+from app.shared.domain.contracts import LoggerContract
+from app.shared.infrastructure.dependencies import get_logger
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -18,8 +20,12 @@ async def update_household(
     request: UpdateHouseholdRequest,
     handler: Annotated[UpdateHouseholdHandlerContract, Depends(get_update_household_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Update household name (owner only)"""
+
+    logger.info("Update household request", household_id=household_id, user_id=user_id, name=request.name)
+
     command = UpdateHouseholdCommand(
         household_id=household_id,
         user_id=user_id,
@@ -38,9 +44,11 @@ async def update_household(
             UpdateHouseholdErrorCode.UNEXPECTED_ERROR: 500,
         }
         status_code = status_code_map.get(result.error_code, 500)
+        logger.warning("Update household failed", household_id=household_id, error_code=result.error_code.value)
         raise HTTPException(status_code=status_code, detail=result.error_message)
 
     # Return success response
+    logger.info("Household updated successfully", household_id=household_id, user_id=user_id)
     return HouseholdResponse(
         id=result.household_id,
         name=result.household_name,

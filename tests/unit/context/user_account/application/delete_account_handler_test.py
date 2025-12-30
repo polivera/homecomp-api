@@ -9,7 +9,6 @@ from app.context.user_account.application.dto import DeleteAccountErrorCode
 from app.context.user_account.application.handlers.delete_account_handler import (
     DeleteAccountHandler,
 )
-from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit

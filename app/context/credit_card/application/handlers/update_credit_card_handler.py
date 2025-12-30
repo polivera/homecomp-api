@@ -69,9 +69,7 @@ class UpdateCreditCardHandler(UpdateCreditCardHandlerContract):
 
         # Catch specific domain exceptions and return error codes
         except CreditCardNotFoundError:
-            self._logger.debug(
-                "Credit card not found", credit_card_id=command.credit_card_id, user_id=command.user_id
-            )
+            self._logger.debug("Credit card not found", credit_card_id=command.credit_card_id, user_id=command.user_id)
             return UpdateCreditCardResult(
                 error_code=UpdateCreditCardErrorCode.NOT_FOUND,
                 error_message="Credit card not found",

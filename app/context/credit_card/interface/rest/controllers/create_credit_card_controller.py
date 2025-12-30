@@ -56,7 +56,9 @@ async def create_credit_card(
         if status_code == 409:
             logger.warning("Create credit card failed - name conflict", user_id=user_id, name=request.name)
         elif status_code == 500:
-            logger.error("Create credit card failed - server error", user_id=user_id, error_code=result.error_code.value)
+            logger.error(
+                "Create credit card failed - server error", user_id=user_id, error_code=result.error_code.value
+            )
 
         raise HTTPException(status_code=status_code, detail=result.error_message)
 
@@ -67,7 +69,9 @@ async def create_credit_card(
             detail="credit card id is not present",
         )
 
-    logger.info("Credit card created successfully", user_id=user_id, credit_card_id=result.credit_card_id, name=request.name)
+    logger.info(
+        "Credit card created successfully", user_id=user_id, credit_card_id=result.credit_card_id, name=request.name
+    )
 
     return CreateCreditCardResponse(
         credit_card_id=result.credit_card_id,

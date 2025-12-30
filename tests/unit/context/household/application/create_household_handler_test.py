@@ -32,9 +32,9 @@ class TestCreateHouseholdHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_service):
-        """Create handler with mocked service"""
-        return CreateHouseholdHandler(mock_service)
+    def handler(self, mock_service, mock_logger):
+        """Create handler with mocked service and logger"""
+        return CreateHouseholdHandler(mock_service, mock_logger)
 
     @pytest.mark.asyncio
     async def test_create_household_success(self, handler, mock_service):

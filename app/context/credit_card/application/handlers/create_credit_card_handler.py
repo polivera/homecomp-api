@@ -67,9 +67,7 @@ class CreateCreditCardHandler(CreateCreditCardHandlerContract):
 
         # Catch specific domain exceptions and return error codes
         except CreditCardNameAlreadyExistError:
-            self._logger.debug(
-                "Credit card name already exists", user_id=command.user_id, name=command.name
-            )
+            self._logger.debug("Credit card name already exists", user_id=command.user_id, name=command.name)
             return CreateCreditCardResult(
                 error_code=CreateCreditCardErrorCode.NAME_ALREADY_EXISTS,
                 error_message="Credit card name already exists",
@@ -83,9 +81,7 @@ class CreateCreditCardHandler(CreateCreditCardHandlerContract):
 
         # Always catch generic Exception as final fallback
         except Exception as e:
-            self._logger.error(
-                "Unexpected error creating credit card", user_id=command.user_id, error=str(e)
-            )
+            self._logger.error("Unexpected error creating credit card", user_id=command.user_id, error=str(e))
             return CreateCreditCardResult(
                 error_code=CreateCreditCardErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

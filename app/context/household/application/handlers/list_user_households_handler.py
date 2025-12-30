@@ -7,16 +7,21 @@ from app.context.household.application.dto import (
 from app.context.household.application.queries import ListUserHouseholdsQuery
 from app.context.household.domain.contracts import HouseholdRepositoryContract
 from app.context.household.domain.value_objects import HouseholdUserID
+from app.shared.domain.contracts import LoggerContract
 
 
 class ListUserHouseholdsHandler(ListUserHouseholdsHandlerContract):
     """Handler for list user households query"""
 
-    def __init__(self, repository: HouseholdRepositoryContract):
+    def __init__(self, repository: HouseholdRepositoryContract, logger: LoggerContract):
         self._repository = repository
+        self._logger = logger
 
     async def handle(self, query: ListUserHouseholdsQuery) -> ListUserHouseholdsResult:
         """Execute the list user households query"""
+
+        self._logger.debug("Handling list user households query", user_id=query.user_id)
+
         try:
             # Convert primitive to value object
             user_id = HouseholdUserID(query.user_id)
@@ -37,7 +42,8 @@ class ListUserHouseholdsHandler(ListUserHouseholdsHandlerContract):
 
             return ListUserHouseholdsResult(households=summaries)
 
-        except Exception:
+        except Exception as e:
+            self._logger.error("Unexpected error listing user households", user_id=query.user_id, error=str(e))
             return ListUserHouseholdsResult(
                 error_code=ListUserHouseholdsErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

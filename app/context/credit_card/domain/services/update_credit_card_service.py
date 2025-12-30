@@ -55,9 +55,7 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
         existing_card = await self._repository.find_credit_card(card_id=credit_card_id)
 
         if not existing_card:
-            self._logger.warning(
-                "Credit card not found", credit_card_id=credit_card_id.value, user_id=user_id.value
-            )
+            self._logger.warning("Credit card not found", credit_card_id=credit_card_id.value, user_id=user_id.value)
             raise CreditCardNotFoundError(f"Credit card with ID {credit_card_id.value} not found")
 
         # Verify ownership
@@ -80,9 +78,7 @@ class UpdateCreditCardService(UpdateCreditCardServiceContract):
                     "Credit card name already exists",
                     user_id=user_id.value,
                     name=name.value,
-                    existing_card_id=duplicate_card.credit_card_id.value
-                    if duplicate_card.credit_card_id
-                    else None,
+                    existing_card_id=duplicate_card.credit_card_id.value if duplicate_card.credit_card_id else None,
                 )
                 raise CreditCardNameAlreadyExistError(
                     f"Credit card with name '{name.value}' already exists for this user"

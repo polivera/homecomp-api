@@ -32,9 +32,9 @@ class TestInviteUserService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
-        """Create service with mocked repository"""
-        return InviteUserService(mock_repository)
+    def service(self, mock_repository, mock_logger):
+        """Create service with mocked repository and logger"""
+        return InviteUserService(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_invite_user_success(self, service, mock_repository):

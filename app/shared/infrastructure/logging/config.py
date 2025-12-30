@@ -65,6 +65,7 @@ def configure_structlog(use_json: bool = False) -> None:
             def json_message_processor(logger, method_name, event_dict):
                 """Convert event dict to JSON string for Loki"""
                 import json
+
                 # Extract the message and include all structured data
                 return json.dumps(event_dict, default=str)
 

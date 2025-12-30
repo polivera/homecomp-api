@@ -59,7 +59,12 @@ async def update_credit_card(
         elif status_code == 409:
             logger.warning("Update credit card failed - name conflict", user_id=user_id, credit_card_id=credit_card_id)
         elif status_code == 500:
-            logger.error("Update credit card failed - server error", user_id=user_id, credit_card_id=credit_card_id, error_code=result.error_code.value)
+            logger.error(
+                "Update credit card failed - server error",
+                user_id=user_id,
+                credit_card_id=credit_card_id,
+                error_code=result.error_code.value,
+            )
 
         raise HTTPException(status_code=status_code, detail=result.error_message)
 

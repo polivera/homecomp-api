@@ -10,6 +10,8 @@ from app.context.household.infrastructure.dependencies import (
     get_list_household_invites_handler,
 )
 from app.context.household.interface.schemas import HouseholdMemberResponse
+from app.shared.domain.contracts import LoggerContract
+from app.shared.infrastructure.dependencies import get_logger
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -20,13 +22,17 @@ async def list_household_invites(
     household_id: int,
     handler: Annotated[ListHouseholdInvitesHandlerContract, Depends(get_list_household_invites_handler)],
     user_id: Annotated[int, Depends(get_current_user_id)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> list[HouseholdMemberResponse]:
     """List pending invitations for a household"""
+
+    logger.info("List household invites request", household_id=household_id, user_id=user_id)
 
     query = ListHouseholdInvitesQuery(household_id=household_id, user_id=user_id)
 
     members = await handler.handle(query)
 
+    logger.info("Household invites retrieved successfully", household_id=household_id, count=len(members))
     return [
         HouseholdMemberResponse(
             member_id=member.member_id,

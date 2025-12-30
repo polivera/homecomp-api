@@ -45,7 +45,12 @@ async def delete_credit_card(
         if status_code == 404:
             logger.warning("Delete credit card failed - not found", user_id=user_id, credit_card_id=credit_card_id)
         elif status_code == 500:
-            logger.error("Delete credit card failed - server error", user_id=user_id, credit_card_id=credit_card_id, error_code=result.error_code.value)
+            logger.error(
+                "Delete credit card failed - server error",
+                user_id=user_id,
+                credit_card_id=credit_card_id,
+                error_code=result.error_code.value,
+            )
 
         raise HTTPException(status_code=status_code, detail=result.error_message)
 

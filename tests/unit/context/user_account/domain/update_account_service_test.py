@@ -20,7 +20,6 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
-from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit

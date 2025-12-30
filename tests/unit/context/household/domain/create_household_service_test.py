@@ -27,9 +27,9 @@ class TestCreateHouseholdService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
-        """Create service with mocked repository"""
-        return CreateHouseholdService(mock_repository)
+    def service(self, mock_repository, mock_logger):
+        """Create service with mocked repository and logger"""
+        return CreateHouseholdService(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_create_household_success(self, service, mock_repository):
