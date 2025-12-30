@@ -21,8 +21,6 @@ class CreateHouseholdService(CreateHouseholdServiceContract):
         )
 
         # Save to repository - will raise HouseholdNameAlreadyExistError if duplicate
-        created_household = await self._household_repository.create_household(
-            household_dto=household_dto, creator_user_id=creator_user_id
-        )
+        created_household = await self._household_repository.create_household(household_dto=household_dto)
 
         return created_household

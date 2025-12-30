@@ -45,3 +45,11 @@ class OnlyOwnerCanRemoveMemberError(Exception):
 
 class CannotRemoveSelfError(Exception):
     pass
+
+
+class OnlyOwnerCanUpdateError(Exception):
+    pass
+
+
+class OnlyOwnerCanDeleteError(Exception):
+    pass

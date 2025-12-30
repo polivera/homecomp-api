@@ -10,7 +10,7 @@ from app.context.household.domain.value_objects import (
 
 class HouseholdRepositoryContract(ABC):
     @abstractmethod
-    async def create_household(self, household_dto: HouseholdDTO, creator_user_id: HouseholdUserID) -> HouseholdDTO:
+    async def create_household(self, household_dto: HouseholdDTO) -> HouseholdDTO:
         """Create a new household and add the creator as first member"""
         pass
 
@@ -65,6 +65,16 @@ class HouseholdRepositoryContract(ABC):
     @abstractmethod
     async def list_user_pending_household_invites(self, user_id: HouseholdUserID) -> list[HouseholdMemberDTO]:
         """List user pending invitation to households"""
+        pass
+
+    @abstractmethod
+    async def update_household(self, household: HouseholdDTO) -> HouseholdDTO:
+        """Update household name"""
+        pass
+
+    @abstractmethod
+    async def delete_household(self, household_id: HouseholdID, user_id: HouseholdUserID) -> bool:
+        """Soft delete a household (owner only)"""
         pass
 
     @abstractmethod

@@ -23,15 +23,15 @@ async def seed_household_members(
         # Doe Family members
         {
             "household_id": households["Doe Family"].id,
-            "user_id": users["john.doe@example.com"].id,
-            "role": "owner",
+            "user_id": users["jane.smith@example.com"].id,
+            "role": "participant",
             "joined_at": now,
-            "invited_by_user_id": None,  # Owner joined automatically
-            "invited_at": None,
+            "invited_by_user_id": users["john.doe@example.com"].id,
+            "invited_at": now,
         },
         {
             "household_id": households["Doe Family"].id,
-            "user_id": users["jane.smith@example.com"].id,
+            "user_id": users["alice.williams@example.com"].id,
             "role": "participant",
             "joined_at": now,
             "invited_by_user_id": users["john.doe@example.com"].id,
@@ -41,19 +41,11 @@ async def seed_household_members(
             "household_id": households["Doe Family"].id,
             "user_id": users["charlie.brown@example.com"].id,
             "role": "participant",
-            "joined_at": None,  # Invited but not joined yet
+            "joined_at": None,  # Pending invite
             "invited_by_user_id": users["john.doe@example.com"].id,
             "invited_at": now,
         },
         # Smith Household members
-        {
-            "household_id": households["Smith Household"].id,
-            "user_id": users["jane.smith@example.com"].id,
-            "role": "owner",
-            "joined_at": now,
-            "invited_by_user_id": None,
-            "invited_at": None,
-        },
         {
             "household_id": households["Smith Household"].id,
             "user_id": users["bob.johnson@example.com"].id,
@@ -62,14 +54,99 @@ async def seed_household_members(
             "invited_by_user_id": users["jane.smith@example.com"].id,
             "invited_at": now,
         },
+        {
+            "household_id": households["Smith Household"].id,
+            "user_id": users["john.doe@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["jane.smith@example.com"].id,
+            "invited_at": now,
+        },
         # Williams Home members
         {
             "household_id": households["Williams Home"].id,
-            "user_id": users["alice.williams@example.com"].id,
-            "role": "owner",
+            "user_id": users["bob.johnson@example.com"].id,
+            "role": "participant",
             "joined_at": now,
-            "invited_by_user_id": None,
-            "invited_at": None,
+            "invited_by_user_id": users["alice.williams@example.com"].id,
+            "invited_at": now,
+        },
+        {
+            "household_id": households["Williams Home"].id,
+            "user_id": users["charlie.brown@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["alice.williams@example.com"].id,
+            "invited_at": now,
+        },
+        # Johnson's Place members
+        {
+            "household_id": households["Johnson's Place"].id,
+            "user_id": users["john.doe@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["bob.johnson@example.com"].id,
+            "invited_at": now,
+        },
+        {
+            "household_id": households["Johnson's Place"].id,
+            "user_id": users["alice.williams@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["bob.johnson@example.com"].id,
+            "invited_at": now,
+        },
+        # Brown Residence members
+        {
+            "household_id": households["Brown Residence"].id,
+            "user_id": users["jane.smith@example.com"].id,
+            "role": "participant",
+            "joined_at": None,  # Pending invite
+            "invited_by_user_id": users["charlie.brown@example.com"].id,
+            "invited_at": now,
+        },
+        # Vacation Home members (John is owner, so testing if also being a member)
+        {
+            "household_id": households["Vacation Home"].id,
+            "user_id": users["bob.johnson@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["john.doe@example.com"].id,
+            "invited_at": now,
+        },
+        {
+            "household_id": households["Vacation Home"].id,
+            "user_id": users["charlie.brown@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["john.doe@example.com"].id,
+            "invited_at": now,
+        },
+        # Office Space members
+        {
+            "household_id": households["Office Space"].id,
+            "user_id": users["alice.williams@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["jane.smith@example.com"].id,
+            "invited_at": now,
+        },
+        # Beach House members
+        {
+            "household_id": households["Beach House"].id,
+            "user_id": users["john.doe@example.com"].id,
+            "role": "participant",
+            "joined_at": None,  # Pending invite
+            "invited_by_user_id": users["alice.williams@example.com"].id,
+            "invited_at": now,
+        },
+        {
+            "household_id": households["Beach House"].id,
+            "user_id": users["jane.smith@example.com"].id,
+            "role": "participant",
+            "joined_at": now,
+            "invited_by_user_id": users["alice.williams@example.com"].id,
+            "invited_at": now,
         },
     ]
 

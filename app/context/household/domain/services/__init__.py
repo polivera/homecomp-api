@@ -4,6 +4,7 @@ from .decline_invite_service import DeclineInviteService
 from .invite_user_service import InviteUserService
 from .remove_member_service import RemoveMemberService
 from .revoke_invite_service import RevokeInviteService
+from .update_household_service import UpdateHouseholdService
 
 __all__ = [
     "AcceptInviteService",
@@ -12,4 +13,5 @@ __all__ = [
     "InviteUserService",
     "RemoveMemberService",
     "RevokeInviteService",
+    "UpdateHouseholdService",
 ]

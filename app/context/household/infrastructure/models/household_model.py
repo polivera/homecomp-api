@@ -17,6 +17,11 @@ class HouseholdModel(BaseDBModel):
         nullable=False,
         default=lambda: datetime.now(UTC),
     )
+    deleted_at: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True),
+        nullable=True,
+        default=None,
+    )
 
 
 class HouseholdMemberModel(BaseDBModel):

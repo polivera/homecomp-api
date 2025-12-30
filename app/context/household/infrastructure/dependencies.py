@@ -7,19 +7,27 @@ from app.context.household.application.contracts import (
     AcceptInviteHandlerContract,
     CreateHouseholdHandlerContract,
     DeclineInviteHandlerContract,
+    DeleteHouseholdHandlerContract,
+    GetHouseholdHandlerContract,
     InviteUserHandlerContract,
     ListHouseholdInvitesHandlerContract,
+    ListUserHouseholdsHandlerContract,
     ListUserPendingInvitesHandlerContract,
     RemoveMemberHandlerContract,
+    UpdateHouseholdHandlerContract,
 )
 from app.context.household.application.handlers import (
     AcceptInviteHandler,
     CreateHouseholdHandler,
     DeclineInviteHandler,
+    DeleteHouseholdHandler,
+    GetHouseholdHandler,
     InviteUserHandler,
     ListHouseholdInvitesHandler,
+    ListUserHouseholdsHandler,
     ListUserPendingInvitesHandler,
     RemoveMemberHandler,
+    UpdateHouseholdHandler,
 )
 from app.context.household.domain.contracts import (
     AcceptInviteServiceContract,
@@ -28,6 +36,7 @@ from app.context.household.domain.contracts import (
     HouseholdRepositoryContract,
     InviteUserServiceContract,
     RemoveMemberServiceContract,
+    UpdateHouseholdServiceContract,
 )
 from app.context.household.domain.services import (
     AcceptInviteService,
@@ -35,6 +44,7 @@ from app.context.household.domain.services import (
     DeclineInviteService,
     InviteUserService,
     RemoveMemberService,
+    UpdateHouseholdService,
 )
 from app.context.household.infrastructure.repositories import HouseholdRepository
 from app.shared.infrastructure.database import get_db
@@ -78,6 +88,12 @@ def get_remove_member_service(
     return RemoveMemberService(household_repository)
 
 
+def get_update_household_service(
+    household_repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
+) -> UpdateHouseholdServiceContract:
+    return UpdateHouseholdService(household_repository)
+
+
 # Handler dependencies (Commands)
 def get_create_household_handler(
     service: Annotated[CreateHouseholdServiceContract, Depends(get_create_household_service)],
@@ -109,6 +125,18 @@ def get_remove_member_handler(
     return RemoveMemberHandler(service)
 
 
+def get_update_household_handler(
+    service: Annotated[UpdateHouseholdServiceContract, Depends(get_update_household_service)],
+) -> UpdateHouseholdHandlerContract:
+    return UpdateHouseholdHandler(service)
+
+
+def get_delete_household_handler(
+    repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
+) -> DeleteHouseholdHandlerContract:
+    return DeleteHouseholdHandler(repository)
+
+
 # Handler dependencies (Queries)
 def get_list_household_invites_handler(
     repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
@@ -120,3 +148,15 @@ def get_list_user_pending_invites_handler(
     repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
 ) -> ListUserPendingInvitesHandlerContract:
     return ListUserPendingInvitesHandler(repository)
+
+
+def get_get_household_handler(
+    repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
+) -> GetHouseholdHandlerContract:
+    return GetHouseholdHandler(repository)
+
+
+def get_list_user_households_handler(
+    repository: Annotated[HouseholdRepositoryContract, Depends(get_household_repository)],
+) -> ListUserHouseholdsHandlerContract:
+    return ListUserHouseholdsHandler(repository)

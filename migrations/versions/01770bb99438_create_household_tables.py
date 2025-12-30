@@ -32,6 +32,11 @@ def upgrade() -> None:
             nullable=False,
             server_default=sa.text("CURRENT_TIMESTAMP"),
         ),
+        sa.Column(
+            "deleted_at",
+            sa.DateTime(timezone=True),
+            nullable=True,
+        ),
         # Foreign key to users table
         sa.ForeignKeyConstraint(
             ["owner_user_id"],

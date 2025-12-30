@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
+from typing import Any, cast
 
-from sqlalchemy import and_, select
+from sqlalchemy import and_, select, union, update
+from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import aliased
@@ -9,6 +11,7 @@ from app.context.household.domain.contracts import HouseholdRepositoryContract
 from app.context.household.domain.dto import HouseholdDTO, HouseholdMemberDTO
 from app.context.household.domain.exceptions import (
     HouseholdNameAlreadyExistError,
+    HouseholdNotFoundError,
     InviteNotFoundError,
 )
 from app.context.household.domain.value_objects import (
@@ -31,7 +34,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
     def __init__(self, db: AsyncSession):
         self._db = db
 
-    async def create_household(self, household_dto: HouseholdDTO, creator_user_id: HouseholdUserID) -> HouseholdDTO:
+    async def create_household(self, household_dto: HouseholdDTO) -> HouseholdDTO:
         """Create a new household with the owner stored in the household table"""
 
         household_model = HouseholdMapper.to_model(household_dto)
@@ -58,6 +61,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
             and_(
                 HouseholdModel.owner_user_id == user_id.value,
                 HouseholdModel.name == name.value,
+                HouseholdModel.deleted_at.is_(None),
             )
         )
 
@@ -69,7 +73,12 @@ class HouseholdRepository(HouseholdRepositoryContract):
     async def find_household_by_id(self, household_id: HouseholdID) -> HouseholdDTO | None:
         """Find a household by ID"""
 
-        stmt = select(HouseholdModel).where(HouseholdModel.id == household_id.value)
+        stmt = select(HouseholdModel).where(
+            and_(
+                HouseholdModel.id == household_id.value,
+                HouseholdModel.deleted_at.is_(None),
+            )
+        )
 
         result = await self._db.execute(stmt)
         model = result.scalar_one_or_none()
@@ -162,7 +171,12 @@ class HouseholdRepository(HouseholdRepositoryContract):
     async def list_user_households(self, user_id: HouseholdUserID) -> list[HouseholdDTO]:
         """List all households user owns or is an active participant in"""
         # Get households where user is owner
-        owner_stmt = select(HouseholdModel).where(HouseholdModel.owner_user_id == user_id.value)
+        owner_stmt = select(HouseholdModel).where(
+            and_(
+                HouseholdModel.owner_user_id == user_id.value,
+                HouseholdModel.deleted_at.is_(None),
+            )
+        )
 
         # Get households where user is active member
         member_stmt = (
@@ -175,22 +189,18 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.isnot(None),
+                    HouseholdModel.deleted_at.is_(None),
                 )
             )
         )
 
-        # Execute both queries
-        owner_result = await self._db.execute(owner_stmt)
-        member_result = await self._db.execute(member_stmt)
+        # Combine with UNION (automatically deduplicates)
+        combined_stmt = union(owner_stmt, member_stmt)
 
-        owner_households = owner_result.scalars().all()
-        member_households = member_result.scalars().all()
+        result = await self._db.execute(combined_stmt)
+        households = result.scalars().all()
 
-        # Combine and dedupe (in case owner is also a member)
-        all_households = {h.id: h for h in owner_households}
-        all_households.update({h.id: h for h in member_households})
-
-        return [HouseholdMapper.to_dto(h) for h in all_households.values()]
+        return [HouseholdMapper.to_dto_or_fail(h) for h in households]
 
     async def list_user_pending_invites(self, user_id: HouseholdUserID) -> list[HouseholdDTO]:
         """List all households user has been invited to but not yet accepted"""
@@ -204,6 +214,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.is_(None),
+                    HouseholdModel.deleted_at.is_(None),
                 )
             )
         )
@@ -224,6 +235,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
                 and_(
                     HouseholdMemberModel.user_id == user_id.value,
                     HouseholdMemberModel.joined_at.is_(None),
+                    HouseholdModel.deleted_at.is_(None),
                 )
             )
         )
@@ -256,6 +268,7 @@ class HouseholdRepository(HouseholdRepositoryContract):
                     HouseholdMemberModel.household_id == household_id.value,
                     HouseholdModel.owner_user_id == owner_id.value,
                     HouseholdMemberModel.joined_at.is_(None),
+                    HouseholdModel.deleted_at.is_(None),
                 )
             )
         )
@@ -270,6 +283,57 @@ class HouseholdRepository(HouseholdRepositoryContract):
             member_list.append(member_dto)
 
         return member_list
+
+    async def update_household(self, household: HouseholdDTO) -> HouseholdDTO:
+        """Update household name"""
+        if household.household_id is None:
+            raise ValueError("Household ID not given")
+
+        stmt = (
+            update(HouseholdModel)
+            .where(
+                and_(
+                    HouseholdModel.id == household.household_id.value,
+                    HouseholdModel.deleted_at.is_(None),
+                )
+            )
+            .values(name=household.name.value)
+        )
+
+        result = cast(CursorResult[Any], await self._db.execute(stmt))
+        if result.rowcount == 0:
+            raise HouseholdNotFoundError(
+                f"Household with ID {household.household_id.value} not found or already deleted"
+            )
+
+        await self._db.commit()
+        return household
+
+    async def delete_household(self, household_id: HouseholdID, user_id: HouseholdUserID) -> bool:
+        """Soft delete a household (owner only)"""
+        # Verify exists and user owns it
+        household = await self.find_household_by_id(household_id)
+        # if not household or household.owner_user_id.value != user_id.value:
+        if not household or not household.owner_user_id.is_equal(user_id):
+            return False
+
+        # Soft delete
+        stmt = (
+            update(HouseholdModel)
+            .where(
+                and_(
+                    HouseholdModel.id == household_id.value,
+                    HouseholdModel.owner_user_id == user_id.value,
+                    HouseholdModel.deleted_at.is_(None),
+                )
+            )
+            .values(deleted_at=datetime.now(UTC))
+        )
+
+        result = cast(CursorResult[Any], await self._db.execute(stmt))
+        await self._db.commit()
+
+        return result.rowcount > 0
 
     async def user_has_access(self, user_id: HouseholdUserID, household_id: HouseholdID) -> bool:
         """Check if user owns or is an active member of household"""

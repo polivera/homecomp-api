@@ -62,7 +62,6 @@ class TestCreateHouseholdService:
         assert passed_dto.household_id is None  # New household, no ID yet
         assert passed_dto.owner_user_id == creator_user_id
         assert passed_dto.name == name
-        assert call_args.kwargs["creator_user_id"] == creator_user_id
 
     @pytest.mark.asyncio
     async def test_create_household_duplicate_name_raises_error(self, service, mock_repository):

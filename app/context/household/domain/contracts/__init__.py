@@ -5,6 +5,7 @@ from .household_repository_contract import HouseholdRepositoryContract
 from .invite_user_service_contract import InviteUserServiceContract
 from .remove_member_service_contract import RemoveMemberServiceContract
 from .revoke_invite_service_contract import RevokeInviteServiceContract
+from .update_household_service_contract import UpdateHouseholdServiceContract
 
 __all__ = [
     "AcceptInviteServiceContract",
@@ -14,4 +15,5 @@ __all__ = [
     "InviteUserServiceContract",
     "RemoveMemberServiceContract",
     "RevokeInviteServiceContract",
+    "UpdateHouseholdServiceContract",
 ]

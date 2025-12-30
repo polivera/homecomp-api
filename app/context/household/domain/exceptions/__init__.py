@@ -7,9 +7,11 @@ from .exceptions import (
     HouseholdNotFoundError,
     InviteNotFoundError,
     NotInvitedError,
+    OnlyOwnerCanDeleteError,
     OnlyOwnerCanInviteError,
     OnlyOwnerCanRemoveMemberError,
     OnlyOwnerCanRevokeError,
+    OnlyOwnerCanUpdateError,
     UserNotFoundError,
 )
 
@@ -22,8 +24,10 @@ __all__ = [
     "HouseholdNotFoundError",
     "InviteNotFoundError",
     "NotInvitedError",
+    "OnlyOwnerCanDeleteError",
     "OnlyOwnerCanInviteError",
     "OnlyOwnerCanRemoveMemberError",
     "OnlyOwnerCanRevokeError",
+    "OnlyOwnerCanUpdateError",
     "UserNotFoundError",
 ]
