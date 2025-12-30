@@ -3,14 +3,16 @@ from os import getenv
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
 from sqlalchemy.orm import declarative_base
 
-# Database configuration - use TEST_ prefixed variables when APP_ENV=test
+from app.shared.domain.value_objects.shared_app_env import SharedAppEnv
+
+# Database configuration - use TEST_ prefixed variables when environment is tests
 DB_HOST = getenv("DB_HOST")
 DB_PORT = getenv("DB_PORT")
 DB_USER = getenv("DB_USER")
 DB_PASS = getenv("DB_PASS")
 DB_NAME = getenv("DB_NAME")
 
-if getenv("APP_ENV") == "test":
+if SharedAppEnv.isTest():
     DB_HOST = getenv("TEST_DB_HOST")
     DB_PORT = getenv("TEST_DB_PORT")
     DB_USER = getenv("TEST_DB_USER")
@@ -22,11 +24,9 @@ DATABASE_URL = getenv(
     f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}",
 )
 
-echo_queries = getenv("APP_ENV", "prod") == "debug"
-
 async_engine = create_async_engine(
     DATABASE_URL,
-    echo=echo_queries,  # Log SQL queries (disable in production)
+    echo=SharedAppEnv.isDebug(),  # Log SQL queries (disable in production)
     pool_size=10,  # Keep 10 persistent connections
     max_overflow=20,  # Allow 20 more if needed
     pool_pre_ping=True,  # Verify connection is alive before using

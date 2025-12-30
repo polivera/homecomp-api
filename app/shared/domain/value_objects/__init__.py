@@ -1,4 +1,5 @@
 from .shared_account_id import SharedAccountID
+from .shared_app_env import SharedAppEnv
 from .shared_balance import SharedBalance
 from .shared_currency import SharedCurrency
 from .shared_date import SharedDateTime
@@ -18,4 +19,5 @@ __all__ = [
     "SharedUserID",
     "SharedDateTime",
     "SharedUsername",
+    "SharedAppEnv",
 ]

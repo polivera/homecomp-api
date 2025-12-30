@@ -1,8 +1,9 @@
 import logging
-import os
 import sys
 
 import structlog
+
+from app.shared.domain.value_objects import SharedAppEnv
 
 
 def configure_structlog(use_json: bool = False) -> None:
@@ -56,7 +57,7 @@ def configure_structlog(use_json: bool = False) -> None:
     logging.root.addHandler(console_handler)
 
     # Add Loki handler in development (sends structured data directly)
-    if os.getenv("APP_ENV") != "prod":
+    if not SharedAppEnv.isProd():
         try:
             import logging_loki
 

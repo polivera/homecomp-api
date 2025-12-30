@@ -1,4 +1,3 @@
-from os import getenv
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Response
@@ -9,6 +8,7 @@ from app.context.auth.application.dto import LoginHandlerResultStatus
 from app.context.auth.infrastructure.dependencies import get_login_handler
 from app.context.auth.interface.rest.schemas import LoginRequest, LoginResponse
 from app.shared.domain.contracts import LoggerContract
+from app.shared.domain.value_objects import SharedAppEnv
 from app.shared.infrastructure.dependencies import get_logger
 
 router = APIRouter(prefix="/login")
@@ -38,8 +38,7 @@ async def login(
             key="access_token",
             value=login_result.token,
             httponly=True,
-            # FIX: Error prone
-            secure=(getenv("APP_ENV", "dev") == "prod"),
+            secure=SharedAppEnv.isProd(),
             samesite="lax",
             max_age=3600,
         )
