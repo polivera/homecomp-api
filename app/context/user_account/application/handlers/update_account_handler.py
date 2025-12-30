@@ -23,11 +23,13 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class UpdateAccountHandler(UpdateAccountHandlerContract):
-    def __init__(self, service: UpdateAccountServiceContract):
+    def __init__(self, service: UpdateAccountServiceContract, logger: LoggerContract):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: UpdateAccountCommand) -> UpdateAccountResult:
         """Execute the update account command"""
@@ -42,6 +44,11 @@ class UpdateAccountHandler(UpdateAccountHandlerContract):
             )
 
             if updated.account_id is None:
+                self._logger.error(
+                    "Account update returned None account_id",
+                    account_id=command.account_id,
+                    user_id=command.user_id,
+                )
                 return UpdateAccountResult(
                     error_code=UpdateAccountErrorCode.UNEXPECTED_ERROR,
                     error_message="Error updating account",
@@ -67,7 +74,13 @@ class UpdateAccountHandler(UpdateAccountHandlerContract):
                 error_code=UpdateAccountErrorCode.MAPPER_ERROR,
                 error_message="Error mapping model to dto",
             )
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error during account update",
+                account_id=command.account_id,
+                user_id=command.user_id,
+                error=str(e),
+            )
             return UpdateAccountResult(
                 error_code=UpdateAccountErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

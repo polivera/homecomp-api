@@ -16,11 +16,13 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class UpdateAccountService(UpdateAccountServiceContract):
-    def __init__(self, repository: UserAccountRepositoryContract):
+    def __init__(self, repository: UserAccountRepositoryContract, logger: LoggerContract):
         self._repository = repository
+        self._logger = logger
 
     async def update_account(
         self,
@@ -33,6 +35,11 @@ class UpdateAccountService(UpdateAccountServiceContract):
         existing = await self._repository.find_user_account_by_id(user_id=user_id, account_id=account_id)
 
         if not existing:
+            self._logger.warning(
+                "Account not found for update",
+                account_id=account_id.value,
+                user_id=user_id.value,
+            )
             raise UserAccountNotFoundError(f"Account with ID {account_id.value} not found for user {user_id.value}")
 
         # FIX: find_user_accounts use like instead of equal, error prone on this check
@@ -41,6 +48,12 @@ class UpdateAccountService(UpdateAccountServiceContract):
             duplicate = await self._repository.find_user_accounts(user_id=user_id, name=name, only_active=False)
 
             if duplicate and any(acc.account_id and acc.account_id.value != account_id.value for acc in duplicate):
+                self._logger.warning(
+                    "Duplicate account name detected",
+                    account_id=account_id.value,
+                    user_id=user_id.value,
+                    name=name.value,
+                )
                 raise UserAccountNameAlreadyExistError(f"Account with name '{name.value}' already exists")
 
         # 3. Update account
@@ -51,4 +64,13 @@ class UpdateAccountService(UpdateAccountServiceContract):
             currency=currency,
             balance=balance,
         )
-        return await self._repository.update_account(updated_dto)
+        updated = await self._repository.update_account(updated_dto)
+
+        self._logger.info(
+            "Account updated successfully",
+            account_id=account_id.value,
+            user_id=user_id.value,
+            name=name.value,
+        )
+
+        return updated

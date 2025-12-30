@@ -11,13 +11,15 @@ from app.context.user_account.domain.value_objects import (
     UserAccountUserID,
 )
 from app.context.user_account.domain.value_objects.account_name import AccountName
+from app.shared.domain.contracts import LoggerContract
 
 
 class CreateAccountService(CreateAccountServiceContract):
     """Service for creating user accounts"""
 
-    def __init__(self, account_repository: UserAccountRepositoryContract):
+    def __init__(self, account_repository: UserAccountRepositoryContract, logger: LoggerContract):
         self._account_repository = account_repository
+        self._logger = logger
 
     async def create_account(
         self,
@@ -37,4 +39,14 @@ class CreateAccountService(CreateAccountServiceContract):
         )
 
         # Save and return the new account ID
-        return await self._account_repository.save_account(account_dto)
+        created_account = await self._account_repository.save_account(account_dto)
+
+        if created_account.account_id:
+            self._logger.info(
+                "Account created successfully",
+                user_id=user_id.value,
+                account_id=created_account.account_id.value,
+                name=name.value,
+            )
+
+        return created_account

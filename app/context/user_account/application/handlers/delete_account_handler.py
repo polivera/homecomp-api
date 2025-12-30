@@ -15,11 +15,13 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class DeleteAccountHandler(DeleteAccountHandlerContract):
-    def __init__(self, repository: UserAccountRepositoryContract):
+    def __init__(self, repository: UserAccountRepositoryContract, logger: LoggerContract):
         self._repository = repository
+        self._logger = logger
 
     async def handle(self, command: DeleteAccountCommand) -> DeleteAccountResult:
         """Execute the delete account command"""
@@ -37,7 +39,13 @@ class DeleteAccountHandler(DeleteAccountHandlerContract):
                 )
 
             return DeleteAccountResult(success=True)
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error during account deletion",
+                account_id=command.account_id,
+                user_id=command.user_id,
+                error=str(e),
+            )
             return DeleteAccountResult(
                 error_code=DeleteAccountErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

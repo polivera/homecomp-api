@@ -18,11 +18,13 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class FindAccountByIdHandler(FindAccountByIdHandlerContract):
-    def __init__(self, repository: UserAccountRepositoryContract):
+    def __init__(self, repository: UserAccountRepositoryContract, logger: LoggerContract):
         self._repository = repository
+        self._logger = logger
 
     async def handle(self, query: FindAccountByIdQuery) -> FindSingleAccountResult:
         account = await self._repository.find_user_accounts(

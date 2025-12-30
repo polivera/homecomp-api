@@ -22,6 +22,7 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit
@@ -35,9 +36,9 @@ class TestCreateAccountHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_service):
+    def handler(self, mock_service, mock_logger):
         """Create handler with mocked service"""
-        return CreateAccountHandler(mock_service)
+        return CreateAccountHandler(mock_service, mock_logger)
 
     @pytest.mark.asyncio
     async def test_create_account_success(self, handler, mock_service):

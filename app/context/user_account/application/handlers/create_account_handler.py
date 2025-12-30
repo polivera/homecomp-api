@@ -21,13 +21,15 @@ from app.context.user_account.domain.value_objects import (
     UserAccountCurrency,
     UserAccountUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class CreateAccountHandler(CreateAccountHandlerContract):
     """Handler for create account command"""
 
-    def __init__(self, service: CreateAccountServiceContract):
+    def __init__(self, service: CreateAccountServiceContract, logger: LoggerContract):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: CreateAccountCommand) -> CreateAccountResult:
         """Execute the create account command"""
@@ -41,6 +43,11 @@ class CreateAccountHandler(CreateAccountHandlerContract):
             )
 
             if account_dto.account_id is None:
+                self._logger.error(
+                    "Account creation returned None account_id",
+                    user_id=command.user_id,
+                    name=command.name,
+                )
                 return CreateAccountResult(
                     error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
                     error_message="Error creating account",
@@ -61,7 +68,13 @@ class CreateAccountHandler(CreateAccountHandlerContract):
                 error_code=CreateAccountErrorCode.MAPPER_ERROR,
                 error_message="Error mapping model to dto",
             )
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error during account creation",
+                user_id=command.user_id,
+                name=command.name,
+                error=str(e),
+            )
             return CreateAccountResult(
                 error_code=CreateAccountErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error",

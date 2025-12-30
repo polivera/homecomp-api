@@ -18,6 +18,7 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit
@@ -31,9 +32,9 @@ class TestFindAccountsByUserHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_repository):
+    def handler(self, mock_repository, mock_logger):
         """Create handler with mocked repository"""
-        return FindAccountsByUserHandler(mock_repository)
+        return FindAccountsByUserHandler(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_find_accounts_by_user_success(self, handler, mock_repository):

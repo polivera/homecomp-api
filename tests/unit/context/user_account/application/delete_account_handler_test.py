@@ -9,6 +9,7 @@ from app.context.user_account.application.dto import DeleteAccountErrorCode
 from app.context.user_account.application.handlers.delete_account_handler import (
     DeleteAccountHandler,
 )
+from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit
@@ -22,9 +23,9 @@ class TestDeleteAccountHandler:
         return MagicMock()
 
     @pytest.fixture
-    def handler(self, mock_repository):
+    def handler(self, mock_repository, mock_logger):
         """Create handler with mocked repository"""
-        return DeleteAccountHandler(mock_repository)
+        return DeleteAccountHandler(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_delete_account_success(self, handler, mock_repository):

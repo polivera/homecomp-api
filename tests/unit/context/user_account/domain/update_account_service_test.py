@@ -20,6 +20,7 @@ from app.context.user_account.domain.value_objects import (
     UserAccountID,
     UserAccountUserID,
 )
+from tests.fixtures.shared.logger import mock_logger
 
 
 @pytest.mark.unit
@@ -33,9 +34,9 @@ class TestUpdateAccountService:
         return MagicMock()
 
     @pytest.fixture
-    def service(self, mock_repository):
+    def service(self, mock_repository, mock_logger):
         """Create service with mocked repository"""
-        return UpdateAccountService(mock_repository)
+        return UpdateAccountService(mock_repository, mock_logger)
 
     @pytest.mark.asyncio
     async def test_update_account_success(self, service, mock_repository):
