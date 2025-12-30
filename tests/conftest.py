@@ -5,8 +5,6 @@ Add global fixtures here if they're truly shared across all contexts.
 """
 
 # Import shared fixtures
-from tests.fixtures.shared import mock_logger
-
 # Import auth context fixtures
 from tests.fixtures.auth import (
     MockLoginService,
@@ -14,6 +12,7 @@ from tests.fixtures.auth import (
     mock_login_service,
     mock_session_repository,
 )
+from tests.fixtures.shared import mock_logger
 
 # Import user context fixtures
 from tests.fixtures.user import MockFindUserHandler, mock_find_user_handler
