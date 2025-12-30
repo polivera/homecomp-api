@@ -53,6 +53,9 @@ async def update_account(
         status_code = status_code_map.get(result.error_code, 500)
         raise HTTPException(status_code=status_code, detail=result.error_message)
 
+    if not result.account_id or not result.account_name or not result.account_balance:
+        raise HTTPException(status_code=500, detail="error on required response fields")
+
     # Return success response
     return UpdateAccountResponse(
         account_id=result.account_id,

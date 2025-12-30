@@ -19,7 +19,7 @@ from app.context.credit_card.interface.schemas.create_credit_card_schema import 
 )
 from app.shared.infrastructure.middleware import get_current_user_id
 
-router = APIRouter(prefix="/cards", tags=["credit-cards"])
+router = APIRouter(prefix="/cards")
 
 
 @router.post("", response_model=CreateCreditCardResponse, status_code=201)

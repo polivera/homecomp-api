@@ -17,6 +17,7 @@ class AccountResponseDTO:
     @classmethod
     def from_domain_dto(cls, domain_dto: UserAccountDTO) -> "AccountResponseDTO":
         return cls(
+            # FIX: Error linting of nullable account_id
             account_id=domain_dto.account_id.value,
             user_id=domain_dto.user_id.value,
             name=domain_dto.name.value,

@@ -23,7 +23,9 @@ from app.context.user.application.contracts import (
 from app.context.user.infrastructure.dependencies import (
     get_find_user_query_handler,
 )
+from app.shared.domain.contracts import LoggerContract
 from app.shared.infrastructure.database import get_db
+from app.shared.infrastructure.dependencies import get_logger
 
 
 def get_session_repository(
@@ -34,11 +36,12 @@ def get_session_repository(
 
 def get_login_service(
     session_repo: Annotated[SessionRepositoryContract, Depends(get_session_repository)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> LoginServiceContract:
     """
     LoginService dependency injection
     """
-    return LoginService(session_repo)
+    return LoginService(session_repo, logger)
 
 
 def get_session_handler(
@@ -50,8 +53,9 @@ def get_session_handler(
 def get_login_handler(
     user_query_handler: Annotated[FindUserHandlerContract, Depends(get_find_user_query_handler)],
     login_service: Annotated[LoginServiceContract, Depends(get_login_service)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> LoginHandlerContract:
     """
     LoginHandler dependency injection
     """
-    return LoginHandler(user_query_handler, login_service)
+    return LoginHandler(user_query_handler, login_service, logger)

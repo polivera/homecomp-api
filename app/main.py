@@ -1,9 +1,17 @@
+from os import getenv
+
 from fastapi import FastAPI
 
 from app.context.auth.interface.rest import auth_routes
 from app.context.credit_card.interface.rest import credit_card_routes
 from app.context.household.interface.rest import household_routes
 from app.context.user_account.interface.rest import user_account_routes
+from app.shared.infrastructure.logging.config import configure_structlog
+
+# Configure structlog (skip in test environment)
+if getenv("APP_ENV") != "test":
+    use_json = getenv("APP_ENV") == "production"
+    configure_structlog(use_json=use_json)
 
 app = FastAPI(
     title="Homecomp API",

@@ -26,7 +26,7 @@ from app.context.auth.domain.value_objects.blocked_time import BlockedTime
 class TestLoginService:
     """Unit tests for LoginService domain service."""
 
-    async def test_successful_login_no_existing_session(self, mock_session_repository):
+    async def test_successful_login_no_existing_session(self, mock_session_repository, mock_logger):
         """Test successful login when no session exists - creates new session."""
         # Arrange
         user_id = AuthUserID(42)
@@ -60,7 +60,7 @@ class TestLoginService:
             blocked_until=None,
         )
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         with patch.object(SessionToken, "generate", return_value=SessionToken("mocked-token")):
@@ -90,7 +90,7 @@ class TestLoginService:
         assert updated_session.failed_attempts.value == 0
         assert updated_session.blocked_until is None
 
-    async def test_successful_login_with_existing_session(self, mock_session_repository):
+    async def test_successful_login_with_existing_session(self, mock_session_repository, mock_logger):
         """Test successful login when session already exists."""
         # Arrange
         user_id = AuthUserID(99)
@@ -113,7 +113,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         with patch.object(SessionToken, "generate", return_value=SessionToken("new-token")):
@@ -129,7 +129,7 @@ class TestLoginService:
         # Verify updateSession was called
         mock_session_repository.update_session_mock.assert_called_once()
 
-    async def test_failed_login_wrong_password_first_attempt(self, mock_session_repository):
+    async def test_failed_login_wrong_password_first_attempt(self, mock_session_repository, mock_logger):
         """Test failed login increments attempt counter on first wrong password."""
         # Arrange
         user_id = AuthUserID(10)
@@ -153,7 +153,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act & Assert
         with pytest.raises(InvalidCredentialsException):
@@ -170,7 +170,7 @@ class TestLoginService:
         assert updated_session.blocked_until is None
         assert updated_session.token is None
 
-    async def test_failed_login_third_attempt_with_delay(self, mock_session_repository):
+    async def test_failed_login_third_attempt_with_delay(self, mock_session_repository, mock_logger):
         """Test failed login on third attempt has correct delay."""
         # Arrange
         user_id = AuthUserID(15)
@@ -194,7 +194,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act & Assert
         with pytest.raises(InvalidCredentialsException):
@@ -208,7 +208,7 @@ class TestLoginService:
         updated_session = mock_session_repository.update_session_mock.call_args[0][0]
         assert updated_session.failed_attempts.value == 3
 
-    async def test_failed_login_max_attempts_blocks_account(self, mock_session_repository):
+    async def test_failed_login_max_attempts_blocks_account(self, mock_session_repository, mock_logger):
         """Test that reaching max attempts blocks the account."""
         # Arrange
         user_id = AuthUserID(20)
@@ -232,7 +232,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act & Assert
         with pytest.raises(InvalidCredentialsException):
@@ -247,7 +247,7 @@ class TestLoginService:
         # Verify blocked time is in the future
         assert updated_session.blocked_until.value > datetime.now()
 
-    async def test_login_blocked_account_raises_exception(self, mock_session_repository):
+    async def test_login_blocked_account_raises_exception(self, mock_session_repository, mock_logger):
         """Test that login attempt on blocked account raises AccountBlockedException."""
         # Arrange
         user_id = AuthUserID(25)
@@ -271,7 +271,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act & Assert
         with pytest.raises(AccountBlockedException) as exc_info:
@@ -284,7 +284,7 @@ class TestLoginService:
         # Verify updateSession was NOT called (blocked before password check)
         mock_session_repository.update_session_mock.assert_not_called()
 
-    async def test_login_expired_block_allows_login(self, mock_session_repository):
+    async def test_login_expired_block_allows_login(self, mock_session_repository, mock_logger):
         """Test that expired block allows successful login."""
         # Arrange
         user_id = AuthUserID(30)
@@ -308,7 +308,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         with patch.object(SessionToken, "generate", return_value=SessionToken("unblock-token")):
@@ -324,7 +324,7 @@ class TestLoginService:
         assert updated_session.blocked_until is None
         assert updated_session.token.value == "unblock-token"
 
-    async def test_successful_login_resets_failed_attempts(self, mock_session_repository):
+    async def test_successful_login_resets_failed_attempts(self, mock_session_repository, mock_logger):
         """Test that successful login resets failed attempts counter."""
         # Arrange
         user_id = AuthUserID(35)
@@ -347,7 +347,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         with patch.object(SessionToken, "generate", return_value=SessionToken("reset-token")):
@@ -362,7 +362,7 @@ class TestLoginService:
         assert updated_session.blocked_until is None
         assert updated_session.token is not None
 
-    async def test_password_verification_called_correctly(self, mock_session_repository):
+    async def test_password_verification_called_correctly(self, mock_session_repository, mock_logger):
         """Test that password verification is called with correct parameters."""
         # Arrange
         user_id = AuthUserID(40)
@@ -384,7 +384,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         with patch.object(SessionToken, "generate", return_value=SessionToken("verify-token")):
@@ -395,7 +395,7 @@ class TestLoginService:
                 # Verify password.verify was called with user_password.value
                 mock_verify.assert_called_once_with(plain_password)
 
-    async def test_session_token_generation(self, mock_session_repository):
+    async def test_session_token_generation(self, mock_session_repository, mock_logger):
         """Test that session token is generated on successful login."""
         # Arrange
         user_id = AuthUserID(45)
@@ -417,7 +417,7 @@ class TestLoginService:
         )
         mock_session_repository.get_session_mock.return_value = existing_session
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Act
         generated_token = SessionToken("unique-secure-token-xyz")
@@ -428,7 +428,7 @@ class TestLoginService:
             mock_generate.assert_called_once()
             assert result == generated_token
 
-    async def test_multiple_failed_attempts_sequence(self, mock_session_repository):
+    async def test_multiple_failed_attempts_sequence(self, mock_session_repository, mock_logger):
         """Test sequence of multiple failed login attempts."""
         # Arrange
         user_id = AuthUserID(50)
@@ -442,7 +442,7 @@ class TestLoginService:
             password=hashed_password,
         )
 
-        service = LoginService(mock_session_repository)
+        service = LoginService(mock_session_repository, mock_logger)
 
         # Test attempts 1-4
         for attempt in range(4):

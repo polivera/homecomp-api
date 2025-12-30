@@ -8,6 +8,10 @@ from app.context.user_account.application.contracts.find_account_by_id_handler_c
 from app.context.user_account.application.contracts.find_accounts_by_user_handler_contract import (
     FindAccountsByUserHandlerContract,
 )
+from app.context.user_account.application.dto import (
+    FindMultipleAccountsErrorCode,
+    FindSingleAccountErrorCode,
+)
 from app.context.user_account.application.queries.find_account_by_id_query import (
     FindAccountByIdQuery,
 )
@@ -37,14 +41,26 @@ async def get_account(
     )
 
     result = await handler.handle(query)
-    if not result:
-        raise HTTPException(status_code=404, detail="Account not found")
 
+    # Check for errors and map error codes to HTTP status codes
+    if result.error_code:
+        status_code_map = {
+            FindSingleAccountErrorCode.NOT_FOUND: 404,
+            FindSingleAccountErrorCode.UNEXPECTED_ERROR: 500,
+        }
+
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    if not result.account:
+        raise HTTPException(status_code=500, detail="error in response data")
+
+    # Return success response
     return AccountResponse(
-        account_id=result.account_id,
-        name=result.name,
-        currency=result.currency,
-        balance=result.balance,
+        account_id=result.account.account_id,
+        name=result.account.name,
+        currency=result.account.currency,
+        balance=result.account.balance,
     )
 
 
@@ -55,8 +71,22 @@ async def get_all_accounts(
 ):
     """Get all accounts for the authenticated user"""
     query = FindAccountsByUserQuery(user_id=user_id)
-    results = await handler.handle(query)
+    result = await handler.handle(query)
 
+    # Check for errors and map error codes to HTTP status codes
+    if result.error_code:
+        status_code_map = {
+            FindMultipleAccountsErrorCode.UNEXPECTED_ERROR: 500,
+        }
+
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    # Return empty list if no accounts (not an error)
+    if not result.accounts:
+        return []
+
+    # Return success response
     return [
         AccountResponse(
             account_id=r.account_id,
@@ -64,5 +94,5 @@ async def get_all_accounts(
             currency=r.currency,
             balance=r.balance,
         )
-        for r in results
+        for r in result.accounts
     ]

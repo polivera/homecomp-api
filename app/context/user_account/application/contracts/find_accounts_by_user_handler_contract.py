@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
-from app.context.user_account.application.dto.account_response_dto import (
-    AccountResponseDTO,
+from app.context.user_account.application.dto.find_multiple_accounts_result import (
+    FindMultipleAccountsResult,
 )
 from app.context.user_account.application.queries.find_accounts_by_user_query import (
     FindAccountsByUserQuery,
@@ -10,5 +10,5 @@ from app.context.user_account.application.queries.find_accounts_by_user_query im
 
 class FindAccountsByUserHandlerContract(ABC):
     @abstractmethod
-    async def handle(self, query: FindAccountsByUserQuery) -> list[AccountResponseDTO]:
+    async def handle(self, query: FindAccountsByUserQuery) -> FindMultipleAccountsResult:
         pass

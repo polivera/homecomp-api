@@ -9,7 +9,6 @@ async def seed_households(session: AsyncSession, users: dict[str, UserModel]) ->
     print("  → Seeding households...")
 
     households_data = [
-        # Original households
         {
             "owner_user_id": users["john.doe@example.com"].id,
             "name": "Doe Family",
@@ -22,7 +21,6 @@ async def seed_households(session: AsyncSession, users: dict[str, UserModel]) ->
             "owner_user_id": users["alice.williams@example.com"].id,
             "name": "Williams Home",
         },
-        # Additional households for better testing
         {
             "owner_user_id": users["bob.johnson@example.com"].id,
             "name": "Johnson's Place",

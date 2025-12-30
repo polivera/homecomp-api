@@ -12,7 +12,7 @@ from app.context.credit_card.infrastructure.dependencies import (
 )
 from app.shared.infrastructure.middleware import get_current_user_id
 
-router = APIRouter(prefix="/cards", tags=["credit-cards"])
+router = APIRouter(prefix="/cards")
 
 
 @router.delete("/{credit_card_id}", status_code=status.HTTP_204_NO_CONTENT)

@@ -4,6 +4,9 @@ This file imports fixtures from the organized fixtures/ directory structure.
 Add global fixtures here if they're truly shared across all contexts.
 """
 
+# Import shared fixtures
+from tests.fixtures.shared import mock_logger
+
 # Import auth context fixtures
 from tests.fixtures.auth import (
     MockLoginService,
@@ -31,6 +34,8 @@ from tests.fixtures.user_account import (
 
 # Make fixtures available to pytest
 __all__ = [
+    # Shared fixtures
+    "mock_logger",
     # Auth fixtures
     "MockSessionRepository",
     "mock_session_repository",

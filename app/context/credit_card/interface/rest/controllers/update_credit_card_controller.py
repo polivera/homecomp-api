@@ -18,7 +18,7 @@ from app.context.credit_card.interface.schemas.update_credit_card_schema import 
 )
 from app.shared.infrastructure.middleware import get_current_user_id
 
-router = APIRouter(prefix="/cards", tags=["credit-cards"])
+router = APIRouter(prefix="/cards")
 
 
 @router.put("/{credit_card_id}", response_model=UpdateCreditCardResponse)

@@ -5,6 +5,7 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
+from app.context.user_account.application.dto import FindMultipleAccountsErrorCode
 from app.context.user_account.application.handlers.find_accounts_by_user_handler import (
     FindAccountsByUserHandler,
 )
@@ -63,11 +64,15 @@ class TestFindAccountsByUserHandler:
         result = await handler.handle(query)
 
         # Assert
-        assert len(result) == 2
-        assert result[0].account_id == 10
-        assert result[0].name == "Account 1"
-        assert result[1].account_id == 11
-        assert result[1].name == "Account 2"
+        assert result is not None
+        assert result.error_code is None
+        assert result.error_message is None
+        assert result.accounts is not None
+        assert len(result.accounts) == 2
+        assert result.accounts[0].account_id == 10
+        assert result.accounts[0].name == "Account 1"
+        assert result.accounts[1].account_id == 11
+        assert result.accounts[1].name == "Account 2"
 
     @pytest.mark.asyncio
     async def test_find_accounts_by_user_empty_list(self, handler, mock_repository):
@@ -80,7 +85,11 @@ class TestFindAccountsByUserHandler:
         result = await handler.handle(query)
 
         # Assert
-        assert result == []
+        assert result is not None
+        assert result.error_code is None
+        assert result.error_message is None
+        assert result.accounts is not None
+        assert result.accounts == []
 
     @pytest.mark.asyncio
     async def test_find_accounts_by_user_none_returns_empty_list(self, handler, mock_repository):
@@ -93,4 +102,24 @@ class TestFindAccountsByUserHandler:
         result = await handler.handle(query)
 
         # Assert
-        assert result == []
+        assert result is not None
+        assert result.error_code is None
+        assert result.error_message is None
+        assert result.accounts is not None
+        assert result.accounts == []
+
+    @pytest.mark.asyncio
+    async def test_find_accounts_by_user_exception_returns_error(self, handler, mock_repository):
+        """Test that exceptions are caught and returned as error result"""
+        # Arrange
+        query = FindAccountsByUserQuery(user_id=1)
+        mock_repository.find_user_accounts = AsyncMock(side_effect=Exception("Database error"))
+
+        # Act
+        result = await handler.handle(query)
+
+        # Assert
+        assert result is not None
+        assert result.error_code == FindMultipleAccountsErrorCode.UNEXPECTED_ERROR
+        assert result.error_message == "Unexpected error while finding accounts"
+        assert result.accounts is None
