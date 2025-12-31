@@ -8,7 +8,7 @@ class SharedMonth:
 
     def __post_init__(self):
         """Validate month"""
-        if self._validated:
-            if self.value < 1 or self.value > 12
+        if not self._validated:
+            if self.value < 1 or self.value > 12:
                 raise ValueError("Month must be a value between 1 and 12")
 

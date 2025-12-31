@@ -2,8 +2,8 @@ from dataclasses import dataclass, field
 from datetime import UTC, datetime
 from typing import Self
 
-from app.shared.domain.value_objects import SharedYear
 from app.shared.domain.value_objects.shared_month import SharedMonth
+from app.shared.domain.value_objects.shared_year import SharedYear
 
 
 @dataclass(frozen=True)
