@@ -1,7 +1,7 @@
 """Unit tests for EntryDate value object"""
 
 from dataclasses import FrozenInstanceError
-from datetime import datetime, timezone
+from datetime import UTC, datetime, timezone
 
 import pytest
 
@@ -14,7 +14,7 @@ class TestEntryDate:
 
     def test_valid_timezone_aware_datetime(self):
         """Test creating entry date with timezone-aware datetime"""
-        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=UTC)
         entry_date = EntryDate(dt)
         assert entry_date.value == dt
 
@@ -58,32 +58,32 @@ class TestEntryDate:
 
     def test_from_trusted_source_with_timezone_aware(self):
         """Test from_trusted_source with timezone-aware datetime"""
-        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=UTC)
         entry_date = EntryDate.from_trusted_source(dt)
         assert entry_date.value == dt
 
     def test_immutability(self):
         """Test that value object is immutable"""
-        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=timezone.utc)
+        dt = datetime(2024, 12, 31, 15, 30, 0, tzinfo=UTC)
         entry_date = EntryDate(dt)
         with pytest.raises(FrozenInstanceError):
-            entry_date.value = datetime(2024, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+            entry_date.value = datetime(2024, 1, 1, 0, 0, 0, tzinfo=UTC)
 
     def test_past_date(self):
         """Test entry date in the past"""
-        dt = datetime(2020, 1, 1, 0, 0, 0, tzinfo=timezone.utc)
+        dt = datetime(2020, 1, 1, 0, 0, 0, tzinfo=UTC)
         entry_date = EntryDate(dt)
         assert entry_date.value == dt
 
     def test_future_date(self):
         """Test entry date in the future"""
-        dt = datetime(2030, 12, 31, 23, 59, 59, tzinfo=timezone.utc)
+        dt = datetime(2030, 12, 31, 23, 59, 59, tzinfo=UTC)
         entry_date = EntryDate(dt)
         assert entry_date.value == dt
 
     def test_current_datetime(self):
         """Test creating entry date with current datetime"""
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         entry_date = EntryDate(now)
         assert entry_date.value == now
         assert entry_date.value.tzinfo is not None

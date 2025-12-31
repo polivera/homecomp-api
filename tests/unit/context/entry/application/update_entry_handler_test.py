@@ -1,6 +1,6 @@
 """Unit tests for UpdateEntryHandler"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
@@ -54,7 +54,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_success(self, handler, mock_service):
         """Test successful entry update"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -99,7 +99,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_without_household_id(self, handler, mock_service):
         """Test updating entry without household_id"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -136,7 +136,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_without_entry_id_returns_error(self, handler, mock_service):
         """Test that missing entry_id in result returns error"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -174,7 +174,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_not_found_error(self, handler, mock_service):
         """Test handling of entry not found exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=999,
             user_id=1,
@@ -200,7 +200,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_account_not_belongs_to_user_error(self, handler, mock_service):
         """Test handling of account not belonging to user exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -228,7 +228,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_category_not_found_error(self, handler, mock_service):
         """Test handling of category not found exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -254,7 +254,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -280,7 +280,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,
@@ -306,7 +306,7 @@ class TestUpdateEntryHandler:
     async def test_update_entry_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = UpdateEntryCommand(
             entry_id=100,
             user_id=1,

@@ -1,6 +1,6 @@
 """Unit tests for EntryMapper"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 
 import pytest
@@ -36,7 +36,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="expense",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("150.50"),
             description="Grocery shopping",
             household_id=3,
@@ -53,7 +53,7 @@ class TestEntryMapper:
         assert dto.account_id == EntryAccountID.from_trusted_source(10)
         assert dto.category_id == EntryCategoryID.from_trusted_source(5)
         assert dto.entry_type.value == SharedEntryTypeValues.EXPENSE
-        assert dto.entry_date.value == datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        assert dto.entry_date.value == datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         assert dto.amount.value == Decimal("150.50")
         assert dto.description.value == "Grocery shopping"
         assert dto.household_id == EntryHouseholdID.from_trusted_source(3)
@@ -75,7 +75,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="income",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("1000.00"),
             description="Salary",
             household_id=None,
@@ -97,7 +97,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="income",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("2000.00"),
             description="Monthly salary",
             household_id=None,
@@ -119,7 +119,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="expense",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("150.50"),
             description="Test",  # Valid, but testing trusted source path
             household_id=3,
@@ -141,7 +141,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="expense",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("150.50"),
             description="Test",
             household_id=None,
@@ -170,7 +170,7 @@ class TestEntryMapper:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("150.50")),
             description=EntryDescription("Grocery shopping"),
             household_id=EntryHouseholdID(3),
@@ -186,7 +186,7 @@ class TestEntryMapper:
         assert model.account_id == 10
         assert model.category_id == 5
         assert model.entry_type == "expense"
-        assert model.entry_date == datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        assert model.entry_date == datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         assert model.amount == Decimal("150.50")
         assert model.description == "Grocery shopping"
         assert model.household_id == 3
@@ -200,7 +200,7 @@ class TestEntryMapper:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Test"),
             household_id=None,
@@ -222,7 +222,7 @@ class TestEntryMapper:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.INCOME),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("1000.00")),
             description=EntryDescription("Salary"),
             household_id=None,
@@ -243,7 +243,7 @@ class TestEntryMapper:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.INCOME),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("2000.00")),
             description=EntryDescription("Monthly salary"),
             household_id=None,
@@ -264,7 +264,7 @@ class TestEntryMapper:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("123.45")),
             description=EntryDescription("Test"),
             household_id=None,
@@ -286,7 +286,7 @@ class TestEntryMapper:
             account_id=10,
             category_id=5,
             entry_type="expense",
-            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc),
+            entry_date=datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC),
             amount=Decimal("150.50"),
             description="Grocery shopping",
             household_id=3,

@@ -1,6 +1,6 @@
 """Unit tests for CreateEntryHandler"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
@@ -54,7 +54,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_success(self, handler, mock_service):
         """Test successful entry creation"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -97,7 +97,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_without_household_id(self, handler, mock_service):
         """Test creating entry without household_id"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -137,7 +137,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_without_entry_id_returns_error(self, handler, mock_service):
         """Test that missing entry_id in result returns error"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -175,7 +175,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_account_not_belongs_to_user_error(self, handler, mock_service):
         """Test handling of account not belonging to user exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=999,
@@ -203,7 +203,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_category_not_found_error(self, handler, mock_service):
         """Test handling of category not found exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -229,7 +229,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_category_not_belongs_to_user_error(self, handler, mock_service):
         """Test handling of category not belonging to user exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -257,7 +257,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_mapper_error(self, handler, mock_service):
         """Test handling of mapper exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -283,7 +283,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_unexpected_error(self, handler, mock_service):
         """Test handling of unexpected exception"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,
@@ -309,7 +309,7 @@ class TestCreateEntryHandler:
     async def test_create_entry_converts_primitives_to_value_objects(self, handler, mock_service):
         """Test that handler converts command primitives to value objects"""
         # Arrange
-        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)
+        entry_date = datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)
         command = CreateEntryCommand(
             user_id=1,
             account_id=10,

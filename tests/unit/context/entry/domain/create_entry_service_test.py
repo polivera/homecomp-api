@@ -1,6 +1,6 @@
 """Unit tests for CreateEntryService"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
@@ -54,7 +54,7 @@ class TestCreateEntryService:
         account_id = EntryAccountID(10)
         category_id = EntryCategoryID(5)
         entry_type = EntryType(SharedEntryTypeValues.EXPENSE)
-        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc))
+        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC))
         amount = EntryAmount(Decimal("150.50"))
         description = EntryDescription("Grocery shopping")
         household_id = EntryHouseholdID(3)
@@ -108,7 +108,7 @@ class TestCreateEntryService:
         account_id = EntryAccountID(10)
         category_id = EntryCategoryID(5)
         entry_type = EntryType(SharedEntryTypeValues.INCOME)
-        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc))
+        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC))
         amount = EntryAmount(Decimal("1000.00"))
         description = EntryDescription("Salary")
 
@@ -163,7 +163,7 @@ class TestCreateEntryService:
                 account_id=account_id,
                 category_id=EntryCategoryID(5),
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
@@ -193,7 +193,7 @@ class TestCreateEntryService:
                 account_id=account_id,
                 category_id=category_id,
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
@@ -209,7 +209,7 @@ class TestCreateEntryService:
         account_id = EntryAccountID(10)
         category_id = EntryCategoryID(5)
         entry_type = EntryType(SharedEntryTypeValues.EXPENSE)
-        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc))
+        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC))
         amount = EntryAmount(Decimal("0.00"))  # Zero amount
         description = EntryDescription("Refund")
 
@@ -255,7 +255,7 @@ class TestCreateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=entry_type,
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("2000.00")),
             description=EntryDescription("Monthly salary"),
             household_id=None,
@@ -271,7 +271,7 @@ class TestCreateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=entry_type,
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("2000.00")),
             description=EntryDescription("Monthly salary"),
         )
@@ -294,7 +294,7 @@ class TestCreateEntryService:
                 account_id=EntryAccountID(10),
                 category_id=EntryCategoryID(5),
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )

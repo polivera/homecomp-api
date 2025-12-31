@@ -1,6 +1,6 @@
 """Unit tests for UpdateEntryService"""
 
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from decimal import Decimal
 from unittest.mock import AsyncMock, MagicMock
 
@@ -56,7 +56,7 @@ class TestUpdateEntryService:
         account_id = EntryAccountID(10)
         category_id = EntryCategoryID(5)
         entry_type = EntryType(SharedEntryTypeValues.EXPENSE)
-        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc))
+        entry_date = EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC))
         amount = EntryAmount(Decimal("200.00"))
         description = EntryDescription("Updated description")
         household_id = EntryHouseholdID(3)
@@ -68,7 +68,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(4),  # Different category
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Old description"),
             household_id=household_id,
@@ -134,7 +134,7 @@ class TestUpdateEntryService:
                 account_id=EntryAccountID(10),
                 category_id=EntryCategoryID(5),
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
@@ -158,7 +158,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Old"),
             household_id=None,
@@ -178,7 +178,7 @@ class TestUpdateEntryService:
                 account_id=account_id,
                 category_id=EntryCategoryID(5),
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
@@ -201,7 +201,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Old"),
             household_id=None,
@@ -222,7 +222,7 @@ class TestUpdateEntryService:
                 account_id=EntryAccountID(10),
                 category_id=category_id,
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
@@ -244,7 +244,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Old"),
             household_id=household_id,  # Has household_id
@@ -256,7 +256,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("200.00")),
             description=EntryDescription("Updated"),
             household_id=household_id,  # Preserved
@@ -274,9 +274,10 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("200.00")),
             description=EntryDescription("Updated"),
+            household_id=EntryHouseholdID(5),
         )
 
         # Assert
@@ -298,7 +299,7 @@ class TestUpdateEntryService:
             account_id=EntryAccountID(10),
             category_id=EntryCategoryID(5),
             entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=timezone.utc)),
+            entry_date=EntryDate(datetime(2024, 12, 30, 10, 0, 0, tzinfo=UTC)),
             amount=EntryAmount(Decimal("100.00")),
             description=EntryDescription("Old"),
             household_id=None,
@@ -317,7 +318,7 @@ class TestUpdateEntryService:
                 account_id=EntryAccountID(10),
                 category_id=EntryCategoryID(5),
                 entry_type=EntryType(SharedEntryTypeValues.EXPENSE),
-                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=timezone.utc)),
+                entry_date=EntryDate(datetime(2024, 12, 31, 10, 0, 0, tzinfo=UTC)),
                 amount=EntryAmount(Decimal("100.00")),
                 description=EntryDescription("Test"),
             )
