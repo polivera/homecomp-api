@@ -18,6 +18,7 @@ from app.context.entry.domain.value_objects import (
     EntryCategoryID,
     EntryDate,
     EntryDescription,
+    EntryHouseholdID,
     EntryID,
     EntryType,
     EntryUserID,
@@ -49,6 +50,7 @@ class UpdateEntryHandler(UpdateEntryHandlerContract):
                 entry_date=EntryDate(command.entry_date),
                 amount=EntryAmount.from_float(command.amount),
                 description=EntryDescription(command.description),
+                household_id=EntryHouseholdID(command.household_id) if command.household_id else None,
             )
 
             # Validate operation succeeded

@@ -12,6 +12,7 @@ from app.context.entry.domain.value_objects import (
     EntryCategoryID,
     EntryDate,
     EntryDescription,
+    EntryHouseholdID,
     EntryID,
     EntryType,
     EntryUserID,
@@ -40,6 +41,7 @@ class UpdateEntryService(UpdateEntryServiceContract):
         entry_date: EntryDate,
         amount: EntryAmount,
         description: EntryDescription,
+        household_id: EntryHouseholdID | None = None,
     ) -> EntryDTO:
         """Update an existing entry with validation"""
         self._logger.debug(
@@ -48,7 +50,6 @@ class UpdateEntryService(UpdateEntryServiceContract):
             user_id=user_id.value,
         )
 
-        # Verify entry exists and belongs to user
         existing_entry = await self._repository.find_entry_by_id(
             entry_id=entry_id,
             user_id=user_id,
@@ -99,7 +100,7 @@ class UpdateEntryService(UpdateEntryServiceContract):
             entry_date=entry_date,
             amount=amount,
             description=description,
-            household_id=existing_entry.household_id,  # Preserve household_id
+            household_id=household_id,
         )
 
         # Update entry

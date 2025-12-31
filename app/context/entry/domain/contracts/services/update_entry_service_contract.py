@@ -7,6 +7,7 @@ from app.context.entry.domain.value_objects import (
     EntryCategoryID,
     EntryDate,
     EntryDescription,
+    EntryHouseholdID,
     EntryID,
     EntryType,
     EntryUserID,
@@ -27,6 +28,7 @@ class UpdateEntryServiceContract(ABC):
         entry_date: EntryDate,
         amount: EntryAmount,
         description: EntryDescription,
+        household_id: EntryHouseholdID | None = None,
     ) -> EntryDTO:
         """
         Update an existing entry with validation

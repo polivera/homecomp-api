@@ -14,3 +14,4 @@ class UpdateEntryCommand:
     entry_date: datetime
     amount: float
     description: str
+    household_id: int | None = None
