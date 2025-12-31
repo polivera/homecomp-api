@@ -49,9 +49,11 @@ async def get_db():
 # ──────────────────────────────────────────────────────────────────────────────
 
 from app.context.auth.infrastructure.models.session_model import SessionModel  # noqa: F401, E402
+from app.context.category.infrastructure.models.category_model import CategoryModel  # noqa: F401, E402
 from app.context.credit_card.infrastructure.models.credit_card_model import (  # noqa: F401, E402
     CreditCardModel,
 )
+from app.context.entry.infrastructure.models.entry_model import EntryModel  # noqa: F401, E402
 from app.context.household.infrastructure.models.household_model import (  # noqa: F401, E402
     HouseholdMemberModel,
     HouseholdModel,

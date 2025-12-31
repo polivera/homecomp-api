@@ -26,7 +26,7 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("currency", sa.String(3), nullable=False),
         sa.Column("balance", sa.DECIMAL(15, 2), nullable=False),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.UniqueConstraint("user_id", "name", name="uq_user_accounts_user_id_name"),
     )

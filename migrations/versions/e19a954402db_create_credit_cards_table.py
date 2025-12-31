@@ -28,7 +28,7 @@ def upgrade() -> None:
         sa.Column("currency", sa.String(3), nullable=False),
         sa.Column("limit", sa.DECIMAL(15, 2), nullable=False),
         sa.Column("used", sa.DECIMAL(15, 2), nullable=False),
-        sa.Column("deleted_at", sa.DateTime(), nullable=True),
+        sa.Column("deleted_at", sa.DateTime(timezone=True), nullable=True),
         sa.ForeignKeyConstraint(["user_id"], ["users.id"], ondelete="CASCADE"),
         sa.ForeignKeyConstraint(["account_id"], ["user_accounts.id"], ondelete="CASCADE"),
         sa.UniqueConstraint("user_id", "name", name="uq_credit_cards_user_id_name"),

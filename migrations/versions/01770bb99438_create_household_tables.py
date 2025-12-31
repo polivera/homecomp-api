@@ -1,7 +1,7 @@
 """Create household tables
 
 Revision ID: 01770bb99438
-Revises: d96343c7a2a6
+Revises: e19a954402db
 Create Date: 2025-12-27 15:30:16.811732
 
 """
@@ -13,7 +13,7 @@ from alembic import op
 
 # revision identifiers, used by Alembic.
 revision: str = "01770bb99438"
-down_revision: str | Sequence[str] | None = "d96343c7a2a6"
+down_revision: str | Sequence[str] | None = "e19a954402db"
 branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
