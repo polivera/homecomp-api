@@ -4,8 +4,11 @@ from app.context.entry.domain.dto import EntryDTO
 from app.context.entry.domain.value_objects import (
     EntryAccountID,
     EntryCategoryID,
+    EntryDate,
     EntryID,
+    EntryMonth,
     EntryUserID,
+    EntryYear,
 )
 
 
@@ -51,8 +54,9 @@ class EntryRepositoryContract(ABC):
         self,
         user_id: EntryUserID,
         account_id: EntryAccountID,
-        month: int,
-        year: int,
+        month: EntryMonth,
+        year: EntryYear,
+        last_entry_date: EntryDate | None = None,
     ) -> list[EntryDTO]:
         """
         Find all entries for a specific account in a given month/year

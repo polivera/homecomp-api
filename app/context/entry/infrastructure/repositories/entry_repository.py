@@ -1,4 +1,4 @@
-from sqlalchemy import delete, extract, select
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.context.entry.domain.contracts.infrastructure import EntryRepositoryContract
@@ -7,8 +7,11 @@ from app.context.entry.domain.exceptions import EntryNotFoundError
 from app.context.entry.domain.value_objects import (
     EntryAccountID,
     EntryCategoryID,
+    EntryDate,
     EntryID,
+    EntryMonth,
     EntryUserID,
+    EntryYear,
 )
 from app.context.entry.infrastructure.mappers import EntryMapper
 from app.context.entry.infrastructure.models import EntryModel
@@ -49,20 +52,26 @@ class EntryRepository(EntryRepositoryContract):
         self,
         user_id: EntryUserID,
         account_id: EntryAccountID,
-        month: int,
-        year: int,
+        month: EntryMonth,
+        year: EntryYear,
+        last_entry_date: EntryDate | None = None,
     ) -> list[EntryDTO]:
         """Find all entries for account in specific month/year"""
+
         stmt = (
             select(EntryModel)
             .where(
                 EntryModel.user_id == user_id.value,
                 EntryModel.account_id == account_id.value,
-                extract("month", EntryModel.entry_date) == month,
-                extract("year", EntryModel.entry_date) == year,
+                EntryModel.entry_date >= EntryDate.start_of_month(month, year).value,
+                EntryModel.entry_date < EntryDate.start_of_next_month(month, year).value,
             )
             .order_by(EntryModel.entry_date.desc())
+            .limit(20)
         )
+        if last_entry_date:
+            stmt = stmt.where(EntryModel.entry_date < last_entry_date.value)
+
         result = await self._db.execute(stmt)
         models = result.scalars().all()
         return [EntryMapper.to_dto_or_fail(model) for model in models]

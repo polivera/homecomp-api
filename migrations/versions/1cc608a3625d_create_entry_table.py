@@ -99,9 +99,9 @@ def upgrade() -> None:
 
     # Composite index for common query pattern: user's entries by date
     op.create_index(
-        "ix_entries_user_date",
+        "ix_entries_user_account_date",
         "entries",
-        ["user_id", "entry_date"],
+        ["user_id", "account_id", "entry_date"],
     )
 
 
