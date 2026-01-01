@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from enum import Enum
 from typing import Self
 
@@ -15,9 +15,9 @@ class SharedEntryType:
     """Entry type for financial entries"""
 
     value: str
+    _validated: bool = field(default=False, repr=False, compare=False)
 
-    @classmethod
-    def from_string(cls, str_value: str) -> Self:
+    def __post_init__(self):
         """
         Create EntryType from string value.
 
@@ -30,10 +30,12 @@ class SharedEntryType:
         Raises:
             ValueError: If value is not valid
         """
-        if str_value != SharedEntryTypeValues.INCOME and str_value != SharedEntryTypeValues.EXPENSE:
-            raise ValueError(f"Invalid entry type: '{str_value}'. Expected 'income' or 'expense'")
+        if self.value != SharedEntryTypeValues.INCOME and self.value != SharedEntryTypeValues.EXPENSE:
+            raise ValueError(f"Invalid entry type: '{self.value}'. Expected 'income' or 'expense'")
 
-        return cls(value=str_value)
+    @classmethod
+    def from_trusted_source(cls, value: str) -> Self:
+        return cls(value, _validated=True)
 
     @classmethod
     def expense(cls) -> Self:

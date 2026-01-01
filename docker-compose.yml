@@ -1,4 +1,39 @@
 services:
+  # FastAPI Application
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: homecomp-api
+    ports:
+      - "8090:8090"
+    environment:
+      - APP_ENV=${APP_ENV:-dev}
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
+      - VALKEY_HOST=valkey
+      - VALKEY_PORT=6379
+    depends_on:
+      postgres:
+        condition: service_healthy
+      valkey:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8090/').read()"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Mount source code for development (comment out for production)
+    volumes:
+      - ./app:/app/app:ro
+    networks:
+      - homecomp-network
+
   postgres:
     image: postgres:16-alpine
     container_name: homecomp-postgres
@@ -16,6 +51,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - homecomp-network
 
   postgres-test:
     image: postgres:16-alpine
@@ -34,6 +71,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - homecomp-network
 
   valkey:
     image: valkey/valkey:8-alpine
@@ -48,6 +87,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - homecomp-network
 
   loki:
     image: grafana/loki:3.2.0
@@ -64,6 +105,8 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - homecomp-network
 
   promtail:
     image: grafana/promtail:3.2.0
@@ -77,6 +120,8 @@ services:
     restart: unless-stopped
     depends_on:
       - loki
+    networks:
+      - homecomp-network
 
   grafana:
     image: grafana/grafana:11.4.0
@@ -99,6 +144,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    networks:
+      - homecomp-network
+
+networks:
+  homecomp-network:
+    driver: bridge
 
 volumes:
   postgres_data:
