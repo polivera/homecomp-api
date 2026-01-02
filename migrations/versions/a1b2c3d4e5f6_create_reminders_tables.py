@@ -42,6 +42,11 @@ def upgrade() -> None:
             nullable=False,
         ),
         sa.Column(
+            "amount",
+            sa.DECIMAL(15, 2),
+            nullable=False,
+        ),
+        sa.Column(
             "frequency",
             sa.String(50),
             nullable=False,

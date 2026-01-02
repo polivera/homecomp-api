@@ -26,7 +26,7 @@ class EntryMapper:
                 user_id=EntryUserID.from_trusted_source(model.user_id),
                 account_id=EntryAccountID.from_trusted_source(model.account_id),
                 category_id=EntryCategoryID.from_trusted_source(model.category_id),
-                entry_type=EntryType.from_string(model.entry_type),
+                entry_type=EntryType.from_trusted_source(model.entry_type),
                 entry_date=EntryDate.from_trusted_source(model.entry_date),
                 amount=EntryAmount.from_trusted_source(model.amount),
                 description=EntryDescription.from_trusted_source(model.description),

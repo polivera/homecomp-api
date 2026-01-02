@@ -22,6 +22,9 @@ class SharedDateTime:
                 utc_value = self.value.astimezone(UTC)
                 object.__setattr__(self, "value", utc_value)
 
+    def to_db_value(self) -> str:
+        return self.value.isoformat()
+
     @classmethod
     def from_trusted_source(cls, value: datetime) -> Self:
         """Skip validation - for database reads"""

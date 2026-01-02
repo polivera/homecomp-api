@@ -1,6 +1,7 @@
 from .shared_account_id import SharedAccountID
 from .shared_app_env import SharedAppEnv
 from .shared_balance import SharedBalance
+from .shared_category_id import SharedCategoryID
 from .shared_currency import SharedCurrency
 from .shared_date import SharedDateTime
 from .shared_deleted_at import SharedDeletedAt
@@ -26,4 +27,5 @@ __all__ = [
     "SharedAppEnv",
     "SharedMonth",
     "SharedYear",
+    "SharedCategoryID",
 ]

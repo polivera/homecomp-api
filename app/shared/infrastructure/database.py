@@ -1,3 +1,5 @@
+# pyright: ignore[reportUnusedImport]
+# ruff: noqa: F401, E402
 from os import getenv
 
 from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
@@ -58,6 +60,7 @@ from app.context.household.infrastructure.models.household_model import (  # noq
     HouseholdMemberModel,
     HouseholdModel,
 )
+from app.context.reminder.infrastructure.models import ReminderModel, ReminderOccurrenceModel
 from app.context.user.infrastructure.models.user_model import UserModel  # noqa: F401, E402
 from app.context.user_account.infrastructure.models.user_account_model import (  # noqa: F401, E402
     UserAccountModel,

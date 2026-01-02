@@ -1,11 +1,13 @@
 from app.context.reminder.domain.dto import ReminderDTO
 from app.context.reminder.domain.value_objects import (
+    ReminderCategoryID,
     ReminderCurrency,
     ReminderDescription,
     ReminderEndDate,
     ReminderEntryType,
     ReminderFrequency,
     ReminderID,
+    ReminderOccurrenceAmount,
     ReminderStartDate,
     ReminderUserID,
 )
@@ -22,8 +24,10 @@ class ReminderMapper:
             ReminderDTO(
                 reminder_id=ReminderID.from_trusted_source(model.id),
                 user_id=ReminderUserID.from_trusted_source(model.user_id),
+                category_id=ReminderCategoryID.from_trusted_source(model.category_id),
                 entry_type=ReminderEntryType.from_trusted_source(model.entry_type),
                 currency=ReminderCurrency.from_trusted_source(model.currency),
+                amount=ReminderOccurrenceAmount.from_trusted_source(model.amount),
                 frequency=ReminderFrequency.from_trusted_source(model.frequency),
                 start_date=ReminderStartDate.from_trusted_source(model.start_date),
                 end_date=ReminderEndDate.from_trusted_source(model.end_date) if model.end_date else None,
@@ -49,9 +53,10 @@ class ReminderMapper:
             user_id=dto.user_id.value,
             entry_type=dto.entry_type.value,
             currency=dto.currency.value,
+            amount=dto.amount.value,
             frequency=dto.frequency.value,
             start_date=dto.start_date.value,
-            end_date=dto.end_date.value if dto.end_date else None,
-            category_id=0,  # TODO: Add category_id to ReminderDTO
+            category_id=dto.category_id.value,
             description=dto.description.value,
+            end_date=dto.end_date.value if dto.end_date else None,
         )

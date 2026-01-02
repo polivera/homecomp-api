@@ -1,3 +1,4 @@
+from .reminder_category_id import ReminderCategoryID
 from .reminder_currency import ReminderCurrency
 from .reminder_description import ReminderDescription
 from .reminder_end_date import ReminderEndDate
@@ -24,4 +25,5 @@ __all__ = [
     "ReminderOccurrenceAmount",
     "ReminderOccurrenceScheduledDate",
     "ReminderOccurrenceStatus",
+    "ReminderCategoryID",
 ]

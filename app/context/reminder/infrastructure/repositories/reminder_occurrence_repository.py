@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import Any, cast
 
-from sqlalchemy import delete, select, update
+from sqlalchemy import select, update
 from sqlalchemy.engine import CursorResult
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession

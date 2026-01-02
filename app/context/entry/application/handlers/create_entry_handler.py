@@ -43,7 +43,7 @@ class CreateEntryHandler(CreateEntryHandlerContract):
                 user_id=EntryUserID(command.user_id),
                 account_id=EntryAccountID(command.account_id),
                 category_id=EntryCategoryID(command.category_id),
-                entry_type=EntryType.from_string(command.entry_type),
+                entry_type=EntryType(command.entry_type),
                 entry_date=EntryDate(command.entry_date),
                 amount=EntryAmount.from_float(command.amount),
                 description=EntryDescription(command.description),
