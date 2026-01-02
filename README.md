@@ -403,6 +403,7 @@ Building this project taught me:
 
 ## Future Enhancements
 
+- [ ] Credit card expenses tracking
 - [ ] JWT-based authentication as an alternative to sessions
 - [ ] Real-time notifications via WebSockets
 - [ ] Budget planning and forecasting features
