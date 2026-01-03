@@ -20,13 +20,19 @@ from app.context.reminder.domain.value_objects import (
     ReminderStartDate,
     ReminderUserID,
 )
+from app.shared.domain.contracts import LoggerContract
 
 
 class CreateReminderHandler(CreateReminderHandlerContract):
     """Handler for create reminder command"""
 
-    def __init__(self, service: CreateReminderServiceContract):
+    def __init__(
+        self,
+        service: CreateReminderServiceContract,
+        logger: LoggerContract,
+    ):
         self._service = service
+        self._logger = logger
 
     async def handle(self, command: CreateReminderCommand) -> CreateReminderResult:
         """Execute create reminder command"""
@@ -93,7 +99,14 @@ class CreateReminderHandler(CreateReminderHandlerContract):
                 error_message="Error mapping reminder data",
             )
 
-        except Exception:
+        except Exception as e:
+            self._logger.error(
+                "Unexpected error creating reminder",
+                user_id=command.user_id,
+                entry_type=command.entry_type,
+                start_date=command.start_date,
+                error=str(e),
+            )
             return CreateReminderResult(
                 error_code=CreateReminderErrorCode.UNEXPECTED_ERROR,
                 error_message="Unexpected error creating reminder",

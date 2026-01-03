@@ -1,6 +1,7 @@
 from .create_reminder_service import CreateReminderService
 from .delete_reminder_service import DeleteReminderService
 from .generate_occurrences_service import GenerateOccurrencesService
+from .pay_reminder_occurrence_service import PayReminderOccurrenceService
 from .update_reminder_service import UpdateReminderService
 
 __all__ = [
@@ -8,4 +9,5 @@ __all__ = [
     "UpdateReminderService",
     "DeleteReminderService",
     "GenerateOccurrencesService",
+    "PayReminderOccurrenceService",
 ]

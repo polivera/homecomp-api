@@ -1,6 +1,9 @@
 from .exceptions import (
     InvalidReminderDateRangeError,
     InvalidReminderFrequencyError,
+    OccurrenceAlreadyPaidError,
+    OccurrenceNotBelongsToUserError,
+    OccurrenceNotFoundError,
     ReminderMapperError,
     ReminderNotBelongsToUserError,
     ReminderNotFoundError,
@@ -16,4 +19,7 @@ __all__ = [
     "ReminderOccurrenceMapperError",
     "InvalidReminderFrequencyError",
     "InvalidReminderDateRangeError",
+    "OccurrenceNotFoundError",
+    "OccurrenceNotBelongsToUserError",
+    "OccurrenceAlreadyPaidError",
 ]

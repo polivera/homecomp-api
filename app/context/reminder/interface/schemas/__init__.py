@@ -3,6 +3,7 @@ from .reminder_schemas import (
     DeleteReminderResponse,
     OccurrenceListResponse,
     OccurrenceResponse,
+    PayReminderOccurrenceResponse,
     ReminderListResponse,
     ReminderResponse,
     UpdateReminderRequest,
@@ -16,4 +17,5 @@ __all__ = [
     "OccurrenceResponse",
     "OccurrenceListResponse",
     "DeleteReminderResponse",
+    "PayReminderOccurrenceResponse",
 ]

@@ -3,6 +3,7 @@ from .delete_reminder_handler_contract import DeleteReminderHandlerContract
 from .find_reminder_handler_contract import FindReminderHandlerContract
 from .list_occurrences_handler_contract import ListOccurrencesHandlerContract
 from .list_reminders_handler_contract import ListRemindersHandlerContract
+from .pay_reminder_occurrence_handler_contract import PayReminderOccurrenceHandlerContract
 from .update_reminder_handler_contract import UpdateReminderHandlerContract
 
 __all__ = [
@@ -12,4 +13,5 @@ __all__ = [
     "FindReminderHandlerContract",
     "ListRemindersHandlerContract",
     "ListOccurrencesHandlerContract",
+    "PayReminderOccurrenceHandlerContract",
 ]

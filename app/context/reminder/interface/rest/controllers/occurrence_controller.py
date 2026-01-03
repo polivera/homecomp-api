@@ -4,11 +4,22 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.reminder.application.contracts import ListOccurrencesHandlerContract
-from app.context.reminder.application.dto import ListOccurrencesErrorCode
+from app.context.reminder.application.commands import PayReminderOccurrenceCommand
+from app.context.reminder.application.contracts import (
+    ListOccurrencesHandlerContract,
+    PayReminderOccurrenceHandlerContract,
+)
+from app.context.reminder.application.dto import ListOccurrencesErrorCode, PayReminderOccurrenceErrorCode
 from app.context.reminder.application.queries import ListOccurrencesQuery
-from app.context.reminder.infrastructure.dependencies import get_list_occurrences_handler
-from app.context.reminder.interface.rest.schemas import OccurrenceListResponse, OccurrenceResponse
+from app.context.reminder.infrastructure.dependencies import (
+    get_list_occurrences_handler,
+    get_pay_reminder_occurrence_handler,
+)
+from app.context.reminder.interface.schemas import (
+    OccurrenceListResponse,
+    OccurrenceResponse,
+    PayReminderOccurrenceResponse,
+)
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/occurrences", tags=["occurrences"])
@@ -57,3 +68,37 @@ async def list_occurrences(
     ]
 
     return OccurrenceListResponse(occurrences=occurrences)
+
+
+@router.post("/{occurrence_id}/pay", response_model=PayReminderOccurrenceResponse, status_code=200)
+async def pay_reminder_occurrence(
+    occurrence_id: int,
+    handler: Annotated[PayReminderOccurrenceHandlerContract, Depends(get_pay_reminder_occurrence_handler)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
+):
+    """
+    Mark a reminder occurrence as paid
+
+    This will:
+    - Mark the occurrence as completed
+    - Create an entry record for the payment
+    - Return the created entry_id
+    """
+
+    command = PayReminderOccurrenceCommand(occurrence_id=occurrence_id, user_id=user_id)
+
+    result = await handler.handle(command)
+
+    # Map error codes to HTTP status codes
+    if result.error_code:
+        status_code_map = {
+            PayReminderOccurrenceErrorCode.OCCURRENCE_NOT_FOUND: 404,
+            PayReminderOccurrenceErrorCode.OCCURRENCE_NOT_BELONGS_TO_USER: 403,
+            PayReminderOccurrenceErrorCode.OCCURRENCE_ALREADY_PAID: 409,
+            PayReminderOccurrenceErrorCode.UNEXPECTED_ERROR: 500,
+        }
+        status_code = status_code_map.get(result.error_code, 500)
+        raise HTTPException(status_code=status_code, detail=result.error_message)
+
+    # Return success response
+    return PayReminderOccurrenceResponse(paid=result.paid, entry_id=result.entry_id)

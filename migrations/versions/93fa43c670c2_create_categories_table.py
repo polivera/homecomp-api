@@ -29,13 +29,13 @@ def upgrade() -> None:
             autoincrement=True,
             nullable=False,
         ),
-        sa.Column("user_id", sa.Integer, nullable=False),
-        sa.Column("name", sa.String(100), nullable=False),
+        sa.Column("name", sa.String(100), nullable=False, unique=True),  # Globally unique
         sa.Column("color", sa.String(7), nullable=False),  # Hex color code: #RRGGBB
         sa.Column(
-            "household_id",
-            sa.Integer,
-            nullable=True,  # Optional - for shared household categories
+            "is_system",
+            sa.Boolean,
+            nullable=False,
+            server_default="false",
         ),
         sa.Column(
             "created_at",
@@ -48,36 +48,43 @@ def upgrade() -> None:
             sa.DateTime(timezone=True),
             nullable=True,
         ),
-        # Foreign key constraints
-        sa.ForeignKeyConstraint(
-            ["user_id"],
-            ["users.id"],
-            name="fk_categories_user",
-            ondelete="CASCADE",
-        ),
-        sa.ForeignKeyConstraint(
-            ["household_id"],
-            ["households.id"],
-            name="fk_categories_household",
-            ondelete="SET NULL",
-        ),
-        # Unique constraint: user can't have duplicate category names
-        sa.UniqueConstraint(
-            "user_id",
-            "name",
-            name="uq_categories_user_name",
-        ),
     )
 
     # Create indexes for common queries
-    op.create_index("ix_categories_user_id", "categories", ["user_id"])
     op.create_index("ix_categories_deleted_at", "categories", ["deleted_at"])
-    op.create_index("ix_categories_household_id", "categories", ["household_id"])
+
+    # Seed system categories (cannot be modified or deleted)
+    op.execute(
+        """
+        INSERT INTO categories (name, color, is_system)
+        VALUES
+            ('Uncategorized', '#6B7280', true),
+            ('Credit Card Payment', '#EF4444', true)
+        """
+    )
+
+    # Seed example household categories (can be modified or deleted)
+    op.execute(
+        """
+        INSERT INTO categories (name, color, is_system)
+        VALUES
+            ('Groceries', '#10B981', false),
+            ('Utilities', '#3B82F6', false),
+            ('Rent', '#8B5CF6', false),
+            ('Transportation', '#F59E0B', false),
+            ('Entertainment', '#EC4899', false),
+            ('Healthcare', '#06B6D4', false),
+            ('Dining Out', '#F97316', false),
+            ('Shopping', '#A855F7', false),
+            ('Insurance', '#14B8A6', false),
+            ('Savings', '#22C55E', false),
+            ('Income', '#84CC16', false),
+            ('Subscriptions', '#6366F1', false)
+        """
+    )
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index("ix_categories_household_id", table_name="categories")
     op.drop_index("ix_categories_deleted_at", table_name="categories")
-    op.drop_index("ix_categories_user_id", table_name="categories")
     op.drop_table("categories")

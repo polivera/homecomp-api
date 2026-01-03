@@ -19,10 +19,11 @@ class CreateReminderRequest(BaseModel):
     description: str = Field(..., min_length=1, max_length=500)
     entry_type: str = Field(..., pattern="^(income|expense)$")
     currency: str = Field(..., min_length=3, max_length=3)
+    amount: float = Field(..., ge=0, description="Amount (non-negative)")
     frequency: str = Field(..., pattern="^(daily|weekly|biweekly|monthly|quarterly|yearly)$")
+    category_id: int
     start_date: datetime
     end_date: datetime | None = None
-    category_id: int | None = None
 
 
 class UpdateReminderRequest(BaseModel):
@@ -93,3 +94,11 @@ class DeleteReminderResponse:
     """Response for delete reminder operation"""
 
     message: str
+
+
+@dataclass(frozen=True)
+class PayReminderOccurrenceResponse:
+    """Response for pay reminder occurrence operation"""
+
+    paid: bool
+    entry_id: int

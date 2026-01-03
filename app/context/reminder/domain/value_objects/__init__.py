@@ -9,6 +9,7 @@ from .reminder_occurrence_amount import ReminderOccurrenceAmount
 from .reminder_occurrence_id import ReminderOccurrenceID
 from .reminder_occurrence_scheduled_date import ReminderOccurrenceScheduledDate
 from .reminder_occurrence_status import ReminderOccurrenceStatus
+from .reminder_pay_account_id import ReminderPayAccountID
 from .reminder_start_date import ReminderStartDate
 from .reminder_user_id import ReminderUserID
 
@@ -26,4 +27,5 @@ __all__ = [
     "ReminderOccurrenceScheduledDate",
     "ReminderOccurrenceStatus",
     "ReminderCategoryID",
+    "ReminderPayAccountID",
 ]

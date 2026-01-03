@@ -41,3 +41,21 @@ class InvalidReminderDateRangeError(Exception):
     """Raised when end_date is before start_date"""
 
     pass
+
+
+class OccurrenceNotFoundError(Exception):
+    """Raised when an occurrence is not found"""
+
+    pass
+
+
+class OccurrenceNotBelongsToUserError(Exception):
+    """Raised when an occurrence does not belong to the user"""
+
+    pass
+
+
+class OccurrenceAlreadyPaidError(Exception):
+    """Raised when an occurrence has already been paid"""
+
+    pass

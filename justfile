@@ -14,6 +14,9 @@ dev:
 dev-test:
     APP_ENV=test uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
+dev-debug:
+    APP_ENV=debug uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+
 # ============================================================================
 # Database Migrations
 # ============================================================================

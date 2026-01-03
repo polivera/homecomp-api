@@ -3,6 +3,7 @@ from .delete_reminder_result import DeleteReminderErrorCode, DeleteReminderResul
 from .find_reminder_result import FindReminderErrorCode, FindReminderResult
 from .list_occurrences_result import ListOccurrencesErrorCode, ListOccurrencesResult, OccurrenceListItem
 from .list_reminders_result import ListRemindersErrorCode, ListRemindersResult, ReminderListItem
+from .pay_reminder_occurrence_result import PayReminderOccurrenceErrorCode, PayReminderOccurrenceResult
 from .update_reminder_result import UpdateReminderErrorCode, UpdateReminderResult
 
 __all__ = [
@@ -20,4 +21,6 @@ __all__ = [
     "ListOccurrencesResult",
     "ListOccurrencesErrorCode",
     "OccurrenceListItem",
+    "PayReminderOccurrenceResult",
+    "PayReminderOccurrenceErrorCode",
 ]

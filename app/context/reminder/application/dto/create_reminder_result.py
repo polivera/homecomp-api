@@ -1,8 +1,9 @@
 """Result DTO for create reminder command"""
 
 from dataclasses import dataclass
-from datetime import datetime
 from enum import Enum
+
+from app.context.reminder.domain.dto import ReminderDTO
 
 
 class CreateReminderErrorCode(str, Enum):
@@ -18,15 +19,8 @@ class CreateReminderErrorCode(str, Enum):
 class CreateReminderResult:
     """Result of create reminder operation"""
 
-    # Success fields
-    reminder_id: int | None = None
-    description: str | None = None
-    entry_type: str | None = None
-    currency: str | None = None
-    frequency: str | None = None
-    start_date: datetime | None = None
-    end_date: datetime | None = None
-    category_id: int | None = None
+    # Success field
+    reminder: ReminderDTO | None = None
 
     # Error fields
     error_code: CreateReminderErrorCode | None = None

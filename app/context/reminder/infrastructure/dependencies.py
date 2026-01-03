@@ -9,6 +9,7 @@ from app.context.reminder.application.contracts import (
     FindReminderHandlerContract,
     ListOccurrencesHandlerContract,
     ListRemindersHandlerContract,
+    PayReminderOccurrenceHandlerContract,
     UpdateReminderHandlerContract,
 )
 from app.context.reminder.domain.contracts.infrastructure import (
@@ -19,9 +20,12 @@ from app.context.reminder.domain.contracts.services import (
     CreateReminderServiceContract,
     DeleteReminderServiceContract,
     GenerateOccurrencesServiceContract,
+    PayReminderOccurrenceServiceContract,
     UpdateReminderServiceContract,
 )
+from app.shared.domain.contracts import LoggerContract
 from app.shared.infrastructure.database import get_db
+from app.shared.infrastructure.dependencies import get_logger
 
 # ============================================================================
 # Repository Dependencies
@@ -104,11 +108,12 @@ def get_delete_reminder_service(
 
 def get_create_reminder_handler(
     service: Annotated[CreateReminderServiceContract, Depends(get_create_reminder_service)],
+    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> CreateReminderHandlerContract:
     """CreateReminderHandler dependency injection"""
     from app.context.reminder.application.handlers import CreateReminderHandler
 
-    return CreateReminderHandler(service)
+    return CreateReminderHandler(service, logger)
 
 
 def get_update_reminder_handler(
@@ -154,3 +159,20 @@ def get_list_occurrences_handler(
     from app.context.reminder.application.handlers import ListOccurrencesHandler
 
     return ListOccurrencesHandler(repository)
+
+
+def get_pay_reminder_occurrence_service() -> PayReminderOccurrenceServiceContract:
+    """PayReminderOccurrenceService dependency injection"""
+    from app.context.reminder.domain.services import PayReminderOccurrenceService
+
+    # TODO: Add required dependencies once service implementation is complete
+    return PayReminderOccurrenceService()
+
+
+def get_pay_reminder_occurrence_handler(
+    service: Annotated[PayReminderOccurrenceServiceContract, Depends(get_pay_reminder_occurrence_service)],
+) -> PayReminderOccurrenceHandlerContract:
+    """PayReminderOccurrenceHandler dependency injection"""
+    from app.context.reminder.application.handlers import PayReminderOccurrenceHandler
+
+    return PayReminderOccurrenceHandler(service)
