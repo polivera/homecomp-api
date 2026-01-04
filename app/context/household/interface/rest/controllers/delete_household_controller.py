@@ -3,11 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import DeleteHouseholdCommand
-from app.context.household.application.contracts import DeleteHouseholdHandlerContract
 from app.context.household.application.dto import DeleteHouseholdErrorCode
-from app.context.household.infrastructure.dependencies import get_delete_household_handler
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -16,11 +13,12 @@ router = APIRouter()
 @router.delete("/{household_id}", status_code=204)
 async def delete_household(
     household_id: int,
-    handler: Annotated[DeleteHouseholdHandlerContract, Depends(get_delete_household_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Soft delete household (owner only)"""
+    logger = app_container.logger
+    handler = app_container.get_delete_household_handler()
 
     logger.info("Delete household request", household_id=household_id, user_id=user_id)
 

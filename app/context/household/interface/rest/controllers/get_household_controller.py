@@ -2,13 +2,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.household.application.contracts import GetHouseholdHandlerContract
 from app.context.household.application.dto import GetHouseholdErrorCode
 from app.context.household.application.queries import GetHouseholdQuery
-from app.context.household.infrastructure.dependencies import get_get_household_handler
 from app.context.household.interface.schemas import HouseholdResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -17,11 +14,12 @@ router = APIRouter()
 @router.get("/{household_id}", response_model=HouseholdResponse)
 async def get_household(
     household_id: int,
-    handler: Annotated[GetHouseholdHandlerContract, Depends(get_get_household_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get household by ID (owner or active member only)"""
+    logger = app_container.logger
+    handler = app_container.get_household_handler()
 
     logger.info("Get household request", household_id=household_id, user_id=user_id)
 

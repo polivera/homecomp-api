@@ -53,6 +53,160 @@ from app.shared.domain.contracts import LoggerContract
 from app.shared.infrastructure.database import get_db
 from app.shared.infrastructure.dependencies import get_logger
 
+# ─────────────────────────────────────────────────────────────────
+# COMMAND HANDLERS (Write operations)
+# ─────────────────────────────────────────────────────────────────
+
+
+def accept_invite_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> AcceptInviteHandlerContract:
+    household_repository = _get_household_repository(db)
+    service = _get_accept_invite_service(household_repository, logger)
+    return AcceptInviteHandler(service, logger)
+
+
+def create_household_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> CreateHouseholdHandlerContract:
+    household_repo = _get_household_repository(db)
+    service = _get_create_household_service(household_repo, logger)
+    return CreateHouseholdHandler(service, logger)
+
+
+def decline_invite_hanlder_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> DeclineInviteHandlerContract:
+    household_repo = _get_household_repository(db)
+    decline_invite_service = _get_decline_invite_service(household_repo, logger)
+    return DeclineInviteHandler(decline_invite_service, logger)
+
+
+def delete_household_hanlder_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> DeleteHouseholdHandlerContract:
+    repository = _get_household_repository(db)
+    return DeleteHouseholdHandler(repository, logger)
+
+
+def get_household_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> GetHouseholdHandlerContract:
+    repository = _get_household_repository(db)
+    return GetHouseholdHandler(repository, logger)
+
+
+def invite_user_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> InviteUserHandlerContract:
+    household_repo = _get_household_repository(db)
+    service = _get_invite_user_service(household_repo, logger)
+    return InviteUserHandler(service, logger)
+
+
+def remove_member_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> RemoveMemberHandlerContract:
+    household_repo = _get_household_repository(db)
+    service = _get_remove_member_service(household_repo, logger)
+    return RemoveMemberHandler(service, logger)
+
+
+def update_household_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> UpdateHouseholdHandlerContract:
+    household_repo = _get_household_repository(db)
+    service = _get_update_household_service(household_repo, logger)
+    return UpdateHouseholdHandler(service, logger)
+
+
+def list_household_invites_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> ListHouseholdInvitesHandlerContract:
+    repository = _get_household_repository(db)
+    return ListHouseholdInvitesHandler(repository, logger)
+
+
+def list_user_households_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> ListUserHouseholdsHandlerContract:
+    repository = _get_household_repository(db)
+    return ListUserHouseholdsHandler(repository, logger)
+
+
+def list_user_pending_invites_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
+) -> ListUserPendingInvitesHandlerContract:
+    repository = _get_household_repository(db)
+    return ListUserPendingInvitesHandler(repository, logger)
+
+
+# ─────────────────────────────────────────────────────────────────
+# Private helper functions
+# ─────────────────────────────────────────────────────────────────
+
+
+def _get_accept_invite_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> AcceptInviteServiceContract:
+    return AcceptInviteService(household_repository, logger)
+
+
+def _get_household_repository(
+    db: AsyncSession,
+) -> HouseholdRepositoryContract:
+    return HouseholdRepository(db)
+
+
+def _get_create_household_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> CreateHouseholdServiceContract:
+    return CreateHouseholdService(household_repository, logger)
+
+
+def _get_decline_invite_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> DeclineInviteServiceContract:
+    return DeclineInviteService(household_repository, logger)
+
+
+def _get_invite_user_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> InviteUserServiceContract:
+    return InviteUserService(household_repository, logger)
+
+
+def _get_remove_member_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> RemoveMemberServiceContract:
+    return RemoveMemberService(household_repository, logger)
+
+
+def _get_update_household_service(
+    household_repository: HouseholdRepositoryContract,
+    logger: LoggerContract,
+) -> UpdateHouseholdServiceContract:
+    return UpdateHouseholdService(household_repository, logger)
+
+
+# ---
+
 
 # Repository dependencies
 def get_household_repository(

@@ -10,6 +10,10 @@ default:
 dev:
     uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
 
+# Start development server with debug environment
+dev-debug:
+    APP_ENV=debug uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
+
 # Start development server with test environment
 dev-test:
     APP_ENV=test uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 8080
