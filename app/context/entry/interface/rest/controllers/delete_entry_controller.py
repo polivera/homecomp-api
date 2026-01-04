@@ -3,11 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.entry.application.commands import DeleteEntryCommand
-from app.context.entry.application.contracts import DeleteEntryHandlerContract
 from app.context.entry.application.dto import DeleteEntryErrorCode
-from app.context.entry.infrastructure.dependencies import get_delete_entry_handler
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/entries")
@@ -16,11 +13,13 @@ router = APIRouter(prefix="/entries")
 @router.delete("/{entry_id}", status_code=204)
 async def delete_entry(
     entry_id: int,
-    handler: Annotated[DeleteEntryHandlerContract, Depends(get_delete_entry_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Delete an entry (hard delete)"""
+    logger = app_container.logger
+    handler = app_container.get_delete_entry_handler()
+
     logger.info("Delete entry request", user_id=user_id, entry_id=entry_id)
 
     command = DeleteEntryCommand(entry_id=entry_id, user_id=user_id)

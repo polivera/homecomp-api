@@ -2,10 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException, Query
 
-from app.context.entry.application.contracts import (
-    FindEntriesByAccountMonthHandlerContract,
-    FindEntryByIdHandlerContract,
-)
 from app.context.entry.application.dto import (
     FindMultipleEntriesErrorCode,
     FindSingleEntryErrorCode,
@@ -14,13 +10,8 @@ from app.context.entry.application.queries import (
     FindEntriesByAccountMonthQuery,
     FindEntryByIdQuery,
 )
-from app.context.entry.infrastructure.dependencies import (
-    get_find_entries_by_account_month_handler,
-    get_find_entry_by_id_handler,
-)
 from app.context.entry.interface.schemas import EntryResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/entries")
@@ -29,11 +20,13 @@ router = APIRouter(prefix="/entries")
 @router.get("/{entry_id}", response_model=EntryResponse)
 async def get_entry(
     entry_id: int,
-    handler: Annotated[FindEntryByIdHandlerContract, Depends(get_find_entry_by_id_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get a specific entry by ID"""
+    logger = app_container.logger
+    handler = app_container.get_find_entry_by_id_handler()
+
     query = FindEntryByIdQuery(entry_id=entry_id, user_id=user_id)
     result = await handler.handle(query)
 
@@ -72,11 +65,13 @@ async def list_entries(
     account_id: Annotated[int, Query(gt=0, description="Account ID (required)")],
     month: Annotated[int, Query(ge=1, le=12, description="Month (1-12, required)")],
     year: Annotated[int, Query(ge=1900, le=2100, description="Year (e.g., 2025, required)")],
-    handler: Annotated[FindEntriesByAccountMonthHandlerContract, Depends(get_find_entries_by_account_month_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get all entries for a specific account in a given month/year"""
+    logger = app_container.logger
+    handler = app_container.get_find_entries_by_account_month_handler()
+
     query = FindEntriesByAccountMonthQuery(
         user_id=user_id,
         account_id=account_id,

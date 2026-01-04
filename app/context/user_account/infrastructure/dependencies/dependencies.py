@@ -26,7 +26,6 @@ from app.context.user_account.domain.contracts.services.update_account_service_c
 )
 from app.shared.domain.contracts import LoggerContract
 
-
 # ─────────────────────────────────────────────────────────────────
 # COMMAND HANDLERS (Write operations)
 # ─────────────────────────────────────────────────────────────────

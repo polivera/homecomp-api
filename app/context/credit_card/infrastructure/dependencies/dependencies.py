@@ -26,7 +26,6 @@ from app.context.credit_card.domain.contracts.services.update_credit_card_servic
 )
 from app.shared.domain.contracts import LoggerContract
 
-
 # ─────────────────────────────────────────────────────────────────
 # COMMAND HANDLERS (Write operations)
 # ─────────────────────────────────────────────────────────────────

@@ -119,3 +119,39 @@ class ApplicationContainer:
         )
 
         return find_credit_cards_by_user_handler_factory(self._db, self._logger)
+
+    # =========================================================================
+    # Entry Context
+    # =========================================================================
+
+    def get_create_entry_handler(self):
+        """Get create entry handler with all dependencies"""
+        from app.context.entry.infrastructure.dependencies import create_entry_handler_factory
+
+        return create_entry_handler_factory(self._db, self._logger)
+
+    def get_update_entry_handler(self):
+        """Get update entry handler with all dependencies"""
+        from app.context.entry.infrastructure.dependencies import update_entry_handler_factory
+
+        return update_entry_handler_factory(self._db, self._logger)
+
+    def get_delete_entry_handler(self):
+        """Get delete entry handler with all dependencies"""
+        from app.context.entry.infrastructure.dependencies import delete_entry_handler_factory
+
+        return delete_entry_handler_factory(self._db, self._logger)
+
+    def get_find_entry_by_id_handler(self):
+        """Get find entry by id handler with all dependencies"""
+        from app.context.entry.infrastructure.dependencies import find_entry_by_id_handler_factory
+
+        return find_entry_by_id_handler_factory(self._db, self._logger)
+
+    def get_find_entries_by_account_month_handler(self):
+        """Get find entries by account and month handler with all dependencies"""
+        from app.context.entry.infrastructure.dependencies import (
+            find_entries_by_account_month_handler_factory,
+        )
+
+        return find_entries_by_account_month_handler_factory(self._db, self._logger)
