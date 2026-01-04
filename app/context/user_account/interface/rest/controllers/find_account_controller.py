@@ -2,12 +2,6 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.user_account.application.contracts.find_account_by_id_handler_contract import (
-    FindAccountByIdHandlerContract,
-)
-from app.context.user_account.application.contracts.find_accounts_by_user_handler_contract import (
-    FindAccountsByUserHandlerContract,
-)
 from app.context.user_account.application.dto import (
     FindMultipleAccountsErrorCode,
     FindSingleAccountErrorCode,
@@ -18,13 +12,8 @@ from app.context.user_account.application.queries.find_account_by_id_query impor
 from app.context.user_account.application.queries.find_accounts_by_user_query import (
     FindAccountsByUserQuery,
 )
-from app.context.user_account.infrastructure.dependencies import (
-    get_find_account_by_id_handler,
-    get_find_accounts_by_user_handler,
-)
 from app.context.user_account.interface.schemas.account_response import AccountResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -33,11 +22,13 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.get("/{account_id}", response_model=AccountResponse)
 async def get_account(
     account_id: int,
-    handler: Annotated[FindAccountByIdHandlerContract, Depends(get_find_account_by_id_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get a specific user account by ID"""
+    logger = app_container.logger
+    handler = app_container.get_find_account_by_id_handler()
+
     query = FindAccountByIdQuery(
         account_id=account_id,
         user_id=user_id,
@@ -83,11 +74,13 @@ async def get_account(
 
 @router.get("", response_model=list[AccountResponse])
 async def get_all_accounts(
-    handler: Annotated[FindAccountsByUserHandlerContract, Depends(get_find_accounts_by_user_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get all accounts for the authenticated user"""
+    logger = app_container.logger
+    handler = app_container.get_find_accounts_by_user_handler()
+
     query = FindAccountsByUserQuery(user_id=user_id)
     result = await handler.handle(query)
 

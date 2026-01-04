@@ -625,15 +625,20 @@ except Exception:  # Generic catch-all last
 Controllers check the result.error_code field and map to HTTP status codes:
 
 ```python
+from typing import Annotated
 from fastapi import APIRouter, HTTPException, Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
+from app.shared.infrastructure.middleware import get_current_user_id
 
 @router.post("/accounts", status_code=201)
 async def create_account(
     request: CreateAccountRequest,
-    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
-    user_id: int = Depends(get_current_user_id),
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
+    user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Create a new user account"""
+    handler = app_container.get_create_account_handler()
+
     command = CreateAccountCommand(
         user_id=user_id,
         name=request.name,
@@ -674,32 +679,104 @@ async def create_account(
 
 ## Dependency Injection
 
-### Define Contract-Based Factories
+**IMPORTANT**: This project uses the **ApplicationContainer** pattern for centralized dependency management.
+
+### Define Factory Functions in Infrastructure Layer
+
+Factory functions take `db: AsyncSession` and `logger: LoggerContract` as parameters and return fully configured handlers:
 
 ```python
-# infrastructure/dependencies.py
-def get_user_repository(
-    db: AsyncSession = Depends(get_db),
-) -> UserRepositoryContract:
-    return UserRepository(db)
+# infrastructure/dependencies/dependencies.py
+from sqlalchemy.ext.asyncio import AsyncSession
+from app.shared.domain.contracts import LoggerContract
 
-def get_login_handler(
-    service: LoginServiceContract = Depends(get_login_service),
-) -> LoginHandlerContract:
-    return LoginHandler(service)
+def login_handler_factory(db: AsyncSession, logger: LoggerContract) -> LoginHandlerContract:
+    """Factory for LoginHandler with all dependencies"""
+    from app.context.auth.infrastructure.repositories import SessionRepository
+    from app.context.auth.domain.services import LoginService
+    from app.context.auth.application.handlers import LoginHandler
+
+    # Private helper to get repository
+    session_repo = _get_session_repository(db)
+    # Private helper to get service
+    login_service = _get_login_service(session_repo, logger)
+
+    return LoginHandler(login_service, logger)
+
+def _get_session_repository(db: AsyncSession) -> SessionRepositoryContract:
+    """Private helper to get repository instance"""
+    from app.context.auth.infrastructure.repositories import SessionRepository
+    return SessionRepository(db)
+
+def _get_login_service(
+    session_repo: SessionRepositoryContract,
+    logger: LoggerContract,
+) -> LoginServiceContract:
+    """Private helper to get service instance"""
+    from app.context.auth.domain.services import LoginService
+    return LoginService(session_repo, logger)
 ```
 
-### Inject in Controllers
+**Export factories in `__init__.py`:**
 
 ```python
+# infrastructure/dependencies/__init__.py
+from .dependencies import login_handler_factory
+
+__all__ = ["login_handler_factory"]
+```
+
+### Register Factories in ApplicationContainer
+
+Add handler getter methods to the ApplicationContainer:
+
+```python
+# app/shared/infrastructure/container/app_container.py
+class ApplicationContainer:
+    def __init__(self, db: AsyncSession):
+        self._db = db
+        self._logger = get_logger()
+
+    @property
+    def logger(self) -> LoggerContract:
+        return self._logger
+
+    def get_login_handler(self):
+        """Get login handler with all dependencies"""
+        from app.context.auth.infrastructure.dependencies import login_handler_factory
+        return login_handler_factory(self._db, self._logger)
+```
+
+### Use ApplicationContainer in Controllers
+
+Controllers inject the ApplicationContainer and access dependencies through it:
+
+```python
+from typing import Annotated
+from fastapi import APIRouter, Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
+
 @router.post("/login")
 async def login(
     request: LoginRequest,
-    handler: LoginHandlerContract = Depends(get_login_handler),
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
 ):
+    # Get dependencies from container
+    logger = app_container.logger
+    handler = app_container.get_login_handler()
+
+    # Use handler
     command = LoginCommand(...)
-    return await handler.handle(command)
+    result = await handler.handle(command)
+    return result
 ```
+
+**Benefits of this pattern:**
+- **Centralized dependency management** - All wiring happens in one place (ApplicationContainer)
+- **Cleaner controllers** - Single container injection instead of multiple `Depends()`
+- **Easier testing** - Mock the entire container instead of individual dependencies
+- **Consistent across contexts** - Same pattern for all bounded contexts
+- **Better separation of concerns** - Dependency wiring separated from business logic
 
 ### Authenticating Requests
 
@@ -708,16 +785,22 @@ async def login(
 **Pattern:**
 
 ```python
+from typing import Annotated
 from fastapi import APIRouter, Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 @router.post("/accounts", status_code=201)
 async def create_account(
     request: CreateAccountRequest,
-    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
-    user_id: int = Depends(get_current_user_id),  # ✅ Inject authenticated user
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
+    user_id: Annotated[int, Depends(get_current_user_id)],  # ✅ Inject authenticated user
 ):
     """Create a new user account"""
+    # Get dependencies from container
+    logger = app_container.logger
+    handler = app_container.get_create_account_handler()
+
     command = CreateAccountCommand(
         user_id=user_id,  # ✅ Pass primitive to command
         name=request.name,

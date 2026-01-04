@@ -5,21 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.context.user_account.application.commands import (
     CreateAccountCommand,
 )
-from app.context.user_account.application.contracts import (
-    CreateAccountHandlerContract,
-)
 from app.context.user_account.application.dto import (
     CreateAccountErrorCode,
-)
-from app.context.user_account.infrastructure.dependencies import (
-    get_create_account_handler,
 )
 from app.context.user_account.interface.schemas import (
     CreateAccountRequest,
     CreateAccountResponse,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -28,11 +21,13 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.post("", response_model=CreateAccountResponse, status_code=201)
 async def create_account(
     request: CreateAccountRequest,
-    handler: Annotated[CreateAccountHandlerContract, Depends(get_create_account_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Create a new user account"""
+    logger = app_container.logger
+    handler = app_container.get_create_account_handler()
+
     logger.info("Account creation request", user_id=user_id, name=request.name, currency=request.currency)
 
     command = CreateAccountCommand(
