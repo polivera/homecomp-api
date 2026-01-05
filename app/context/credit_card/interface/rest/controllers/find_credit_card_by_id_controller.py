@@ -2,18 +2,11 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.credit_card.application.contracts import (
-    FindCreditCardByIdHandlerContract,
-)
 from app.context.credit_card.application.queries import FindCreditCardByIdQuery
-from app.context.credit_card.infrastructure.dependencies import (
-    get_find_credit_card_by_id_handler,
-)
 from app.context.credit_card.interface.schemas.credit_card_response import (
     CreditCardResponse,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/cards")
@@ -22,11 +15,13 @@ router = APIRouter(prefix="/cards")
 @router.get("/{credit_card_id}", response_model=CreditCardResponse)
 async def get_credit_card(
     credit_card_id: int,
-    handler: Annotated[FindCreditCardByIdHandlerContract, Depends(get_find_credit_card_by_id_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Get a credit card by ID"""
+    logger = app_container.logger
+    handler = app_container.get_find_credit_card_by_id_handler()
+
     logger.info("Get credit card by ID request", user_id=user_id, credit_card_id=credit_card_id)
 
     query = FindCreditCardByIdQuery(

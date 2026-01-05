@@ -5,21 +5,14 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.context.user_account.application.commands import (
     UpdateAccountCommand,
 )
-from app.context.user_account.application.contracts import (
-    UpdateAccountHandlerContract,
-)
 from app.context.user_account.application.dto import (
     UpdateAccountErrorCode,
-)
-from app.context.user_account.infrastructure.dependencies import (
-    get_update_account_handler,
 )
 from app.context.user_account.interface.schemas import (
     UpdateAccountRequest,
     UpdateAccountResponse,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -29,11 +22,13 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 async def update_account(
     account_id: int,
     request: UpdateAccountRequest,
-    handler: Annotated[UpdateAccountHandlerContract, Depends(get_update_account_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Update a user account (full update - all fields required)"""
+    logger = app_container.logger
+    handler = app_container.get_update_account_handler()
+
     logger.info("Account update request", user_id=user_id, account_id=account_id, name=request.name)
 
     command = UpdateAccountCommand(

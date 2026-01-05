@@ -3,13 +3,10 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, Response
 
 from app.context.auth.application.commands import LoginCommand
-from app.context.auth.application.contracts import LoginHandlerContract
 from app.context.auth.application.dto import LoginHandlerResultStatus
-from app.context.auth.infrastructure.dependencies import get_login_handler
 from app.context.auth.interface.rest.schemas import LoginRequest, LoginResponse
-from app.shared.domain.contracts import LoggerContract
 from app.shared.domain.value_objects import SharedAppEnv
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 
 router = APIRouter(prefix="/login")
 
@@ -18,9 +15,11 @@ router = APIRouter(prefix="/login")
 async def login(
     response: Response,
     request: LoginRequest,
-    handler: Annotated[LoginHandlerContract, Depends(get_login_handler)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
 ):
+    logger = app_container.logger
+    handler = app_container.get_login_handler()
+
     """User login endpoint"""
     logger.info("Login attempt", email=str(request.email))
 

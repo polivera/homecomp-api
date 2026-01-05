@@ -4,11 +4,10 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 
-from app.context.reminder.application.contracts import ListOccurrencesHandlerContract
 from app.context.reminder.application.dto import ListOccurrencesErrorCode
 from app.context.reminder.application.queries import ListOccurrencesQuery
-from app.context.reminder.infrastructure.dependencies import get_list_occurrences_handler
 from app.context.reminder.interface.rest.schemas import OccurrenceListResponse, OccurrenceResponse
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/occurrences", tags=["occurrences"])
@@ -16,7 +15,7 @@ router = APIRouter(prefix="/occurrences", tags=["occurrences"])
 
 @router.get("", response_model=OccurrenceListResponse)
 async def list_occurrences(
-    handler: Annotated[ListOccurrencesHandlerContract, Depends(get_list_occurrences_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
     reminder_id: int | None = None,
 ):
@@ -26,6 +25,7 @@ async def list_occurrences(
     If reminder_id is provided, returns occurrences for that specific reminder.
     Otherwise, returns all pending occurrences for the user.
     """
+    handler = app_container.get_list_occurrences_handler()
 
     query = ListOccurrencesQuery(user_id=user_id, reminder_id=reminder_id)
 

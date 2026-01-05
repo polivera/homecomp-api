@@ -3,12 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.entry.application.commands import UpdateEntryCommand
-from app.context.entry.application.contracts import UpdateEntryHandlerContract
 from app.context.entry.application.dto import UpdateEntryErrorCode
-from app.context.entry.infrastructure.dependencies import get_update_entry_handler
 from app.context.entry.interface.schemas import UpdateEntryRequest, UpdateEntryResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/entries")
@@ -18,11 +15,13 @@ router = APIRouter(prefix="/entries")
 async def update_entry(
     entry_id: int,
     request: UpdateEntryRequest,
-    handler: Annotated[UpdateEntryHandlerContract, Depends(get_update_entry_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Update an entry (full update - all fields required)"""
+    logger = app_container.logger
+    handler = app_container.get_update_entry_handler()
+
     logger.info("Update entry request", user_id=user_id, entry_id=entry_id)
 
     command = UpdateEntryCommand(

@@ -3,21 +3,14 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.credit_card.application.commands import UpdateCreditCardCommand
-from app.context.credit_card.application.contracts import (
-    UpdateCreditCardHandlerContract,
-)
 from app.context.credit_card.application.dto import UpdateCreditCardErrorCode
-from app.context.credit_card.infrastructure.dependencies import (
-    get_update_credit_card_handler,
-)
 from app.context.credit_card.interface.schemas.update_credit_card_response import (
     UpdateCreditCardResponse,
 )
 from app.context.credit_card.interface.schemas.update_credit_card_schema import (
     UpdateCreditCardRequest,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/cards")
@@ -27,11 +20,13 @@ router = APIRouter(prefix="/cards")
 async def update_credit_card(
     credit_card_id: int,
     request: UpdateCreditCardRequest,
-    handler: Annotated[UpdateCreditCardHandlerContract, Depends(get_update_credit_card_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Update an existing credit card"""
+    logger = app_container.logger
+    handler = app_container.get_update_credit_card_handler()
+
     logger.info("Update credit card request", user_id=user_id, credit_card_id=credit_card_id)
 
     command = UpdateCreditCardCommand(

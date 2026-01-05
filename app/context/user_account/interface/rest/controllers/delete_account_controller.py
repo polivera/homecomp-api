@@ -5,17 +5,10 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.context.user_account.application.commands import (
     DeleteAccountCommand,
 )
-from app.context.user_account.application.contracts import (
-    DeleteAccountHandlerContract,
-)
 from app.context.user_account.application.dto import (
     DeleteAccountErrorCode,
 )
-from app.context.user_account.infrastructure.dependencies import (
-    get_delete_account_handler,
-)
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/accounts", tags=["accounts"])
@@ -24,11 +17,13 @@ router = APIRouter(prefix="/accounts", tags=["accounts"])
 @router.delete("/{account_id}", status_code=204)
 async def delete_account(
     account_id: int,
-    handler: Annotated[DeleteAccountHandlerContract, Depends(get_delete_account_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Delete a user account (soft delete)"""
+    logger = app_container.logger
+    handler = app_container.get_delete_account_handler()
+
     logger.info("Account deletion request", user_id=user_id, account_id=account_id)
 
     command = DeleteAccountCommand(

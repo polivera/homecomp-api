@@ -3,15 +3,12 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import InviteUserCommand
-from app.context.household.application.contracts import InviteUserHandlerContract
 from app.context.household.application.dto import InviteUserErrorCode
-from app.context.household.infrastructure.dependencies import get_invite_user_handler
 from app.context.household.interface.schemas import (
     InviteUserRequest,
     InviteUserResponse,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -21,11 +18,12 @@ router = APIRouter()
 async def invite_user(
     household_id: int,
     request: InviteUserRequest,
-    handler: Annotated[InviteUserHandlerContract, Depends(get_invite_user_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> InviteUserResponse:
     """Invite a user to a household"""
+    logger = app_container.logger
+    handler = app_container.get_invite_user_handler()
 
     logger.info(
         "Invite user request",

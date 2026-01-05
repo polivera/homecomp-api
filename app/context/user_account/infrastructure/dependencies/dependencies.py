@@ -1,6 +1,3 @@
-from typing import Annotated
-
-from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.context.user_account.application.contracts.create_account_handler_contract import (
@@ -28,83 +25,48 @@ from app.context.user_account.domain.contracts.services.update_account_service_c
     UpdateAccountServiceContract,
 )
 from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.database import get_db
-from app.shared.infrastructure.dependencies import get_logger
-
-
-def get_user_account_repository(
-    db: Annotated[AsyncSession, Depends(get_db)],
-) -> UserAccountRepositoryContract:
-    """UserAccountRepository dependency injection"""
-    from app.context.user_account.infrastructure.repositories.user_account_repository import (
-        UserAccountRepository,
-    )
-
-    return UserAccountRepository(db)
-
 
 # ─────────────────────────────────────────────────────────────────
 # COMMAND HANDLERS (Write operations)
 # ─────────────────────────────────────────────────────────────────
 
 
-def get_create_account_service(
-    account_repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
-) -> CreateAccountServiceContract:
-    """CreateAccountService dependency injection"""
-    from app.context.user_account.domain.services.create_account_service import (
-        CreateAccountService,
-    )
-
-    return CreateAccountService(account_repository, logger)
-
-
-def get_create_account_handler(
-    service: Annotated[CreateAccountServiceContract, Depends(get_create_account_service)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+def create_account_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
 ) -> CreateAccountHandlerContract:
-    """CreateAccountHandler dependency injection"""
+    """Factory for CreateAccountHandler with all dependencies"""
     from app.context.user_account.application.handlers.create_account_handler import (
         CreateAccountHandler,
     )
 
+    service = _get_create_account_service(_get_user_account_repository(db), logger)
     return CreateAccountHandler(service, logger)
 
 
-def get_update_account_service(
-    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
-) -> UpdateAccountServiceContract:
-    """UpdateAccountService dependency injection"""
-    from app.context.user_account.domain.services.update_account_service import (
-        UpdateAccountService,
-    )
-
-    return UpdateAccountService(repository, logger)
-
-
-def get_update_account_handler(
-    service: Annotated[UpdateAccountServiceContract, Depends(get_update_account_service)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+def update_account_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
 ) -> UpdateAccountHandlerContract:
-    """UpdateAccountHandler dependency injection"""
+    """Factory for UpdateAccountHandler with all dependencies"""
     from app.context.user_account.application.handlers.update_account_handler import (
         UpdateAccountHandler,
     )
 
+    service = _get_update_account_service(_get_user_account_repository(db), logger)
     return UpdateAccountHandler(service, logger)
 
 
-def get_delete_account_handler(
-    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+def delete_account_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
 ) -> DeleteAccountHandlerContract:
-    """DeleteAccountHandler dependency injection"""
+    """Factory for DeleteAccountHandler with all dependencies"""
     from app.context.user_account.application.handlers.delete_account_handler import (
         DeleteAccountHandler,
     )
 
+    repository = _get_user_account_repository(db)
     return DeleteAccountHandler(repository, logger)
 
 
@@ -113,25 +75,65 @@ def get_delete_account_handler(
 # ─────────────────────────────────────────────────────────────────
 
 
-def get_find_account_by_id_handler(
-    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+def find_account_by_id_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
 ) -> FindAccountByIdHandlerContract:
-    """FindAccountByIdHandler dependency injection"""
+    """Factory for FindAccountByIdHandler with all dependencies"""
     from app.context.user_account.application.handlers.find_account_by_id_handler import (
         FindAccountByIdHandler,
     )
 
+    repository = _get_user_account_repository(db)
     return FindAccountByIdHandler(repository, logger)
 
 
-def get_find_accounts_by_user_handler(
-    repository: Annotated[UserAccountRepositoryContract, Depends(get_user_account_repository)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+def find_accounts_by_user_handler_factory(
+    db: AsyncSession,
+    logger: LoggerContract,
 ) -> FindAccountsByUserHandlerContract:
-    """FindAccountsByUserHandler dependency injection"""
+    """Factory for FindAccountsByUserHandler with all dependencies"""
     from app.context.user_account.application.handlers.find_accounts_by_user_handler import (
         FindAccountsByUserHandler,
     )
 
+    repository = _get_user_account_repository(db)
     return FindAccountsByUserHandler(repository, logger)
+
+
+# ─────────────────────────────────────────────────────────────────
+# Private helper functions
+# ─────────────────────────────────────────────────────────────────
+
+
+def _get_user_account_repository(db: AsyncSession) -> UserAccountRepositoryContract:
+    """Get user account repository instance"""
+    from app.context.user_account.infrastructure.repositories.user_account_repository import (
+        UserAccountRepository,
+    )
+
+    return UserAccountRepository(db)
+
+
+def _get_create_account_service(
+    repository: UserAccountRepositoryContract,
+    logger: LoggerContract,
+) -> CreateAccountServiceContract:
+    """Get create account service instance"""
+    from app.context.user_account.domain.services.create_account_service import (
+        CreateAccountService,
+    )
+
+    return CreateAccountService(repository, logger)
+
+
+def _get_update_account_service(
+    repository: UserAccountRepositoryContract,
+    logger: LoggerContract,
+) -> UpdateAccountServiceContract:
+    """Get update account service instance"""
+    from app.context.user_account.domain.services.update_account_service import (
+        UpdateAccountService,
+    )
+
+    return UpdateAccountService(repository, logger)

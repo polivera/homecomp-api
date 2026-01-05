@@ -3,12 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.entry.application.commands import CreateEntryCommand
-from app.context.entry.application.contracts import CreateEntryHandlerContract
 from app.context.entry.application.dto import CreateEntryErrorCode
-from app.context.entry.infrastructure.dependencies import get_create_entry_handler
 from app.context.entry.interface.schemas import CreateEntryRequest, CreateEntryResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/entries")
@@ -17,11 +14,13 @@ router = APIRouter(prefix="/entries")
 @router.post("", response_model=CreateEntryResponse, status_code=201)
 async def create_entry(
     request: CreateEntryRequest,
-    handler: Annotated[CreateEntryHandlerContract, Depends(get_create_entry_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Create a new entry"""
+    logger = app_container.logger
+    handler = app_container.get_create_entry_handler()
+
     logger.info("Create entry request", user_id=user_id, account_id=request.account_id)
 
     command = CreateEntryCommand(

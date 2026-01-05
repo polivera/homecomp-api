@@ -132,12 +132,18 @@ self._logger.critical("Unable to connect to authentication service", error=str(e
 
 ```python
 # ✅ GOOD - Success logged only at controller
+from typing import Annotated
+from fastapi import Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
+
 @router.post("/cards")
 async def create_credit_card(
     request: CreateCreditCardRequest,
-    handler: CreateCreditCardHandlerContract = Depends(...),
-    logger: LoggerContract = Depends(get_logger),
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
 ):
+    logger = app_container.logger
+    handler = app_container.get_create_credit_card_handler()
+
     logger.info("Create credit card request", user_id=user_id, name=request.name)
     result = await handler.handle(command)
 
@@ -211,15 +217,18 @@ class CreateCreditCardService:
 - Internal implementation details (use handler/service for that)
 
 ```python
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from typing import Annotated
+from fastapi import Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 
 @router.post("/login")
 async def login(
     request: LoginRequest,
-    handler: Annotated[LoginHandlerContract, Depends(get_login_handler)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
 ):
+    logger = app_container.logger
+    handler = app_container.get_login_handler()
+
     logger.info("Login attempt", email=str(request.email))
 
     result = await handler.handle(LoginCommand(...))
@@ -395,30 +404,58 @@ class MyService:
         self._logger = logger
 ```
 
-### Step 2: Update Dependency Factory
+### Step 2: Update Factory Function
+
+Factory functions receive logger as a parameter:
 
 ```python
+from sqlalchemy.ext.asyncio import AsyncSession
 from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
 
-def get_my_service(
-    some_repo: Annotated[SomeRepositoryContract, Depends(get_some_repo)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],  # Add logger dependency
+def my_handler_factory(db: AsyncSession, logger: LoggerContract) -> MyHandlerContract:
+    """Factory for MyHandler with all dependencies"""
+    some_repo = _get_some_repository(db)
+    my_service = _get_my_service(some_repo, logger)  # Pass logger to service
+    return MyHandler(my_service, logger)  # Pass logger to handler
+
+def _get_my_service(
+    some_repo: SomeRepositoryContract,
+    logger: LoggerContract,
 ) -> MyServiceContract:
+    """Private helper to get service instance"""
     return MyService(some_repo, logger)
 ```
 
-### Step 3: Controllers Get Logger Directly
+### Step 3: Register in ApplicationContainer
 
-Controllers inject logger as a parameter (not passed through handlers):
+Add handler getter method to ApplicationContainer:
 
 ```python
+# app/shared/infrastructure/container/app_container.py
+class ApplicationContainer:
+    def get_my_handler(self):
+        """Get my handler with all dependencies"""
+        from app.context.my_context.infrastructure.dependencies import my_handler_factory
+        return my_handler_factory(self._db, self._logger)
+```
+
+### Step 4: Controllers Get Logger from Container
+
+Controllers access logger through the ApplicationContainer:
+
+```python
+from typing import Annotated
+from fastapi import Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
+
 @router.post("/endpoint")
 async def my_endpoint(
     request: MyRequest,
-    handler: Annotated[MyHandlerContract, Depends(get_my_handler)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],  # Inject logger
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
 ):
+    logger = app_container.logger
+    handler = app_container.get_my_handler()
+
     logger.info("Request received", some_field=request.some_field)
     result = await handler.handle(...)
     logger.info("Request completed", result_status=result.status)

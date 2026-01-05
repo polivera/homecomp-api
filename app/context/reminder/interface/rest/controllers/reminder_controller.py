@@ -9,13 +9,6 @@ from app.context.reminder.application.commands import (
     DeleteReminderCommand,
     UpdateReminderCommand,
 )
-from app.context.reminder.application.contracts import (
-    CreateReminderHandlerContract,
-    DeleteReminderHandlerContract,
-    FindReminderHandlerContract,
-    ListRemindersHandlerContract,
-    UpdateReminderHandlerContract,
-)
 from app.context.reminder.application.dto import (
     CreateReminderErrorCode,
     DeleteReminderErrorCode,
@@ -24,13 +17,6 @@ from app.context.reminder.application.dto import (
     UpdateReminderErrorCode,
 )
 from app.context.reminder.application.queries import FindReminderQuery, ListRemindersQuery
-from app.context.reminder.infrastructure.dependencies import (
-    get_create_reminder_handler,
-    get_delete_reminder_handler,
-    get_find_reminder_handler,
-    get_list_reminders_handler,
-    get_update_reminder_handler,
-)
 from app.context.reminder.interface.rest.schemas import (
     CreateReminderRequest,
     DeleteReminderResponse,
@@ -38,6 +24,7 @@ from app.context.reminder.interface.rest.schemas import (
     ReminderResponse,
     UpdateReminderRequest,
 )
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/reminders", tags=["reminders"])
@@ -46,10 +33,11 @@ router = APIRouter(prefix="/reminders", tags=["reminders"])
 @router.post("", status_code=201, response_model=ReminderResponse)
 async def create_reminder(
     request: CreateReminderRequest,
-    handler: Annotated[CreateReminderHandlerContract, Depends(get_create_reminder_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Create a new reminder"""
+    handler = app_container.get_create_reminder_handler()
 
     command = CreateReminderCommand(
         user_id=user_id,
@@ -90,11 +78,12 @@ async def create_reminder(
 
 @router.get("", response_model=ReminderListResponse)
 async def list_reminders(
-    handler: Annotated[ListRemindersHandlerContract, Depends(get_list_reminders_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
     active_only: bool = True,
 ):
     """List all reminders for the authenticated user"""
+    handler = app_container.get_list_reminders_handler()
 
     query = ListRemindersQuery(user_id=user_id, active_only=active_only)
 
@@ -129,10 +118,11 @@ async def list_reminders(
 @router.get("/{reminder_id}", response_model=ReminderResponse)
 async def get_reminder(
     reminder_id: int,
-    handler: Annotated[FindReminderHandlerContract, Depends(get_find_reminder_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Get a specific reminder by ID"""
+    handler = app_container.get_find_reminder_handler()
 
     query = FindReminderQuery(reminder_id=reminder_id, user_id=user_id)
 
@@ -165,10 +155,11 @@ async def get_reminder(
 async def update_reminder(
     reminder_id: int,
     request: UpdateReminderRequest,
-    handler: Annotated[UpdateReminderHandlerContract, Depends(get_update_reminder_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Update an existing reminder"""
+    handler = app_container.get_update_reminder_handler()
 
     command = UpdateReminderCommand(
         reminder_id=reminder_id,
@@ -213,10 +204,11 @@ async def update_reminder(
 @router.delete("/{reminder_id}", response_model=DeleteReminderResponse)
 async def delete_reminder(
     reminder_id: int,
-    handler: Annotated[DeleteReminderHandlerContract, Depends(get_delete_reminder_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
 ):
     """Delete a reminder"""
+    handler = app_container.get_delete_reminder_handler()
 
     command = DeleteReminderCommand(reminder_id=reminder_id, user_id=user_id)
 

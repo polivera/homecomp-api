@@ -3,22 +3,15 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.credit_card.application.commands import CreateCreditCardCommand
-from app.context.credit_card.application.contracts import (
-    CreateCreditCardHandlerContract,
-)
 from app.context.credit_card.application.dto import CreateCreditCardErrorCode
 from app.context.credit_card.domain.value_objects import CardLimit
-from app.context.credit_card.infrastructure.dependencies import (
-    get_create_credit_card_handler,
-)
 from app.context.credit_card.interface.schemas.create_credit_card_response import (
     CreateCreditCardResponse,
 )
 from app.context.credit_card.interface.schemas.create_credit_card_schema import (
     CreateCreditCardRequest,
 )
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/cards")
@@ -27,11 +20,13 @@ router = APIRouter(prefix="/cards")
 @router.post("", response_model=CreateCreditCardResponse, status_code=201)
 async def create_credit_card(
     request: CreateCreditCardRequest,
-    handler: Annotated[CreateCreditCardHandlerContract, Depends(get_create_credit_card_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Create a new credit card"""
+    logger = app_container.logger
+    handler = app_container.get_create_credit_card_handler()
+
     logger.info("Create credit card request", user_id=user_id, account_id=request.account_id, name=request.name)
 
     command = CreateCreditCardCommand(

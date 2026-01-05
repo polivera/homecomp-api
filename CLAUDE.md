@@ -80,7 +80,9 @@ app/context/{context_name}/
 │   ├── repositories/   # Data access implementations
 │   ├── models/        # SQLAlchemy ORM models
 │   ├── mappers/       # Domain DTO ↔ Database model mappers
-│   └── dependencies.py # Dependency injection setup
+│   └── dependencies/  # Dependency injection factory functions
+│       ├── dependencies.py
+│       └── __init__.py
 │
 └── interface/         # External interfaces
     └── rest/          # REST API layer
@@ -116,19 +118,65 @@ Located at `app/shared/`, contains cross-cutting concerns:
 - Cross-context communication patterns
 - Common anti-patterns to avoid
 
-### 1. Dependency Injection via FastAPI
+### 1. Dependency Injection via ApplicationContainer
 
-Dependencies are defined as factory functions in `infrastructure/dependencies.py`:
+Dependencies are managed through a centralized **ApplicationContainer** (`app/shared/infrastructure/container/app_container.py`) that provides all handlers with their dependencies already wired.
+
+**Infrastructure Layer** - Define factory functions in `infrastructure/dependencies/dependencies.py`:
 
 ```python
-# Pattern: Contract-based injection
-def get_service() -> ServiceContract:
-    return ConcreteService()
+# Factory pattern: Takes db and logger, returns fully configured handler
+def login_handler_factory(db: AsyncSession, logger: LoggerContract) -> LoginHandlerContract:
+    """Factory for LoginHandler with all dependencies"""
+    from app.context.auth.infrastructure.repositories import SessionRepository
+    from app.context.auth.domain.services import LoginService
+    from app.context.auth.application.handlers import LoginHandler
+    from app.context.user.infrastructure.dependencies import find_user_handler_factory
 
-def get_handler(
-    service: ServiceContract = Depends(get_service),
-) -> HandlerContract:
-    return ConcreteHandler(service)
+    # Wire up dependencies
+    session_repo = SessionRepository(db)
+    login_service = LoginService(session_repo, logger)
+    user_handler = find_user_handler_factory(db, logger)
+
+    return LoginHandler(user_handler, login_service, logger)
+```
+
+**ApplicationContainer** - Centralizes dependency management:
+
+```python
+# app/shared/infrastructure/container/app_container.py
+class ApplicationContainer:
+    def __init__(self, db: AsyncSession):
+        self._db = db
+        self._logger = get_logger()
+
+    @property
+    def logger(self) -> LoggerContract:
+        return self._logger
+
+    def get_login_handler(self):
+        """Get login handler with all dependencies"""
+        from app.context.auth.infrastructure.dependencies import login_handler_factory
+        return login_handler_factory(self._db, self._logger)
+```
+
+**Controllers** - Inject ApplicationContainer via FastAPI:
+
+```python
+from typing import Annotated
+from fastapi import APIRouter, Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
+
+@router.post("/login")
+async def login(
+    request: LoginRequest,
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
+):
+    logger = app_container.logger
+    handler = app_container.get_login_handler()
+
+    command = LoginCommand(...)
+    return await handler.handle(command)
 ```
 
 **Important**: Always program to contracts (interfaces), not implementations.
@@ -269,15 +317,21 @@ class UserAccountDTO:
 
 ```python
 # Controller - app/context/user_account/interface/rest/controllers/create_account_controller.py
+from typing import Annotated
 from fastapi import APIRouter, Depends
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 @router.post("/accounts", status_code=201)
 async def create_account(
     request: CreateAccountRequest,
-    handler: CreateAccountHandlerContract = Depends(get_create_account_handler),
-    user_id: int = Depends(get_current_user_id),  # ✅ Inject authenticated user ID
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
+    user_id: Annotated[int, Depends(get_current_user_id)],  # ✅ Inject authenticated user ID
 ):
+    # Get dependencies from container
+    logger = app_container.logger
+    handler = app_container.get_create_account_handler()
+
     # Pass primitive user_id to command
     command = CreateAccountCommand(
         user_id=user_id,        # ✅ Primitive in command
@@ -638,12 +692,16 @@ When implementing a new feature:
    - Database models (if needed)
    - Repositories
    - Mappers
-   - Dependencies
-5. **Add interface layer**:
+   - Factory functions in `dependencies/dependencies.py`
+   - Export factories in `dependencies/__init__.py`
+5. **Register in ApplicationContainer**:
+   - Add handler getter method(s) to `app/shared/infrastructure/container/app_container.py`
+   - Method should call the factory function with `self._db` and `self._logger`
+6. **Add interface layer**:
    - Pydantic schemas
-   - Controllers
+   - Controllers (using `ApplicationContainer` pattern)
    - Route registration in `app/main.py`
-6. **Create database migration**:
+7. **Create database migration**:
    - `just migration-generate "description"`
    - `just migrate`
 

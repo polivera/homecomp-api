@@ -3,12 +3,9 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 
 from app.context.household.application.commands import AcceptInviteCommand
-from app.context.household.application.contracts import AcceptInviteHandlerContract
 from app.context.household.application.dto import AcceptInviteErrorCode
-from app.context.household.infrastructure.dependencies import get_accept_invite_handler
 from app.context.household.interface.schemas import AcceptInviteResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -17,11 +14,12 @@ router = APIRouter()
 @router.post("/{household_id}/invites/accept", status_code=200)
 async def accept_invite(
     household_id: int,
-    handler: Annotated[AcceptInviteHandlerContract, Depends(get_accept_invite_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> AcceptInviteResponse:
     """Accept a household invitation"""
+    logger = app_container.logger
+    handler = app_container.get_accept_invite_handler()
 
     logger.info("Accept invite request", user_id=user_id, household_id=household_id)
 

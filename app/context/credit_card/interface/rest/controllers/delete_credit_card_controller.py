@@ -3,15 +3,8 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from app.context.credit_card.application.commands import DeleteCreditCardCommand
-from app.context.credit_card.application.contracts import (
-    DeleteCreditCardHandlerContract,
-)
 from app.context.credit_card.application.dto import DeleteCreditCardErrorCode
-from app.context.credit_card.infrastructure.dependencies import (
-    get_delete_credit_card_handler,
-)
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter(prefix="/cards")
@@ -20,11 +13,13 @@ router = APIRouter(prefix="/cards")
 @router.delete("/{credit_card_id}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_credit_card(
     credit_card_id: int,
-    handler: Annotated[DeleteCreditCardHandlerContract, Depends(get_delete_credit_card_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ):
     """Delete a credit card (soft delete)"""
+    logger = app_container.logger
+    handler = app_container.get_delete_credit_card_handler()
+
     logger.info("Delete credit card request", user_id=user_id, credit_card_id=credit_card_id)
 
     command = DeleteCreditCardCommand(

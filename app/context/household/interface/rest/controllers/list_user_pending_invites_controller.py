@@ -2,16 +2,9 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends
 
-from app.context.household.application.contracts import (
-    ListUserPendingInvitesHandlerContract,
-)
 from app.context.household.application.queries import ListUserPendingInvitesQuery
-from app.context.household.infrastructure.dependencies import (
-    get_list_user_pending_invites_handler,
-)
 from app.context.household.interface.schemas import HouseholdMemberResponse
-from app.shared.domain.contracts import LoggerContract
-from app.shared.infrastructure.dependencies import get_logger
+from app.shared.infrastructure.container import ApplicationContainer, get_fastapi_app_container
 from app.shared.infrastructure.middleware import get_current_user_id
 
 router = APIRouter()
@@ -19,11 +12,12 @@ router = APIRouter()
 
 @router.get("/invites/pending", status_code=200)
 async def list_user_pending_invites(
-    handler: Annotated[ListUserPendingInvitesHandlerContract, Depends(get_list_user_pending_invites_handler)],
+    app_container: Annotated[ApplicationContainer, Depends(get_fastapi_app_container)],
     user_id: Annotated[int, Depends(get_current_user_id)],
-    logger: Annotated[LoggerContract, Depends(get_logger)],
 ) -> list[HouseholdMemberResponse]:
     """List all pending invitations for the authenticated user"""
+    logger = app_container.logger
+    handler = app_container.get_list_user_pending_invites_handler()
 
     logger.info("List user pending invites request", user_id=user_id)
 

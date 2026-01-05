@@ -195,9 +195,12 @@ class HouseholdRepository(HouseholdRepositoryContract):
         )
 
         # Combine with UNION (automatically deduplicates)
-        combined_stmt = union(owner_stmt, member_stmt)
+        union_stmt = union(owner_stmt, member_stmt)
 
-        result = await self._db.execute(combined_stmt)
+        # Use from_statement to properly map union results to ORM entities
+        final_stmt = select(HouseholdModel).from_statement(union_stmt)
+
+        result = await self._db.execute(final_stmt)
         households = result.scalars().all()
 
         return [HouseholdMapper.to_dto_or_fail(h) for h in households]
