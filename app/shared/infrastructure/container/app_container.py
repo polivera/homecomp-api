@@ -238,3 +238,43 @@ class ApplicationContainer:
         from app.context.household.infrastructure.dependencies import list_user_pending_invites_handler_factory
 
         return list_user_pending_invites_handler_factory(self.db, self.logger)
+
+    # =========================================================================
+    # Reminder Context
+    # =========================================================================
+
+    def get_create_reminder_handler(self):
+        """Get create reminder handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_create_reminder_handler
+
+        return get_create_reminder_handler(self.db, self.logger)
+
+    def get_update_reminder_handler(self):
+        """Get update reminder handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_update_reminder_handler
+
+        return get_update_reminder_handler(self.db, self.logger)
+
+    def get_delete_reminder_handler(self):
+        """Get delete reminder handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_delete_reminder_handler
+
+        return get_delete_reminder_handler(self.db, self.logger)
+
+    def get_find_reminder_handler(self):
+        """Get find reminder handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_find_reminder_handler
+
+        return get_find_reminder_handler(self.db, self.logger)
+
+    def get_list_reminders_handler(self):
+        """Get list reminders handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_list_reminders_handler
+
+        return get_list_reminders_handler(self.db, self.logger)
+
+    def get_list_occurrences_handler(self):
+        """Get list occurrences handler with all dependencies"""
+        from app.context.reminder.infrastructure.dependencies import get_list_occurrences_handler
+
+        return get_list_occurrences_handler(self.db, self.logger)
