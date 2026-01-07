@@ -13,7 +13,7 @@ from app.context.household.application.contracts import (
     RemoveMemberHandlerContract,
     UpdateHouseholdHandlerContract,
 )
-from app.shared.domain.contracts import LoggerContract
+from app.shared.domain.contracts.logger import LoggerContract
 from app.shared.infrastructure.dependencies import get_logger
 
 

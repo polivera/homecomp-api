@@ -1,6 +1,6 @@
 from typing import Any
 
-from app.shared.domain.contracts.logger_contract import LoggerContract
+from app.shared.domain.contracts.logger import LoggerContract
 
 
 class NullLogger(LoggerContract):

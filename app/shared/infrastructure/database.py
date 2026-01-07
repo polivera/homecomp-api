@@ -65,3 +65,4 @@ from app.context.user.infrastructure.models.user_model import UserModel  # noqa:
 from app.context.user_account.infrastructure.models.user_account_model import (  # noqa: F401, E402
     UserAccountModel,
 )
+from app.context.messaging.infrastructure.models import MessageQueueModel, SagaStateModel  # noqa: F401, E402

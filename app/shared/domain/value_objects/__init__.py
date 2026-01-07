@@ -9,8 +9,10 @@ from .shared_email import SharedEmail
 from .shared_entry_type import SharedEntryType
 from .shared_month import SharedMonth
 from .shared_password import SharedPassword
+from .shared_payload import SharedPayload
 from .shared_user_id import SharedUserID
 from .shared_username import SharedUsername
+from .shared_uuid import SharedUUID
 from .shared_year import SharedYear
 
 __all__ = [
@@ -26,6 +28,8 @@ __all__ = [
     "SharedUsername",
     "SharedAppEnv",
     "SharedMonth",
+    "SharedPayload",
     "SharedYear",
     "SharedCategoryID",
+    "SharedUUID",
 ]

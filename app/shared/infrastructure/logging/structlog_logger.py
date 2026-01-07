@@ -2,7 +2,7 @@ from typing import Any
 
 import structlog
 
-from app.shared.domain.contracts.logger_contract import LoggerContract
+from app.shared.domain.contracts.logger import LoggerContract
 
 
 class StructlogLogger(LoggerContract):

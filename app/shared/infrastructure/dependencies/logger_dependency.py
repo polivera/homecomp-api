@@ -1,4 +1,4 @@
-from app.shared.domain.contracts.logger_contract import LoggerContract
+from app.shared.domain.contracts.logger import LoggerContract
 from app.shared.domain.value_objects import SharedAppEnv
 from app.shared.infrastructure.logging import NullLogger, StructlogLogger
 
