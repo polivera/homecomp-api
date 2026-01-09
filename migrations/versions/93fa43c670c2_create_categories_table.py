@@ -33,11 +33,6 @@ def upgrade() -> None:
         sa.Column("name", sa.String(100), nullable=False),
         sa.Column("color", sa.String(7), nullable=False),  # Hex color code: #RRGGBB
         sa.Column(
-            "household_id",
-            sa.Integer,
-            nullable=True,  # Optional - for shared household categories
-        ),
-        sa.Column(
             "created_at",
             sa.DateTime(timezone=True),
             nullable=False,
@@ -55,12 +50,6 @@ def upgrade() -> None:
             name="fk_categories_user",
             ondelete="CASCADE",
         ),
-        sa.ForeignKeyConstraint(
-            ["household_id"],
-            ["households.id"],
-            name="fk_categories_household",
-            ondelete="SET NULL",
-        ),
         # Unique constraint: user can't have duplicate category names
         sa.UniqueConstraint(
             "user_id",
@@ -72,12 +61,10 @@ def upgrade() -> None:
     # Create indexes for common queries
     op.create_index("ix_categories_user_id", "categories", ["user_id"])
     op.create_index("ix_categories_deleted_at", "categories", ["deleted_at"])
-    op.create_index("ix_categories_household_id", "categories", ["household_id"])
 
 
 def downgrade() -> None:
     """Downgrade schema."""
-    op.drop_index("ix_categories_household_id", table_name="categories")
     op.drop_index("ix_categories_deleted_at", table_name="categories")
     op.drop_index("ix_categories_user_id", table_name="categories")
     op.drop_table("categories")

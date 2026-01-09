@@ -134,6 +134,50 @@ class ApplicationContainer:
         return find_credit_cards_by_user_handler_factory(self.db, self.logger)
 
     # =========================================================================
+    # Category Context
+    # =========================================================================
+
+    def get_create_category_handler(self):
+        """Get create category handler with all dependencies"""
+        from app.context.category.infrastructure.dependencies import (
+            create_category_handler_factory,
+        )
+
+        return create_category_handler_factory(self.db, self.logger)
+
+    def get_update_category_handler(self):
+        """Get update category handler with all dependencies"""
+        from app.context.category.infrastructure.dependencies import (
+            update_category_handler_factory,
+        )
+
+        return update_category_handler_factory(self.db, self.logger)
+
+    def get_delete_category_handler(self):
+        """Get delete category handler with all dependencies"""
+        from app.context.category.infrastructure.dependencies import (
+            delete_category_handler_factory,
+        )
+
+        return delete_category_handler_factory(self.db, self.logger)
+
+    def get_find_category_by_id_handler(self):
+        """Get find category by id handler with all dependencies"""
+        from app.context.category.infrastructure.dependencies import (
+            find_category_by_id_handler_factory,
+        )
+
+        return find_category_by_id_handler_factory(self.db, self.logger)
+
+    def get_find_categories_by_user_handler(self):
+        """Get find categories by user handler with all dependencies"""
+        from app.context.category.infrastructure.dependencies import (
+            find_categories_by_user_handler_factory,
+        )
+
+        return find_categories_by_user_handler_factory(self.db, self.logger)
+
+    # =========================================================================
     # Entry Context
     # =========================================================================
 

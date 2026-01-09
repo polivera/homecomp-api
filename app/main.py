@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 
 from app.context.auth.interface.rest import auth_routes
+from app.context.category.interface.rest.routes import category_routes
 from app.context.credit_card.interface.rest import credit_card_routes
 from app.context.entry.interface.rest import entry_routes
 from app.context.household.interface.rest import household_routes
@@ -24,6 +25,7 @@ app = FastAPI(
 app.include_router(auth_routes)
 app.include_router(user_account_routes)
 app.include_router(credit_card_routes)
+app.include_router(category_routes)
 app.include_router(entry_routes)
 app.include_router(household_routes)
 app.include_router(reminder_context_router)

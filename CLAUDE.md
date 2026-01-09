@@ -95,6 +95,18 @@ app/context/{context_name}/
 
 1. **Auth Context** (`app/context/auth/`) - Authentication and authorization
 2. **User Context** (`app/context/user/`) - User management
+3. **Category Context** (`app/context/category/`) - Global category management
+
+### Domain Design Rules
+
+**CRITICAL**: These rules must be followed to maintain proper domain separation:
+
+1. **Categories are Global and Independent**
+   - Categories belong to users but are **NOT** tied to households
+   - A category can be used across multiple households
+   - **Never** add a `household_id` foreign key to the categories table
+   - Categories are user-scoped, not household-scoped
+   - This ensures flexibility: users can reuse categories across different households
 
 ### Shared Kernel
 

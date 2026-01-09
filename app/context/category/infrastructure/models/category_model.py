@@ -7,7 +7,7 @@ from app.shared.infrastructure.models import BaseDBModel
 
 
 class CategoryModel(BaseDBModel):
-    """Minimal category model for validation queries"""
+    """Category model - categories are global and independent (not tied to households)"""
 
     __tablename__ = "categories"
 
@@ -19,12 +19,6 @@ class CategoryModel(BaseDBModel):
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     color: Mapped[str] = mapped_column(String(7), nullable=False)
-    household_id: Mapped[int | None] = mapped_column(
-        Integer,
-        ForeignKey("households.id", ondelete="SET NULL"),
-        nullable=True,
-        default=None,
-    )
     deleted_at: Mapped[datetime | None] = mapped_column(
         DateTime(timezone=True),
         nullable=True,

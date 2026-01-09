@@ -1,9 +1,10 @@
+from abc import ABC
 from dataclasses import dataclass, field
 from typing import Self
 
 
 @dataclass(frozen=True)
-class SharedUserID:
+class SharedUserID(ABC):
     value: int
     _validated: bool = field(default=False, repr=False, compare=False)
 
